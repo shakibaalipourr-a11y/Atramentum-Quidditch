@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Atramentum Quidditch | Stadium</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --gold: #d6b56b;
+            --gold-light: #f3d58c;
+            --dark: #050505;
+            --panel: rgba(18, 18, 18, 0.88);
+            --border: rgba(214, 181, 107, 0.25);
+            --text: #f5f5f5;
+            --muted: #999;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 50% -10%, #292929 0%, #101010 35%, #050505 75%);
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        header {
+            position: relative;
+            padding: 75px 20px 55px;
+            text-align: center;
+            background:
+                linear-gradient(180deg, rgba(35,35,35,.95), rgba(5,5,5,.2));
+            border-bottom: 1px solid var(--border);
+        }
+
+        .crown {
+            font-size: 34px;
+            margin-bottom: 18px;
+        }
+
+        header h1 {
+            font-size: clamp(32px, 6vw, 58px);
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 25px rgba(214,181,107,.2);
+        }
+
+        header p {
+            margin-top: 18px;
+            color: var(--gold);
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            width: min(1150px, 92%);
+            margin: 55px auto;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            box-shadow:
+                0 25px 70px rgba(0,0,0,.65),
+                inset 0 0 35px rgba(255,255,255,.015);
+            backdrop-filter: blur(12px);
+        }
+
+        .stadium {
+            padding: 35px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .section-title h2 {
+            font-size: 30px;
+        }
+
+        .section-title p {
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        .field {
+            position: relative;
+            min-height: 310px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 24px;
+            border: 1px solid #444;
+            background:
+                radial-gradient(circle at center, #242424 0%, #111 55%, #070707 100%);
+            box-shadow: inset 0 0 80px rgba(0,0,0,.8);
+        }
+
+        .field::before {
+            content: "";
+            position: absolute;
+            width: 75%;
+            height: 55%;
+            border: 2px solid rgba(214,181,107,.25);
+            border-radius: 50%;
+        }
+
+        .field::after {
+            content: "";
+            position: absolute;
+            width: 90%;
+            height: 2px;
+            background: rgba(214,181,107,.2);
+        }
+      .broom {
+            position: relative;
+            z-index: 2;
+            font-size: clamp(50px, 8vw, 90px);
+            letter-spacing: 18px;
+            filter: drop-shadow(0 0 15px rgba(214,181,107,.25));
+        }
+        .match-status {
+            margin: 30px auto;
+            max-width: 700px;
+            padding: 20px;
+            text-align: center;
+            border-radius: 18px;
+            border: 1px solid rgba(70,170,100,.25);
+            background: rgba(25,70,40,.15);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-left: 8px;
+            border-radius: 50%;
+            background: #6edb8c;
+            box-shadow: 0 0 12px #6edb8c;
+        }
+
+        .scoreboard {
+            margin-top: 35px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .score-card {
+            padding: 24px 15px;
+            text-align: center;
+            border-radius: 20px;
+            background: #0c0c0c;
+            border: 1px solid #2d2d2d;
+            transition: .3s;
+        }
+
+        .score-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+        }
+
+        .team-symbol {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .score-card h3 {
+            font-size: 19px;
+        }
+
+        .score {
+            margin-top: 12px;
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--gold-light);
+        }
+
+        .teams {
+            margin-top: 70px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .team {
+            padding: 30px;
+            border-radius: 22px;
+            background: linear-gradient(145deg, #151515, #0b0b0b);
+            border: 1px solid #303030;
+            transition: .3s;
+        }
+
+        .team:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold);
+            box-shadow: 0 15px 35px rgba(0,0,0,.4);
+        }
+
+        .team-top {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .team-icon {
+            font-size: 45px;
+        }
+
+        .team h3 {
+            font-size: 25px;
+        }
+
+        .team-name {
+            color: var(--gold);
+            margin-top: 5px;
+        }
+
+        .team-info {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #292929;
+            color: var(--muted);
+            line-height: 1.9;
+        }
+
+        .ranking {
+            margin-top: 70px;
+        }
+
+        .ranking-table {
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid #292929;
+        }
+
+        .ranking-row {
+            display: grid;
+            grid-template-columns: 70px 1fr 100px 100px;
+            align-items: center;
+            padding: 18px 20px;
+            border-bottom: 1px solid #222;
+            background: #101010;
+        }
+
+        .ranking-row:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-header {
+            background: #191919;
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .position {
+            font-weight: bold;
+            color: var(--gold-light);
+        }
+
+        .players {
+            margin-top: 70px;
+        }
+
+        .player-box {
+            padding: 30px;
+            text-align: center;
+            border-radius: 22px;
+            border: 1px solid #2d2d2d;
+            background: #101010;
+        }
+
+        .player-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .player-box p {
+            margin-top: 10px;
+            color: var(--muted);
+        }
+      .back {
+            display: block;
+            width: fit-content;
+            margin: 50px auto 10px;
+            padding: 16px 38px;
+            color: #050505;
+            background: linear-gradient(135deg, #f3d58c, #b89043);
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: bold;
+            transition: .3s;
+        }
+        .back:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(214,181,107,.2);
+        }
+
+        footer {
+            margin-top: 90px;
+            padding: 35px 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #1c1c1c;
+        }
+
+        @media (max-width: 800px) {
+
+            .stadium {
+                padding: 20px;
+            }
+
+            .scoreboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ranking-row {
+                grid-template-columns: 50px 1fr 70px 70px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .scoreboard {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .field {
+                min-height: 230px;
+            }
+
+            .broom {
+                letter-spacing: 5px;
+            }
+
+            .ranking-row {
+                grid-template-columns: 35px 1fr 55px 55px;
+                padding: 15px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="crown">👑</div>
+
+        <h1>🏆 میدان کوییدیچ آترامنتوم</h1>
+
+        <p>
+            میدان رسمی رقابت چهار گروه آترامنتوم
+        </p>
+    </header>
+
+
+    <main class="container">
+
+        <section class="panel stadium">
+
+            <div class="section-title">
+                <h2>⚔️ میدان بزرگ آترامنتوم</h2>
+                <p>جایی که چهار گروه برای افتخار آترامنتوم رقابت می‌کنند.</p>
+            </div>
+
+            <div class="field">
+
+                <div class="broom">
+                    🧹 ⚡️ 🏆 ⚡️ 🧹
+                </div>
+
+            </div>
+
+            <div class="match-status">
+                <span class="status-dot"></span>
+                میدان آماده است — تیم‌ها آماده ورود به مسابقه شوند.
+            </div>
+
+
+            <div class="scoreboard">
+
+                <div class="score-card">
+                    <div class="team-symbol">🦁</div>
+                    <h3>Gryffindor</h3>
+                    <div class="score">0</div>
+                </div>
+
+                <div class="score-card">
+                    <div class="team-symbol">🐍</div>
+                    <h3>Slytherin</h3>
+                    <div class="score">0</div>
+                </div>
+
+                <div class="score-card">
+                    <div class="team-symbol">🦡</div>
+                    <h3>Hufflepuff</h3>
+                    <div class="score">0</div>
+                </div>
+
+                <div class="score-card">
+                    <div class="team-symbol">🦅</div>
+                    <h3>Ravenclaw</h3>
+                    <div class="score">0</div>
+                </div>
+
+            </div>
+
+
+            <section class="teams">
+
+                <div class="section-title">
+                    <h2>🏰 چهار گروه آترامنتوم</h2>
+                    <p>هر گروه، یک نشان و یک تاریخ دارد.</p>
+                </div>
+
+                <div class="team-grid">
+
+                    <div class="team">
+                        <div class="team-top">
+                            <div class="team-icon">🦁</div>
+
+                            <div>
+                                <h3>Gryffindor</h3>
+                                <div class="team-name">گریفیندور</div>
+                            </div>
+                        </div>
+
+                        <div class="team-info">
+                            وضعیت: آماده رقابت<br>
+                            امتیاز: 0
+                        </div>
+                    </div>
+                    <div class="team">
+                        <div class="team-top">
+                            <div class="team-icon">🐍</div>
+
+                            <div>
+                                <h3>Slytherin</h3>
+                                <div class="team-name">اسلیترین</div>
+                            </div>
+                        </div>
+                        <div class="team-info">
+                            وضعیت: آماده رقابت<br>
+                            امتیاز: 0
+                        </div>
+                    </div>
+
+
+                    <div class="team">
+                        <div class="team-top">
+                            <div class="team-icon">🦡</div>
+
+                            <div>
+                                <h3>Hufflepuff</h3>
+                                <div class="team-name">هافلپاف</div>
+                            </div>
+                        </div>
+
+                        <div class="team-info">
+                            وضعیت: آماده رقابت<br>
+                            امتیاز: 0
+                        </div>
+                    </div>
+
+
+                    <div class="team">
+                        <div class="team-top">
+                            <div class="team-icon">🦅</div>
+
+                            <div>
+                                <h3>Ravenclaw</h3>
+                                <div class="team-name">ریونکلا</div>
+                            </div>
+                        </div>
+
+                        <div class="team-info">
+                            وضعیت: آماده رقابت<br>
+                            امتیاز: 0
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="ranking">
+
+                <div class="section-title">
+                    <h2>🏆 جدول رده‌بندی</h2>
+                    <p>امتیازات رسمی گروه‌ها</p>
+                </div>
+
+                <div class="ranking-table">
+
+                    <div class="ranking-row ranking-header">
+                        <div>رتبه</div>
+                        <div>گروه</div>
+                        <div>امتیاز</div>
+                        <div>بازی</div>
+                    </div>
+
+                    <div class="ranking-row">
+                        <div class="position">1</div>
+                        <div>🦁 Gryffindor</div>
+                        <div>0</div>
+                        <div>0</div>
+                    </div>
+
+                    <div class="ranking-row">
+                        <div class="position">2</div>
+                        <div>🦡 Hufflepuff</div>
+                        <div>0</div>
+                        <div>0</div>
+                    </div>
+
+                    <div class="ranking-row">
+                        <div class="position">3</div>
+                        <div>🐍 Slytherin</div>
+                        <div>0</div>
+                        <div>0</div>
+                    </div>
+
+                    <div class="ranking-row">
+                        <div class="position">4</div>
+                        <div>🦅 Ravenclaw</div>
+                        <div>0</div>
+                        <div>0</div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section class="players">
+
+                <div class="section-title">
+                    <h2>🧙 بازیکنان</h2>
+                    <p>قهرمانان میدان در این بخش معرفی خواهند شد.</p>
+                </div>
+
+                <div class="player-box">
+
+                    <div class="player-icon">⚡️</div>
+
+                    <h3>تالار بازیکنان آترامنتوم</h3>
+
+                    <p>
+                        اطلاعات بازیکنان، پست‌ها، آمار و رکوردهای مسابقات
+                        در ساختار رسمی کوییدیچ ثبت خواهد شد.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <a href="index.html" class="back">
+                ↩️ بازگشت به صفحه اصلی
+            </a>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        Atramentum Quidditch © 2026
+    </footer>
+    <script>
+    const teams = document.querySelectorAll(".team");
+
+    teams.forEach(team => {
+
+        team.addEventListener("click", function () {
+
+            teams.forEach(item => {
+                item.classList.remove("selected");
+            });
+
+            this.classList.add("selected");
+
+            const teamName = this.querySelector("h3").textContent;
+
+            alert("🏆 " + teamName + " انتخاب شد!");
+        });
+
+    });
+</script>
+
+</body>
+
+<!-- منوی اصلی -->
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+<div class="side-menu" id="sideMenu">
+    <div class="menu-header">
+        <span>⚡️</span>
+        <h2>ATRAMENTUM</h2>
+        <button class="close-btn" onclick="toggleMenu()">×</button>
+    </div>
+
+    <div class="menu-items">
+
+        <a href="index.html">
+            <span>🏠</span>
+            <span>خانه</span>
+        </a>
+
+        <a href="stadium.html">
+            <span>🏟</span>
+            <span>میدان کوییدیچ</span>
+        </a>
+
+        <a href="teams.html">
+            <span>🛡</span>
+            <span>تیم‌ها</span>
+        </a>
+
+        <a href="profile.html">
+            <span>👤</span>
+            <span>پروفایل</span>
+        </a>
+
+        <a href="leaderboard.html">
+            <span>🏆</span>
+            <span>رده‌بندی</span>
+        </a>
+
+        <a href="matches.html">
+            <span>⚔️</span>
+            <span>مسابقات</span>
+        </a>
+
+        <a href="rules.html">
+            <span>📜</span>
+            <span>قوانین</span>
+        </a>
+
+        <a href="about.html">
+            <span>✨</span>
+            <span>درباره آترامنتوم</span>
+        </a>
+
+    </div>
+</div>
+
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+</body>
+
+<style>
+/* منوی سه خط */
+.menu-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #555;
+    border-radius: 12px;
+    background: #111;
+    color: white;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.side-menu {
+    position: fixed;
+    top: 0;
+    right: -330px;
+    width: 300px;
+    height: 100vh;
+    z-index: 9998;
+    background: #0b0b0b;
+    border-left: 1px solid #444;
+    transition: right 0.3s ease;
+    padding: 25px;
+    box-sizing: border-box;
+}
+
+.side-menu.open {
+    right: 0;
+}
+.menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.menu-items a {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    padding: 17px 16px;
+
+    color: #eeeeee;
+    text-decoration: none;
+
+    font-size: 19px;
+    font-weight: 600;
+
+    border-radius: 14px;
+    background: rgba(255,255,255,0.03);
+
+    transition: all 0.25s ease;
+}
+
+.menu-items a:hover {
+    background: rgba(255,255,255,0.09);
+    transform: translateX(-6px);
+}
+
+.menu-items a span:first-child {
+    font-size: 25px;
+    width: 32px;
+    text-align: center;
+}
+</style>
+
+<script>
+function toggleMenu() {
+    const menu = document.getElementById("sideMenu");
+    menu.classList.toggle("open");
+}
+</script>
+
+</html>
