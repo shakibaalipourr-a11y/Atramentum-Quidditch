@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>قوانین کوییدیچ | Atramentum</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background:
+                radial-gradient(circle at top, #202020 0%, #080808 45%, #030303 100%);
+            color: #f5f5f5;
+            min-height: 100vh;
+            line-height: 1.9;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        header {
+            padding: 70px 20px 50px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(35,35,35,0.9),
+                    rgba(5,5,5,0.2)
+                );
+        }
+
+        .magic-symbol {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        header h1 {
+            font-size: 42px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #aaa;
+            font-size: 18px;
+        }
+
+        /* =========================
+           MENU BUTTON
+        ========================= */
+
+        .menu-btn {
+            position: fixed;
+            top: 22px;
+            right: 22px;
+            z-index: 1001;
+
+            width: 54px;
+            height: 54px;
+
+            border: 1px solid #555;
+            border-radius: 14px;
+
+            background: rgba(12,12,12,0.92);
+            color: white;
+
+            font-size: 28px;
+            cursor: pointer;
+
+            box-shadow: 0 0 25px rgba(255,255,255,0.08);
+
+            transition: 0.25s;
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.05);
+            background: #181818;
+        }
+
+        /* =========================
+           SIDE MENU
+        ========================= */
+
+        .side-menu {
+            position: fixed;
+
+            top: 0;
+            right: -350px;
+
+            width: 330px;
+            height: 100vh;
+
+            z-index: 1000;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #111,
+                    #070707
+                );
+
+            border-left: 1px solid #444;
+
+            box-shadow:
+                -15px 0 50px rgba(0,0,0,0.7);
+
+            transition: right 0.35s ease;
+
+            padding: 25px;
+
+            overflow-y: auto;
+        }
+
+        .side-menu.open {
+            right: 0;
+        }
+
+        .menu-header {
+            display: flex;
+            align-items: center;
+
+            padding-bottom: 20px;
+
+            border-bottom: 1px solid #333;
+        }
+
+        .menu-header span {
+            font-size: 30px;
+            margin-left: 10px;
+        }
+
+        .menu-header h2 {
+            font-size: 19px;
+            letter-spacing: 2px;
+        }
+
+        .close-btn {
+            margin-right: auto;
+
+            background: none;
+            border: none;
+
+            color: #aaa;
+
+            font-size: 32px;
+
+            cursor: pointer;
+        }
+
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+
+            gap: 10px;
+
+            margin-top: 30px;
+        }
+
+        .menu-items a {
+            display: flex;
+            align-items: center;
+
+            gap: 18px;
+
+            padding: 17px 16px;
+
+            color: #eee;
+
+            text-decoration: none;
+
+            font-size: 19px;
+            font-weight: 600;
+
+            border-radius: 14px;
+
+            background: rgba(255,255,255,0.04);
+
+            transition: 0.25s;
+        }
+
+        .menu-items a:hover {
+            background: rgba(255,255,255,0.1);
+
+            transform: translateX(-6px);
+        }
+
+        .menu-items a span:first-child {
+            font-size: 26px;
+          width: 34px;
+            text-align: center;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        main {
+            width: min(1100px, 92%);
+            margin: 60px auto;
+        }
+
+        .intro {
+            text-align: center;
+
+            margin-bottom: 50px;
+
+            padding: 30px;
+
+            border: 1px solid #292929;
+            border-radius: 22px;
+
+            background: rgba(255,255,255,0.025);
+        }
+
+        .intro h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .intro p {
+            color: #aaa;
+            font-size: 17px;
+        }
+
+        /* =========================
+           RULE CARDS
+        ========================= */
+
+        .rules-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 22px;
+        }
+
+        .rule-card {
+            padding: 28px;
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.055),
+                    rgba(255,255,255,0.015)
+                );
+
+            border: 1px solid #303030;
+
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.25);
+
+            transition: 0.3s;
+        }
+
+        .rule-card:hover {
+            transform: translateY(-5px);
+
+            border-color: #666;
+
+            box-shadow:
+                0 15px 40px rgba(0,0,0,0.45);
+        }
+
+        .rule-number {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 50%;
+
+            background: #171717;
+
+            border: 1px solid #555;
+
+            color: #ddd;
+
+            font-weight: bold;
+
+            margin-bottom: 15px;
+        }
+
+        .rule-card h3 {
+            font-size: 22px;
+
+            margin-bottom: 12px;
+        }
+
+        .rule-card p {
+            color: #bcbcbc;
+
+            font-size: 16px;
+        }
+
+        .rule-card ul {
+            margin-top: 12px;
+            padding-right: 22px;
+
+            color: #bbb;
+        }
+
+        .rule-card li {
+            margin-bottom: 8px;
+        }
+
+        /* =========================
+           POSITIONS
+        ========================= */
+
+        .positions {
+            margin-top: 60px;
+        }
+
+        .section-title {
+            text-align: center;
+
+            font-size: 30px;
+
+            margin-bottom: 30px;
+        }
+
+        .position-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 20px;
+        }
+
+        .position {
+            padding: 25px;
+
+            border-radius: 18px;
+
+            border: 1px solid #303030;
+
+            background: #101010;
+        }
+
+        .position h3 {
+            font-size: 21px;
+
+            margin-bottom: 8px;
+        }
+
+        .position p {
+            color: #aaa;
+        }
+
+        /* =========================
+           SCORING
+        ========================= */
+
+        .scoring {
+            margin-top: 60px;
+
+            padding: 35px;
+
+            border-radius: 22px;
+
+            background: #0d0d0d;
+
+            border: 1px solid #333;
+        }
+
+        .score-row {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            padding: 18px 0;
+
+            border-bottom: 1px solid #292929;
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+        }
+
+        .score-value {
+            font-size: 24px;
+
+            font-weight: bold;
+        }
+
+        /* =========================
+           FOULS
+        ========================= */
+
+        .fouls {
+            margin-top: 60px;
+        }
+
+        .foul-list {
+            display: grid;
+
+            gap: 14px;
+        }
+
+        .foul {
+            padding: 20px;
+          border-radius: 15px;
+            background: rgba(255,255,255,0.035);
+
+            border-right: 3px solid #666;
+        }
+
+        .foul strong {
+            display: block;
+
+            font-size: 18px;
+
+            margin-bottom: 5px;
+        }
+
+        .foul span {
+            color: #aaa;
+        }
+
+        /* =========================
+           ATRAMENTUM RULES
+        ========================= */
+
+        .atramentum {
+            margin-top: 60px;
+
+            padding: 40px;
+
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #151515,
+                    #090909
+                );
+
+            border: 1px solid #444;
+
+            text-align: center;
+        }
+
+        .atramentum h2 {
+            font-size: 30px;
+
+            margin-bottom: 15px;
+        }
+
+        .atramentum p {
+            color: #aaa;
+
+            font-size: 17px;
+
+            max-width: 800px;
+
+            margin: auto;
+        }
+
+        /* =========================
+           BACK BUTTON
+        ========================= */
+
+        .back {
+            display: block;
+
+            width: fit-content;
+
+            margin: 55px auto 20px;
+
+            padding: 14px 30px;
+
+            border-radius: 13px;
+
+            background: #eee;
+
+            color: #080808;
+
+            text-decoration: none;
+
+            font-weight: bold;
+
+            transition: 0.25s;
+        }
+
+        .back:hover {
+            transform: translateY(-3px);
+
+            background: white;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+
+            padding: 35px 20px;
+
+            margin-top: 80px;
+
+            border-top: 1px solid #222;
+
+            color: #666;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 750px) {
+
+            header h1 {
+                font-size: 30px;
+            }
+
+            .rules-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .position-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .side-menu {
+                width: 300px;
+            }
+
+            .score-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         MENU
+    ========================= -->
+
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+    <div class="side-menu" id="sideMenu">
+
+        <div class="menu-header">
+
+            <span>⚡️</span>
+
+            <h2>ATRAMENTUM</h2>
+
+            <button
+                class="close-btn"
+                onclick="toggleMenu()">
+                ×
+            </button>
+
+        </div>
+
+        <div class="menu-items">
+
+            <a href="index.html">
+                <span>🏠</span>
+                <span>خانه</span>
+            </a>
+
+            <a href="stadium.html">
+                <span>🏟</span>
+                <span>میدان کوییدیچ</span>
+            </a>
+
+            <a href="teams.html">
+                <span>🛡</span>
+                <span>تیم‌ها</span>
+            </a>
+
+            <a href="profile.html">
+                <span>👤</span>
+                <span>پروفایل</span>
+            </a>
+
+            <a href="leaderboard.html">
+                <span>🏆</span>
+                <span>رده‌بندی</span>
+            </a>
+
+            <a href="matches.html">
+                <span>⚔️</span>
+                <span>مسابقات</span>
+            </a>
+
+            <a href="rules.html">
+                <span>📜</span>
+                <span>قوانین</span>
+            </a>
+
+            <a href="about.html">
+                <span>✨</span>
+                <span>درباره آترامنتوم</span>
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+  <header>
+        <div class="magic-symbol">
+            📜
+        </div>
+
+        <h1>
+            قوانین کوییدیچ آترامنتوم
+        </h1>
+
+        <p>
+            منشور رسمی مسابقات و میدان کوییدیچ
+        </p>
+
+    </header>
+
+
+    <main>
+
+        <!-- INTRO -->
+
+        <section class="intro">
+
+            <h2>
+                ⚡️ پیش از ورود به میدان
+            </h2>
+
+            <p>
+                تمام بازیکنان پیش از شرکت در مسابقه موظف‌اند
+                قوانین بازی، نقش خود و مقررات میدان را مطالعه کنند.
+            </p>
+
+        </section>
+
+
+        <!-- BASIC RULES -->
+
+        <section>
+
+            <h2 class="section-title">
+                🏆 قوانین پایه
+            </h2>
+
+            <div class="rules-grid">
+
+                <article class="rule-card">
+
+                    <div class="rule-number">۱</div>
+
+                    <h3>
+                        هدف بازی
+                    </h3>
+
+                    <p>
+                        هدف هر تیم کسب امتیاز از طریق عملکرد بازیکنان
+                        و رسیدن به نتیجه بهتر در پایان مسابقه است.
+                    </p>
+
+                </article>
+
+
+                <article class="rule-card">
+
+                    <div class="rule-number">۲</div>
+
+                    <h3>
+                        تشکیل تیم
+                    </h3>
+
+                    <p>
+                        هر بازیکن باید پیش از حضور در مسابقه
+                        یک تیم را انتخاب و عضویت خود را ثبت کند.
+                    </p>
+
+                </article>
+
+
+                <article class="rule-card">
+
+                    <div class="rule-number">۳</div>
+
+                    <h3>
+                        انتخاب تیم
+                    </h3>
+
+                    <p>
+                        انتخاب تیم باعث افزایش تعداد اعضای آن تیم می‌شود،
+                        اما به‌تنهایی هیچ امتیازی به جدول مسابقات اضافه نمی‌کند.
+                    </p>
+
+                </article>
+
+
+                <article class="rule-card">
+
+                    <div class="rule-number">۴</div>
+
+                    <h3>
+                        نتیجه مسابقه
+                    </h3>
+
+                    <p>
+                        امتیازات جدول رده‌بندی تنها بر اساس نتایج مسابقات
+                        ثبت و تغییر داده می‌شوند.
+                    </p>
+
+                </article>
+
+
+                <article class="rule-card">
+
+                    <div class="rule-number">۵</div>
+
+                    <h3>
+                        رفتار بازیکنان
+                    </h3>
+
+                    <p>
+                        رعایت احترام، قوانین میدان و دستور داور
+                        برای تمام بازیکنان الزامی است.
+                    </p>
+
+                </article>
+
+
+                <article class="rule-card">
+
+                    <div class="rule-number">۶</div>
+
+                    <h3>
+                        تصمیم داور
+                    </h3>
+
+                    <p>
+                        در سیستم مسابقات آترامنتوم، تصمیم داور درباره
+                        اتفاقات داخل مسابقه مبنای ثبت نتیجه خواهد بود.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- POSITIONS -->
+
+        <section class="positions">
+
+            <h2 class="section-title">
+                🧹 پست‌های بازیکنان
+            </h2>
+
+            <div class="position-grid">
+
+                <article class="position">
+
+                    <h3>
+                        ⚡️ جستجوگر — Seeker
+                    </h3>
+
+                    <p>
+                        بازیکنی که مسئول پیدا کردن و گرفتن گوی زرین
+                        یا هدف ویژه مسابقه است.
+                    </p>
+
+                </article>
+
+
+                <article class="position">
+
+                    <h3>
+                        🏐 تعقیب‌کننده — Chaser
+                    </h3>
+
+                    <p>
+                        بازیکنی که وظیفه حمل و پرتاب کوآفل
+                        و تلاش برای کسب امتیاز را بر عهده دارد.
+                    </p>
+
+                </article>
+                <article class="position">
+                    <h3>
+                        🛡 مدافع — Keeper
+                    </h3>
+
+                    <p>
+                        مسئول محافظت از حلقه‌های دروازه تیم
+                        و جلوگیری از گل خوردن است.
+                    </p>
+
+                </article>
+
+
+                <article class="position">
+
+                    <h3>
+                        💥 زننده — Beater
+                    </h3>
+
+                    <p>
+                        مسئول مقابله با بلوجرها و کمک به حفظ امنیت
+                        و موقعیت بازیکنان تیم است.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- SCORING -->
+
+        <section class="scoring">
+
+            <h2 class="section-title">
+                🎯 سیستم امتیازدهی
+            </h2>
+
+            <div class="score-row">
+
+                <span>
+                    گل با کوآفل
+                </span>
+
+                <span class="score-value">
+                    ۱۰ امتیاز
+                </span>
+
+            </div>
+
+
+            <div class="score-row">
+
+                <span>
+                    گرفتن اسنیچ طلایی
+                </span>
+
+                <span class="score-value">
+                    ۱۵۰ امتیاز
+                </span>
+
+            </div>
+
+
+            <div class="score-row">
+
+                <span>
+                    نتیجه نهایی مسابقه
+                </span>
+
+                <span class="score-value">
+                    بر اساس مجموع امتیازات
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOULS -->
+
+        <section class="fouls">
+
+            <h2 class="section-title">
+                ⚠️ خطاها و تخلفات
+            </h2>
+
+            <div class="foul-list">
+
+                <div class="foul">
+
+                    <strong>
+                        تخلف از قوانین میدان
+                    </strong>
+
+                    <span>
+                        می‌تواند منجر به اخطار یا جریمه شود.
+                    </span>
+
+                </div>
+
+
+                <div class="foul">
+
+                    <strong>
+                        دخالت غیرمجاز
+                    </strong>
+
+                    <span>
+                        هرگونه دخالت خارج از نقش تعیین‌شده بازیکن
+                        می‌تواند به عنوان تخلف ثبت شود.
+                    </span>
+
+                </div>
+
+
+                <div class="foul">
+
+                    <strong>
+                        بی‌احترامی به داور یا بازیکنان
+                    </strong>
+
+                    <span>
+                        رفتار غیرورزشی می‌تواند باعث اخطار یا
+                        اقدامات انضباطی شود.
+                    </span>
+
+                </div>
+
+
+                <div class="foul">
+
+                    <strong>
+                        تقلب
+                    </strong>
+
+                    <span>
+                        استفاده از روش‌های غیرمجاز برای تغییر نتیجه
+                        مسابقه ممنوع است.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ATRAMENTUM -->
+
+        <section class="atramentum">
+
+            <h2>
+                🏰 قوانین اختصاصی آترامنتوم
+            </h2>
+
+            <p>
+                مسابقات آترامنتوم علاوه بر قوانین پایه کوییدیچ،
+                دارای مقررات اختصاصی مربوط به ثبت بازیکنان،
+                انتخاب تیم، ثبت نتایج و سیستم رده‌بندی است.
+                جزئیات این سیستم با توسعه بخش مسابقات سایت
+                به‌صورت رسمی در همین منشور به‌روزرسانی خواهد شد.
+            </p>
+
+        </section>
+
+
+        <!-- BACK -->
+
+        <a href="index.html" class="back">
+            ↩️ بازگشت به خانه
+        </a>
+
+    </main>
+
+
+    <footer>
+
+        Atramentum Quidditch © 2026
+
+        <br>
+
+        📜 قوانین میدان آترامنتوم
+
+    </footer>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        function toggleMenu() {
+
+            const menu =
+                document.getElementById("sideMenu");
+          menu.classList.toggle("open");
+
+        }
+        </script>
+
+</body>
+
+</html>
