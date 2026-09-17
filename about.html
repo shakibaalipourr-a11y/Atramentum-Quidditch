@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>درباره آترامنتوم | Atramentum</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at 50% 0%, #202020 0%, #090909 45%, #030303 100%);
+    color: #eee;
+    font-family: Tahoma, Arial, sans-serif;
+    line-height: 2;
+    overflow-x: hidden;
+}
+
+/* =========================
+   MENU BUTTON
+========================= */
+
+.menu-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+
+    width: 52px;
+    height: 52px;
+
+    border: 1px solid #555;
+    border-radius: 14px;
+
+    background: rgba(10,10,10,0.9);
+    color: white;
+
+    font-size: 27px;
+    cursor: pointer;
+
+    transition: 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.menu-btn:hover {
+    background: #1c1c1c;
+    transform: scale(1.05);
+}
+
+/* =========================
+   SIDE MENU
+========================= */
+
+.side-menu {
+    position: fixed;
+
+    top: 0;
+    right: -340px;
+
+    width: 320px;
+    height: 100vh;
+
+    z-index: 9998;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(20,20,20,0.98),
+            rgba(5,5,5,0.99)
+        );
+
+    border-left: 1px solid #444;
+
+    padding: 25px;
+
+    box-shadow: -15px 0 50px rgba(0,0,0,0.7);
+
+    transition: right 0.35s ease;
+
+    overflow-y: auto;
+}
+
+.side-menu.open {
+    right: 0;
+}
+
+/* Menu Header */
+
+.menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid #333;
+}
+
+.menu-header span {
+    font-size: 25px;
+}
+
+.menu-header h2 {
+    margin: 0;
+
+    font-size: 20px;
+    letter-spacing: 3px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+
+    color: #aaa;
+
+    font-size: 32px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.close-btn:hover {
+    color: white;
+    transform: rotate(90deg);
+}
+
+/* Menu Items */
+
+.menu-items {
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 30px;
+}
+
+.menu-items a {
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 17px 16px;
+
+    color: #eee;
+
+    text-decoration: none;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    border-radius: 14px;
+
+    background: rgba(255,255,255,0.04);
+
+    transition: all 0.25s ease;
+}
+
+.menu-items a:hover {
+    background: rgba(255,255,255,0.1);
+
+    transform: translateX(-6px);
+}
+
+.menu-items a span:first-child {
+    font-size: 25px;
+
+    width: 34px;
+
+    text-align: center;
+}
+
+/* Overlay */
+
+.menu-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.65);
+
+    z-index: 9997;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: 0.3s;
+
+    backdrop-filter: blur(3px);
+}
+
+.menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+    min-height: 90vh;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    text-align: center;
+
+    padding: 100px 25px 80px;
+
+    position: relative;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255,255,255,0.08),
+            transparent 45%
+        );
+}
+
+.hero::before {
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.025);
+
+    filter: blur(50px);
+}
+
+.author {
+    position: relative;
+
+    color: #aaa;
+
+    font-size: 18px;
+
+    letter-spacing: 4px;
+
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    position: relative;
+
+    margin: 0;
+
+    font-size: clamp(45px, 8vw, 90px);
+
+    letter-spacing: 8px;
+
+    color: #fff;
+
+    text-shadow:
+        0 0 20px rgba(255,255,255,0.15),
+        0 0 50px rgba(255,255,255,0.08);
+}
+
+.hero h2 {
+    position: relative;
+
+    margin: 20px 0 0;
+
+    font-size: clamp(20px, 4vw, 32px);
+
+    color: #bcbcbc;
+
+    font-weight: normal;
+}
+  .hero-line {
+    width: 160px;
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #aaa,
+        transparent
+    );
+
+    margin: 35px 0;
+}
+
+.hero-description {
+    max-width: 750px;
+
+    color: #999;
+
+    font-size: 18px;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.container {
+    width: min(1100px, 90%);
+
+    margin: auto;
+}
+
+/* =========================
+   STORY SECTION
+========================= */
+
+.story-section {
+    margin: 100px auto;
+}
+
+.story-card {
+    position: relative;
+
+    padding: 55px;
+
+    margin-bottom: 35px;
+
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.055),
+            rgba(255,255,255,0.015)
+        );
+
+    border: 1px solid rgba(255,255,255,0.12);
+
+    box-shadow:
+        0 20px 70px rgba(0,0,0,0.45);
+
+    overflow: hidden;
+
+    transition: 0.3s;
+}
+
+.story-card:hover {
+    transform: translateY(-5px);
+
+    border-color: rgba(255,255,255,0.22);
+}
+
+.story-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    right: 0;
+
+    width: 4px;
+    height: 100%;
+
+    background: linear-gradient(
+        180deg,
+        #777,
+        transparent
+    );
+}
+
+.story-number {
+    color: #777;
+
+    font-size: 14px;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 8px;
+}
+
+.story-card h2 {
+    margin-top: 0;
+
+    font-size: 30px;
+
+    color: #fff;
+}
+
+.story-card p {
+    color: #b8b8b8;
+
+    font-size: 17px;
+
+    text-align: justify;
+}
+
+.story-card strong {
+    color: #fff;
+}
+
+/* =========================
+   CHARACTERS
+========================= */
+
+.characters {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+
+    gap: 18px;
+
+    margin-top: 30px;
+}
+
+.character {
+    padding: 22px;
+
+    border-radius: 16px;
+
+    background: rgba(255,255,255,0.035);
+
+    border: 1px solid #2b2b2b;
+
+    text-align: center;
+
+    color: #ddd;
+
+    transition: 0.3s;
+}
+
+.character:hover {
+    transform: translateY(-5px);
+
+    background: rgba(255,255,255,0.07);
+
+    border-color: #555;
+}
+
+.character .symbol {
+    font-size: 30px;
+
+    display: block;
+
+    margin-bottom: 8px;
+}
+
+/* =========================
+   FOUR FAMILIES
+========================= */
+
+.families {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(210px, 1fr));
+
+    gap: 20px;
+
+    margin-top: 30px;
+}
+
+.family {
+    padding: 30px 20px;
+
+    text-align: center;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.06),
+            rgba(255,255,255,0.015)
+        );
+
+    border: 1px solid #303030;
+
+    transition: 0.3s;
+}
+
+.family:hover {
+    transform: translateY(-7px);
+
+    border-color: #666;
+}
+
+.family-icon {
+    font-size: 40px;
+
+    margin-bottom: 12px;
+}
+
+.family h3 {
+    margin: 5px 0;
+
+    font-size: 21px;
+}
+
+.family p {
+    font-size: 14px;
+
+    color: #999;
+
+    text-align: center;
+}
+
+/* =========================
+   TIMELINE
+========================= */
+
+.timeline {
+    position: relative;
+
+    margin-top: 40px;
+
+    padding-right: 35px;
+}
+
+.timeline::before {
+    content: "";
+
+    position: absolute;
+
+    right: 10px;
+
+    top: 0;
+    bottom: 0;
+
+    width: 1px;
+
+    background: linear-gradient(
+        180deg,
+        #777,
+        #222,
+        transparent
+    );
+}
+
+.timeline-item {
+    position: relative;
+
+    margin-bottom: 35px;
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    background: rgba(255,255,255,0.025);
+
+    border: 1px solid #242424;
+}
+
+.timeline-item::before {
+    content: "";
+
+    position: absolute;
+
+    right: -31px;
+    top: 27px;
+
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+
+    background: #aaa;
+
+    box-shadow:
+        0 0 15px rgba(255,255,255,0.4);
+}
+
+.timeline-item h3 {
+    margin-top: 0;
+
+    color: #eee;
+}
+
+.timeline-item p {
+    margin-bottom: 0;
+}
+
+/* =========================
+   FINAL SECTION
+========================= */
+
+.final-section {
+    margin: 120px auto;
+
+    text-align: center;
+
+    padding: 70px 25px;
+  border-top: 1px solid #222;
+
+    border-bottom: 1px solid #222;
+}
+
+.final-symbol {
+    font-size: 55px;
+
+    margin-bottom: 20px;
+}
+
+.final-section h2 {
+    font-size: 32px;
+
+    margin-bottom: 25px;
+}
+
+.final-section p {
+    max-width: 800px;
+
+    margin: auto;
+
+    color: #aaa;
+
+    font-size: 19px;
+}
+
+.quote {
+    margin-top: 45px;
+
+    font-size: 25px;
+
+    color: #ddd;
+
+    font-style: italic;
+}
+
+/* =========================
+   BACK BUTTON
+========================= */
+
+.back-home {
+    display: inline-block;
+
+    margin-top: 45px;
+
+    padding: 15px 35px;
+
+    border-radius: 14px;
+
+    color: #fff;
+
+    text-decoration: none;
+
+    background: #151515;
+
+    border: 1px solid #444;
+
+    transition: 0.3s;
+}
+
+.back-home:hover {
+    background: #252525;
+
+    transform: translateY(-3px);
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    text-align: center;
+
+    padding: 40px 20px;
+
+    color: #666;
+
+    border-top: 1px solid #151515;
+
+    font-size: 14px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .side-menu {
+        width: 290px;
+    }
+
+    .hero {
+        min-height: 80vh;
+
+        padding-top: 110px;
+    }
+
+    .hero h1 {
+        letter-spacing: 4px;
+    }
+
+    .story-card {
+        padding: 30px 22px;
+    }
+
+    .story-card h2 {
+        font-size: 24px;
+    }
+
+    .story-card p {
+        font-size: 15px;
+
+        text-align: right;
+    }
+
+    .timeline {
+        padding-right: 25px;
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     MENU
+========================= -->
+
+<button class="menu-btn" onclick="toggleMenu()">☰</button>
+
+
+<div class="side-menu" id="sideMenu">
+
+    <div class="menu-header">
+
+        <span>⚡️</span>
+
+        <h2>ATRAMENTUM</h2>
+
+        <button class="close-btn" onclick="toggleMenu()">×</button>
+
+    </div>
+
+
+    <div class="menu-items">
+
+        <a href="index.html">
+            <span>🏠</span>
+            <span>خانه</span>
+        </a>
+
+        <a href="stadium.html">
+            <span>🏟</span>
+            <span>میدان کوییدیچ</span>
+        </a>
+
+        <a href="teams.html">
+            <span>🛡</span>
+            <span>تیم‌ها</span>
+        </a>
+
+        <a href="profile.html">
+            <span>👤</span>
+            <span>پروفایل</span>
+        </a>
+
+        <a href="leaderboard.html">
+            <span>🏆</span>
+            <span>رده‌بندی</span>
+        </a>
+
+        <a href="matches.html">
+            <span>⚔️</span>
+            <span>مسابقات</span>
+        </a>
+
+        <a href="rules.html">
+            <span>📜</span>
+            <span>قوانین</span>
+        </a>
+
+        <a href="about.html">
+            <span>✨</span>
+            <span>درباره آترامنتوم</span>
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="menu-overlay"
+     id="menuOverlay"
+     onclick="toggleMenu()">
+</div>
+
+
+<!-- =========================
+     HERO
+========================= -->
+
+<header class="hero">
+
+    <div class="author">
+        Aкαмє:
+    </div>
+
+    <h1>آترامنتوم</h1>
+
+    <h2>✦ افسانه‌ی پیدایش آترامنتوم ✦</h2>
+
+    <div class="hero-line"></div>
+
+    <p class="hero-description">
+        داستان سرزمینی که برای نجات موجوداتی ساخته شد
+        که هیچ‌کس حاضر نبود آنها را بپذیرد.
+    </p>
+
+</header>
+
+
+<main class="container">
+
+
+<!-- =========================
+     SECTION 1
+========================= -->
+
+<section class="story-section">
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل اول
+        </div>
+
+        <h2>
+            ☁️ پیش از آترامنتوم
+        </h2>
+
+        <p>
+            پیش از آن‌که آترامنتوم وجود داشته باشد،
+            جهان تحت فرمان خدای بزرگ آسمان‌ها بود؛
+            قدرتمندترین موجود آسمانی و فرمانروای قلمرو خدایان.
+        </p>
+
+        <p>
+            اما خدای بزرگ آسمان‌ها از موجودات زمینی و جهنمی بیزار بود.
+            از نظر او، این موجودات منشأ آشوب، تاریکی و بی‌نظمی بودند
+            و حضورشان در جهان، تهدیدی برای قلمرو خدایان محسوب می‌شد.
+        </p>
+        <p>
+            خشم او سرانجام به تصمیمی هولناک منجر شد:
+            <strong>نابودی تمامی موجودات زمینی و جهنمی.</strong>
+        </p>
+
+        <p>
+            هیچ‌کس جرئت مخالفت با فرمان او را نداشت.
+        </p>
+
+        <p>
+            هیچ‌کس...
+            <strong>جز دخترش.</strong>
+        </p>
+
+    </article>
+
+
+<!-- =========================
+     AKAME
+========================= -->
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل دوم
+        </div>
+
+        <h2>
+            ☀️ آکامه ایکاروس
+        </h2>
+
+        <p>
+            آکامه ایکاروس تنها دختر خدای بزرگ آسمان‌ها بود.
+            دختری عاقل، باهوش، قدرتمند و مقتدر که برخلاف پدرش،
+            موجودات زمینی و جهنمی را دشمن نمی‌دانست.
+        </p>
+
+        <p>
+            او در میان همان موجوداتی که پدرش قصد نابودی‌شان را داشت،
+            دوستانی داشت؛ دوستانی که برای آکامه تنها موجودات ماورایی نبودند،
+            بلکه بخشی از زندگی او بودند.
+        </p>
+
+
+        <div class="characters">
+
+            <div class="character">
+                <span class="symbol">🩸</span>
+                شارون و الا وینچستر
+            </div>
+
+            <div class="character">
+                <span class="symbol">🌑</span>
+                ژینا لایورا
+            </div>
+
+            <div class="character">
+                <span class="symbol">⚜️</span>
+                کسری و ستایش مایکلسون
+            </div>
+
+            <div class="character">
+                <span class="symbol">☠️</span>
+                سیروان سالواتور
+            </div>
+
+        </div>
+
+
+        <p>
+            آکامه نمی‌توانست اجازه دهد آنها به خاطر ماهیتشان کشته شوند.
+            پس برای نخستین بار در برابر پدرش ایستاد.
+        </p>
+
+        <p>
+            او از خدای بزرگ آسمان‌ها درخواست کرد که پیش از اجرای فرمان نابودی،
+            یک فرصت دیگر به این موجودات بدهد.
+        </p>
+
+        <p>
+            آکامه از پدرش خواست به آنها اجازه دهد سرزمینی داشته باشند
+            که بتوانند در آن زندگی کنند؛ سرزمینی دور از خدایان و دور از جنگ.
+        </p>
+
+        <p>
+            خدای بزرگ آسمان‌ها به دخترش اعتماد داشت.
+            او می‌دانست آکامه برخلاف دیگران، از روی خشم یا احساسات تصمیم نمی‌گیرد.
+        </p>
+
+        <p>
+            بنابراین درخواست او را پذیرفت.
+        </p>
+
+    </article>
+
+
+<!-- =========================
+     BIRTH
+========================= -->
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل سوم
+        </div>
+
+        <h2>
+            🌑 تولد آترامنتوم
+        </h2>
+
+        <p>
+            آکامه در نزدیکی قلمرو آسمانی خود،
+            با قدرت خدایی‌اش سرزمینی کاملاً جدید خلق کرد.
+        </p>
+
+        <p>
+            سرزمینی که پیش از آن وجود نداشت.
+            سرزمینی که قرار بود پناهگاه موجوداتی باشد
+            که هیچ‌کس حاضر نبود آنها را بپذیرد.
+        </p>
+
+        <p>
+            او این سرزمین را
+            <strong>آترامنتوم</strong>
+            نامید.
+        </p>
+
+        <p>
+            سپس دوستانش را به آنجا دعوت کرد.
+        </p>
+
+    </article>
+
+
+<!-- =========================
+     FOUR FAMILIES
+========================= -->
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل چهارم
+        </div>
+
+        <h2>
+            ⚜️ سرزمین چهار خاندان
+        </h2>
+
+        <p>
+            آکامه سرزمین آترامنتوم را میان دوستانش تقسیم کرد
+            تا هر خاندان بتواند قلمرویی برای خود داشته باشد.
+        </p>
+
+
+        <div class="families">
+
+            <div class="family">
+
+                <div class="family-icon">
+                    🩸
+                </div>
+
+                <h3>
+                    وینچستر
+                </h3>
+
+                <p>
+                    قلمروی خاندان شکارچیان روح
+                </p>
+
+            </div>
+
+
+            <div class="family">
+
+                <div class="family-icon">
+                    🌑
+                </div>
+
+                <h3>
+                    لایورا
+                </h3>
+
+                <p>
+                    سرزمین فریبندگان و استادان توهم
+                </p>
+
+            </div>
+
+<div class="family">
+  <div class="family-icon">
+                    ⚜️
+                </div>
+
+                <h3>
+                    مایکلسون
+                </h3>
+
+                <p>
+                    قلمروی سه‌رگه‌ها
+                </p>
+
+            </div>
+
+
+            <div class="family">
+
+                <div class="family-icon">
+                    ☠️
+                </div>
+
+                <h3>
+                    سالواتور
+                </h3>
+
+                <p>
+                    سرزمین نگهبانان مرگ
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <p>
+            آکامه اما برای خودش نیز قلمرویی در آترامنتوم داشت:
+            <strong>قلمرو آسمانی ایکاروس.</strong>
+        </p>
+
+        <p>
+            قلمرویی که از سایر سرزمین‌ها جدا بود و از آنجا
+            بر آترامنتوم نظارت می‌کرد.
+        </p>
+
+    </article>
+
+
+<!-- =========================
+     KRYOS
+========================= -->
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل پنجم
+        </div>
+
+        <h2>
+            ❄️ دشت‌های یخ‌زده کریوس
+        </h2>
+
+        <p>
+            آکامه می‌دانست که اگر خدایان دیگر بتوانند آزادانه وارد آترامنتوم شوند،
+            تمام تلاش‌هایش بی‌فایده خواهد بود.
+        </p>
+
+        <p>
+            بنابراین میان قلمرو آسمانی ایکاروس و آترامنتوم،
+            دیواری طبیعی و عظیم ساخت.
+        </p>
+
+        <p>
+            <strong>دشت‌های یخ‌زده کریوس.</strong>
+        </p>
+
+        <p>
+            بیابانی پهناور و یخ‌زده که میان دو جهان قرار گرفت.
+        </p>
+
+        <div class="timeline">
+
+            <div class="timeline-item">
+
+                <h3>
+                    ☀️ یک سو
+                </h3>
+
+                <p>
+                    قلمرو خدایان آسمانی
+                </p>
+
+            </div>
+
+
+            <div class="timeline-item">
+
+                <h3>
+                    🌑 سوی دیگر
+                </h3>
+
+                <p>
+                    آترامنتوم
+                </p>
+
+            </div>
+
+
+            <div class="timeline-item">
+
+                <h3>
+                    ❄️ میان این دو جهان
+                </h3>
+
+                <p>
+                    کریوس؛ مرزی که دیگر خدایان را از ورود
+                    به سرزمین آترامنتوم بازمی‌داشت.
+                </p>
+
+            </div>
+
+        </div>
+
+        <p>
+            آکامه نمی‌خواست دوستانش تا ابد در ترس زندگی کنند.
+            او می‌خواست آنها بالاخره خانه‌ای داشته باشند؛
+            خانه‌ای که کسی نتواند آنها را از آن بیرون کند.
+        </p>
+
+    </article>
+
+
+<!-- =========================
+     PACT
+========================= -->
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل ششم
+        </div>
+
+        <h2>
+            ⚜️ پیمان چهار خاندان
+        </h2>
+
+        <p>
+            اما آکامه یک مشکل دیگر داشت.
+        </p>
+
+        <p>
+            اگر تمام این موجودات قدرتمند در یک سرزمین زندگی می‌کردند،
+            اختلافاتشان دیر یا زود به جنگ تبدیل می‌شد.
+        </p>
+
+        <p>
+            بنابراین آکامه آترامنتوم را به چهار قلمرو مستقل تقسیم کرد.
+        </p>
+
+        <p>
+            هر خاندان سرزمین خودش را داشت.
+            مرزهای خودش را داشت.
+            قدرت خودش را داشت.
+            و آزادی داشت تا خاندانش را گسترش دهد.
+        </p>
+
+        <p>
+            اما آکامه یک شرط گذاشت.
+        </p>
+
+        <p>
+            او از دوستانش خواست که در برابر او عهد ببندند:
+        </p>
+
+
+        <div class="timeline">
+
+            <div class="timeline-item">
+                <h3>⚔️ ممنوعیت جنگ</h3>
+                <p>
+                    هیچ خاندان حق حمله به خاندان دیگر را نخواهد داشت.
+                </p>
+            </div>
+
+            <div class="timeline-item">
+                <h3>🏰 احترام به قلمروها</h3>
+                <p>
+                    هیچ‌کس برای تصاحب سرزمین دیگری وارد جنگ نخواهد شد.
+                </p>
+            </div>
+
+<div class="timeline-item">
+                <h3>🛡 مرزهای مقدس</h3>
+                <p>
+                    مرزهای چهار خاندان محترم خواهند بود.
+                </p>
+</div>
+<div class="timeline-item">
+                <h3>🤝 عهد دوستی</h3>
+                <p>
+                    دوستی‌ای که باعث تولد آترامنتوم شد،
+                    هرگز نباید به دشمنی تبدیل شود.
+                </p>
+            </div>
+
+        </div>
+
+
+        <p>
+            چهار خاندان این عهد را پذیرفتند.
+            در حضور آکامه، پیمان بسته شد.
+        </p>
+
+        <p>
+            و برای سال‌ها، آترامنتوم در صلح زندگی کرد.
+        </p>
+
+    </article>
+
+
+<!-- =========================
+     FALL
+========================= -->
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل هفتم
+        </div>
+
+        <h2>
+            👑 آغاز جاه‌طلبی
+        </h2>
+
+        <p>
+            چهار خاندان در کنار یکدیگر رشد کردند.
+            نسل‌ها متولد شدند.
+            قلمروها گسترش پیدا کردند.
+            قدرت خاندان‌ها بیشتر شد.
+        </p>
+
+        <p>
+            اما آکامه یک چیز را فراموش نکرده بود...
+        </p>
+
+        <p>
+            <strong>
+                قدرت، همیشه در کنار خود طمع می‌آورد.
+            </strong>
+        </p>
+
+        <p>
+            با گذشت زمان، نسل‌های جدید دیگر آن روزی را که آکامه
+            آنها را نجات داده بود به یاد نمی‌آوردند.
+        </p>
+
+        <p>
+            آنها فقط سرزمین‌هایشان را می‌دیدند.
+            قدرتشان را می‌دیدند.
+            و تاج‌هایی را که هنوز وجود نداشتند،
+            در رؤیاهایشان می‌دیدند.
+        </p>
+
+        <p>
+            کم‌کم یک سؤال در ذهن برخی از آنها شکل گرفت:
+        </p>
+
+        <div class="quote">
+            «اگر ما قدرتمندتریم،
+            چرا نباید سرزمین بیشتری داشته باشیم؟»
+        </div>
+
+    </article>
+
+
+<!-- =========================
+     BEGINNING OF LEGEND
+========================= -->
+
+    <article class="story-card">
+
+        <div class="story-number">
+            فصل پایانی
+        </div>
+
+        <h2>
+            ⚔️ افسانه‌ی واقعی آترامنتوم
+        </h2>
+
+        <p>
+            و اینجا بود که سرنوشت آترامنتوم برای نخستین بار
+            در معرض خطر قرار گرفت.
+        </p>
+
+        <p>
+            آیا فرزندان چهار خاندان همچنان به پیمانی که اجدادشان
+            با آکامه بسته بودند وفادار می‌مانند؟
+        </p>
+
+        <p>
+            یا یکی از آنها نخستین کسی خواهد بود که
+            مرز مقدس یک خاندان را می‌شکند؟
+        </p>
+
+        <p>
+            اگر یک خاندان حمله کند،
+            آیا خاندان‌های دیگر سکوت خواهند کرد؟
+        </p>
+
+        <p>
+            یا آترامنتوم وارد نخستین جنگ بزرگ تاریخ خود خواهد شد؟
+        </p>
+
+        <p>
+            جنگی که شاید دیگر حتی آکامه هم نتواند متوقفش کند...
+        </p>
+
+    </article>
+
+</section>
+
+
+<!-- =========================
+     FINAL
+========================= -->
+
+<section class="final-section">
+
+    <div class="final-symbol">
+        🌑
+    </div>
+
+    <h2>
+        سرنوشت آترامنتوم
+    </h2>
+
+    <p>
+        زیرا آکامه آترامنتوم را برای حکومت کردن بر دوستانش نساخته بود.
+        او آن را برای نجات دادن آنها ساخته بود.
+    </p>
+
+    <p>
+        اما حالا سرنوشت این سرزمین دیگر فقط در دست خالقش نبود.
+        سرنوشت آترامنتوم در دستان چهار خاندان قرار داشت.
+    </p>
+
+    <div class="quote">
+        «و شاید روزی...
+        همان پیمانی که برای حفظ صلح بسته شده بود،
+        به دلیل جاه‌طلبی یکی از خاندان‌ها شکسته شود.»
+    </div>
+
+    <div class="quote">
+        «و آن روز...
+        افسانه‌ی واقعی آترامنتوم آغاز خواهد شد.»
+    </div>
+
+
+    <a href="index.html" class="back-home">
+        ↩️ بازگشت به آترامنتوم
+    </a>
+
+</section>
+
+
+</main>
+
+
+<footer>
+    Atramentum Quidditch © 2026
+    <br>
+    ✦ افسانه‌ی آترامنتوم ادامه دارد ✦
+</footer>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+function toggleMenu() {
+
+    const menu =
+        document.getElementById("sideMenu");
+
+    const overlay =
+        document.getElementById("menuOverlay");
+
+    menu.classList.toggle("open");
+
+overlay.classList.toggle("active");
+
+}
+
+
+/* بستن منو با کلید ESC */
+
+document.addEventListener("keydown", function(event) {
+
+    if (event.key === "Escape") {
+      
