@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>پروفایل بازیکن | Atramentum Quidditch</title>
+
+
+<style>
+
+/* =========================
+   GLOBAL
+========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+
+    margin: 0;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            #202020 0%,
+            #090909 45%,
+            #030303 100%
+        );
+
+    color: #eee;
+
+    font-family: Tahoma, Arial, sans-serif;
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================
+   MENU BUTTON
+========================= */
+
+.menu-btn {
+
+    position: fixed;
+
+    top: 20px;
+    right: 20px;
+
+    z-index: 9999;
+
+    width: 52px;
+    height: 52px;
+
+    border: 1px solid #555;
+
+    border-radius: 14px;
+
+    background: rgba(10,10,10,0.9);
+
+    color: white;
+
+    font-size: 27px;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+
+    backdrop-filter: blur(10px);
+}
+
+.menu-btn:hover {
+
+    background: #1c1c1c;
+
+    transform: scale(1.05);
+}
+
+
+/* =========================
+   SIDE MENU
+========================= */
+
+.side-menu {
+
+    position: fixed;
+
+    top: 0;
+
+    right: -340px;
+
+    width: 320px;
+
+    height: 100vh;
+
+    z-index: 9998;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(20,20,20,0.98),
+            rgba(5,5,5,0.99)
+        );
+
+    border-left: 1px solid #444;
+
+    padding: 25px;
+
+    box-shadow:
+        -15px 0 50px rgba(0,0,0,0.7);
+
+    transition: right 0.35s ease;
+
+    overflow-y: auto;
+}
+
+.side-menu.open {
+
+    right: 0;
+}
+
+
+/* =========================
+   MENU HEADER
+========================= */
+
+.menu-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding-bottom: 20px;
+
+    border-bottom: 1px solid #333;
+}
+
+.menu-header span {
+
+    font-size: 25px;
+}
+
+.menu-header h2 {
+
+    margin: 0;
+
+    font-size: 20px;
+
+    letter-spacing: 3px;
+}
+
+.close-btn {
+
+    background: none;
+
+    border: none;
+
+    color: #aaa;
+
+    font-size: 32px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.close-btn:hover {
+
+    color: white;
+
+    transform: rotate(90deg);
+}
+
+
+/* =========================
+   MENU ITEMS
+========================= */
+
+.menu-items {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    margin-top: 30px;
+}
+
+.menu-items a {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 17px 16px;
+
+    color: #eee;
+
+    text-decoration: none;
+
+    font-size: 18px;
+
+    font-weight: 600;
+
+    border-radius: 14px;
+
+    background: rgba(255,255,255,0.04);
+
+    transition: all 0.25s ease;
+}
+
+.menu-items a:hover {
+
+    background: rgba(255,255,255,0.1);
+
+    transform: translateX(-6px);
+}
+
+.menu-items a span:first-child {
+
+    font-size: 25px;
+
+    width: 34px;
+
+    text-align: center;
+}
+
+
+/* =========================
+   OVERLAY
+========================= */
+
+.menu-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,0.65);
+
+    z-index: 9997;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition: 0.3s;
+
+    backdrop-filter: blur(3px);
+}
+
+.menu-overlay.active {
+
+    opacity: 1;
+
+    visibility: visible;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+
+    text-align: center;
+
+    padding:
+
+        130px
+        20px
+        70px;
+}
+
+.hero-symbol {
+
+    font-size: 60px;
+
+    margin-bottom: 15px;
+
+    filter:
+        drop-shadow(
+            0 0 20px
+            rgba(255,255,255,0.15)
+        );
+}
+
+.hero h1 {
+
+    margin: 0;
+
+    font-size:
+        clamp(38px, 7vw, 70px);
+
+    letter-spacing: 5px;
+
+    color: #fff;
+}
+
+.hero p {
+
+    color: #999;
+
+    font-size: 17px;
+
+    margin-top: 15px;
+}
+
+
+/* =========================
+   PROFILE CONTAINER
+========================= */
+
+.profile-container {
+
+    width: min(1050px, 90%);
+
+    margin: auto;
+
+    padding-bottom: 100px;
+}
+
+
+/* =========================
+   PROFILE CARD
+========================= */
+  .profile-card {
+    position: relative;
+
+    padding: 45px;
+
+    border-radius: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.065),
+            rgba(255,255,255,0.015)
+        );
+
+    border: 1px solid rgba(255,255,255,0.13);
+
+    box-shadow:
+        0 25px 80px
+        rgba(0,0,0,0.5);
+
+    overflow: hidden;
+}
+
+.profile-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    right: 0;
+
+    width: 4px;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            180deg,
+            #aaa,
+            transparent
+        );
+}
+
+
+/* =========================
+   PROFILE TOP
+========================= */
+
+.profile-top {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 35px;
+
+    padding-bottom: 35px;
+
+    border-bottom: 1px solid #292929;
+}
+
+
+/* =========================
+   AVATAR
+========================= */
+
+.avatar {
+
+    width: 150px;
+
+    height: 150px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 70px;
+
+    background:
+        radial-gradient(
+            circle,
+            #242424,
+            #080808
+        );
+
+    border: 2px solid #555;
+
+    box-shadow:
+        0 0 40px
+        rgba(255,255,255,0.08);
+}
+
+
+/* =========================
+   PLAYER NAME
+========================= */
+
+.player-info h2 {
+
+    margin: 0;
+
+    font-size: 38px;
+
+    color: #fff;
+}
+
+.player-info .username {
+
+    color: #777;
+
+    font-size: 15px;
+
+    margin-top: 5px;
+}
+
+.status {
+
+    display: inline-block;
+
+    margin-top: 12px;
+
+    padding: 7px 15px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(100,180,100,0.08);
+
+    border: 1px solid
+        rgba(120,190,120,0.25);
+
+    color: #aaa;
+
+    font-size: 13px;
+}
+
+
+/* =========================
+   TEAM BADGE
+========================= */
+
+.team-badge {
+
+    margin-right: auto;
+
+    min-width: 150px;
+
+    text-align: center;
+
+    padding: 18px;
+
+    border-radius: 18px;
+
+    background: rgba(255,255,255,0.035);
+
+    border: 1px solid #333;
+}
+
+.team-badge .team-icon {
+
+    display: block;
+
+    font-size: 42px;
+
+    margin-bottom: 7px;
+}
+
+.team-badge span:last-child {
+
+    color: #bbb;
+
+    font-size: 15px;
+}
+
+
+/* =========================
+   SECTION TITLE
+========================= */
+
+.section-title {
+
+    margin:
+
+        40px
+        0
+        20px;
+
+    font-size: 23px;
+
+    color: #ddd;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+/* =========================
+   INFORMATION GRID
+========================= */
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(210px, 1fr)
+        );
+
+    gap: 15px;
+}
+
+.info-box {
+
+    padding: 22px;
+
+    border-radius: 17px;
+
+    background:
+        rgba(255,255,255,0.035);
+
+    border: 1px solid #292929;
+
+    transition: 0.3s;
+}
+
+.info-box:hover {
+
+    transform: translateY(-4px);
+
+    background:
+        rgba(255,255,255,0.06);
+
+    border-color: #444;
+}
+
+.info-box .label {
+
+    display: block;
+
+    color: #777;
+
+    font-size: 13px;
+
+    margin-bottom: 7px;
+}
+
+.info-box .value {
+
+    color: #eee;
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+
+/* =========================
+   STATS
+========================= */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(150px, 1fr)
+        );
+
+    gap: 15px;
+}
+
+.stat {
+
+    text-align: center;
+
+    padding: 25px 15px;
+
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,0.055),
+            rgba(255,255,255,0.015)
+        );
+
+    border: 1px solid #292929;
+}
+
+.stat-number {
+
+    font-size: 32px;
+
+    font-weight: bold;
+
+    color: #fff;
+}
+
+.stat-label {
+
+    color: #777;
+
+    font-size: 13px;
+
+    margin-top: 5px;
+}
+
+
+/* =========================
+   MATCH HISTORY
+========================= */
+
+.matches {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+.match {
+  display: grid;
+    grid-template-columns:
+        1fr
+        auto
+        1fr;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 18px;
+
+    border-radius: 15px;
+
+    background:
+        rgba(255,255,255,0.03);
+
+    border: 1px solid #292929;
+}
+
+.match-team {
+
+    color: #bbb;
+
+    font-size: 15px;
+}
+
+.match-team:last-child {
+
+    text-align: left;
+}
+
+.match-result {
+
+    padding: 7px 13px;
+
+    border-radius: 10px;
+
+    background: #151515;
+
+    border: 1px solid #333;
+
+    color: #aaa;
+
+    font-size: 13px;
+}
+
+
+/* =========================
+   EMPTY PROFILE NOTICE
+========================= */
+
+.notice {
+
+    margin-top: 35px;
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    text-align: center;
+
+    background:
+        rgba(255,255,255,0.025);
+
+    border: 1px dashed #444;
+
+    color: #888;
+
+    line-height: 2;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.buttons {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    margin-top: 40px;
+
+    flex-wrap: wrap;
+}
+
+.button {
+
+    display: inline-block;
+
+    padding: 14px 28px;
+
+    border-radius: 14px;
+
+    color: #eee;
+
+    text-decoration: none;
+
+    background: #151515;
+
+    border: 1px solid #444;
+
+    transition: 0.3s;
+}
+
+.button:hover {
+
+    background: #252525;
+
+    transform: translateY(-3px);
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+
+    text-align: center;
+
+    padding: 40px 20px;
+
+    border-top: 1px solid #151515;
+
+    color: #666;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .side-menu {
+
+        width: 290px;
+    }
+
+    .profile-card {
+
+        padding: 28px 20px;
+    }
+
+    .profile-top {
+
+        flex-direction: column;
+
+        text-align: center;
+    }
+
+    .team-badge {
+
+        margin: 0;
+
+        width: 100%;
+    }
+
+    .player-info h2 {
+
+        font-size: 30px;
+    }
+
+    .match {
+
+        grid-template-columns:
+            1fr;
+
+        text-align: center;
+    }
+
+    .match-team:last-child {
+
+        text-align: center;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     MENU
+========================= -->
+
+<button
+    class="menu-btn"
+    onclick="toggleMenu()">
+
+    ☰
+
+</button>
+
+
+<div
+    class="side-menu"
+    id="sideMenu">
+
+
+    <div class="menu-header">
+
+        <span>⚡️</span>
+
+        <h2>ATRAMENTUM</h2>
+
+        <button
+            class="close-btn"
+            onclick="toggleMenu()">
+
+            ×
+
+        </button>
+
+    </div>
+
+
+    <div class="menu-items">
+
+        <a href="index.html">
+
+            <span>🏠</span>
+
+            <span>خانه</span>
+
+        </a>
+
+
+        <a href="stadium.html">
+
+            <span>🏟</span>
+
+            <span>میدان کوییدیچ</span>
+
+        </a>
+
+
+        <a href="teams.html">
+
+            <span>🛡</span>
+
+            <span>تیم‌ها</span>
+
+        </a>
+
+
+        <a href="profile.html">
+
+            <span>👤</span>
+
+            <span>پروفایل</span>
+
+        </a>
+
+
+        <a href="leaderboard.html">
+
+            <span>🏆</span>
+
+            <span>رده‌بندی</span>
+
+        </a>
+
+
+        <a href="matches.html">
+
+            <span>⚔️</span>
+
+            <span>مسابقات</span>
+
+        </a>
+
+
+        <a href="rules.html">
+
+            <span>📜</span>
+
+            <span>قوانین</span>
+
+        </a>
+
+
+        <a href="about.html">
+
+            <span>✨</span>
+
+            <span>درباره آترامنتوم</span>
+
+        </a>
+
+    </div>
+
+</div>
+
+
+<div
+    class="menu-overlay"
+    id="menuOverlay"
+    onclick="toggleMenu()">
+</div>
+
+
+
+<!-- =========================
+     HERO
+========================= -->
+
+<header class="hero">
+
+    <div class="hero-symbol">
+        👤
+    </div>
+
+    <h1>
+        پروفایل بازیکن
+    </h1>
+
+    <p>
+        پرونده رسمی بازیکن در کوییدیچ آترامنتوم
+    </p>
+
+</header>
+
+
+
+<!-- =========================
+     PROFILE
+========================= -->
+
+<main class="profile-container">
+
+
+    <section class="profile-card">
+
+
+        <!-- PROFILE TOP -->
+
+        <div class="profile-top">
+          <div class="avatar">
+                🧙
+
+            </div>
+
+
+            <div class="player-info">
+
+                <h2>
+                    بازیکن آترامنتوم
+                </h2>
+
+                <div class="username">
+                    @player
+                </div>
+
+                <div class="status">
+                    🟢 بازیکن فعال
+                </div>
+
+            </div>
+
+
+            <div class="team-badge">
+
+                <span class="team-icon">
+                    🐍
+                </span>
+
+                <span>
+                    انتخاب تیم نشده
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =========================
+             BASIC INFORMATION
+        ========================= -->
+
+        <h3 class="section-title">
+            📜 اطلاعات بازیکن
+        </h3>
+
+
+        <div class="info-grid">
+
+
+            <div class="info-box">
+
+                <span class="label">
+                    نام بازیکن
+                </span>
+
+                <span class="value">
+                    هنوز ثبت نشده
+                </span>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span class="label">
+                    شماره بازیکن
+                </span>
+
+                <span class="value">
+                    —
+                </span>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span class="label">
+                    تیم
+                </span>
+
+                <span class="value">
+                    هنوز انتخاب نشده
+                </span>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <span class="label">
+                    پست بازی
+                </span>
+
+                <span class="value">
+                    هنوز انتخاب نشده
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =========================
+             STATS
+        ========================= -->
+
+        <h3 class="section-title">
+            🏆 آمار بازیکن
+        </h3>
+
+
+        <div class="stats">
+
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    مسابقات
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    پیروزی
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    شکست
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-number">
+                    0
+                </div>
+
+                <div class="stat-label">
+                    امتیاز
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =========================
+             MATCH HISTORY
+        ========================= -->
+
+        <h3 class="section-title">
+            ⚔️ سابقه مسابقات
+        </h3>
+
+
+        <div class="matches">
+
+
+            <div class="match">
+
+                <div class="match-team">
+                    تیم شما
+                </div>
+
+                <div class="match-result">
+                    هنوز مسابقه‌ای ثبت نشده
+                </div>
+
+                <div class="match-team">
+                    حریف
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =========================
+             NOTICE
+        ========================= -->
+
+        <div class="notice">
+
+            این پروفایل در حال حاضر نمونه اولیه است.
+            <br>
+
+            پس از ثبت بازیکن و انتخاب تیم،
+            اطلاعات واقعی بازیکن در این بخش نمایش داده خواهد شد.
+
+        </div>
+
+
+
+        <!-- =========================
+             BUTTONS
+        ========================= -->
+      <div class="buttons">
+            <a
+                href="stadium.html"
+                class="button">
+
+                🏟 ورود به میدان
+
+            </a>
+
+
+            <a
+                href="index.html"
+                class="button">
+
+                ↩️ صفحه اصلی
+
+            </a>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer>
+
+    Atramentum Quidditch © 2026
+
+    <br>
+
+    ✦ پرونده بازیکنان آترامنتوم ✦
+
+</footer>
+
+
+
+<!-- =========================
+     JAVASCRIPT
+========================= -->
+
+<script>
+
+function toggleMenu() {
+
+    const menu =
+        document.getElementById("sideMenu");
+
+    const overlay =
+        document.getElementById("menuOverlay");
+
+
+    menu.classList.toggle("open");
+
+    overlay.classList.toggle("active");
+
+}
+
+
+/* بستن منو با ESC */
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+
+            document
+                .getElementById("sideMenu")
+                .classList.remove("open");
+
+
+            document
+                .getElementById("menuOverlay")
+                .classList.remove("active");
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>
