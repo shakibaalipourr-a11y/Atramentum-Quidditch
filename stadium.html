@@ -1,765 +1,971 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08090d">
+  <title>ورزشگاه آترامنتوم | Atramentum</title>
 
-    <title>Atramentum Quidditch | Stadium</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    :root {
+      --bg: #08090d;
+      --panel: rgba(255,255,255,0.045);
+      --border: rgba(255,255,255,0.09);
+      --gold: #c9a96e;
+      --gold-light: #ead5a6;
+      --text: #f1f0ed;
+      --muted: #9999a3;
+      --green: #65c58b;
+    }
 
-        :root {
-            --gold: #d6b56b;
-            --gold-light: #f3d58c;
-            --dark: #050505;
-            --panel: rgba(18, 18, 18, 0.88);
-            --border: rgba(214, 181, 107, 0.25);
-            --text: #f5f5f5;
-            --muted: #999;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            min-height: 100vh;
-            color: var(--text);
-            background:
-                radial-gradient(circle at 50% -10%, #292929 0%, #101010 35%, #050505 75%);
-            font-family: Arial, sans-serif;
-            overflow-x: hidden;
-        }
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            background:
-                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-            background-size: 50px 50px;
-            mask-image: linear-gradient(to bottom, black, transparent);
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(137,99,46,0.15), transparent 43%),
+        radial-gradient(ellipse at 10% 75%, rgba(35,75,60,0.10), transparent 40%);
+    }
 
-        header {
-            position: relative;
-            padding: 75px 20px 55px;
-            text-align: center;
-            background:
-                linear-gradient(180deg, rgba(35,35,35,.95), rgba(5,5,5,.2));
-            border-bottom: 1px solid var(--border);
-        }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-        .crown {
-            font-size: 34px;
-            margin-bottom: 18px;
-        }
+    button {
+      font: inherit;
+    }
 
-        header h1 {
-            font-size: clamp(32px, 6vw, 58px);
-            letter-spacing: 2px;
-            color: #fff;
-            text-shadow: 0 0 25px rgba(214,181,107,.2);
-        }
+    .container {
+      width: min(1150px, 92%);
+      margin: auto;
+    }
 
-        header p {
-            margin-top: 18px;
-            color: var(--gold);
-            font-size: 18px;
-            letter-spacing: 1px;
-        }
+    /* HEADER */
 
-        .container {
-            width: min(1150px, 92%);
-            margin: 55px auto;
-        }
+    .topbar {
+      height: 76px;
+      padding: 0 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,9,13,0.85);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
 
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            box-shadow:
-                0 25px 70px rgba(0,0,0,.65),
-                inset 0 0 35px rgba(255,255,255,.015);
-            backdrop-filter: blur(12px);
-        }
+    .logo {
+      color: var(--gold-light);
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
 
-        .stadium {
-            padding: 35px;
-        }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
 
-        .section-title {
-            text-align: center;
-            margin-bottom: 28px;
-        }
+    .nav-links a {
+      color: #aaaab1;
+      font-size: 12px;
+      transition: 0.2s;
+    }
 
-        .section-title h2 {
-            font-size: 30px;
-        }
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--gold-light);
+    }
 
-        .section-title p {
-            color: var(--muted);
-            margin-top: 10px;
-        }
+    /* HERO */
 
-        .field {
-            position: relative;
-            min-height: 310px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 24px;
-            border: 1px solid #444;
-            background:
-                radial-gradient(circle at center, #242424 0%, #111 55%, #070707 100%);
-            box-shadow: inset 0 0 80px rgba(0,0,0,.8);
-        }
+    .hero {
+      position: relative;
+      min-height: 460px;
+      padding: 90px 20px 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
 
-        .field::before {
-            content: "";
-            position: absolute;
-            width: 75%;
-            height: 55%;
-            border: 2px solid rgba(214,181,107,.25);
-            border-radius: 50%;
-        }
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.07);
+      filter: blur(90px);
+      z-index: -1;
+    }
 
-        .field::after {
-            content: "";
-            position: absolute;
-            width: 90%;
-            height: 2px;
-            background: rgba(214,181,107,.2);
-        }
-      .broom {
-            position: relative;
-            z-index: 2;
-            font-size: clamp(50px, 8vw, 90px);
-            letter-spacing: 18px;
-            filter: drop-shadow(0 0 15px rgba(214,181,107,.25));
-        }
-        .match-status {
-            margin: 30px auto;
-            max-width: 700px;
-            padding: 20px;
-            text-align: center;
-            border-radius: 18px;
-            border: 1px solid rgba(70,170,100,.25);
-            background: rgba(25,70,40,.15);
-        }
+    .stadium-symbol {
+      width: 90px;
+      height: 90px;
+      border: 1px solid rgba(201,169,110,0.45);
+      border-radius: 25px;
+      display: grid;
+      place-items: center;
+      background: rgba(201,169,110,0.07);
+      font-size: 43px;
+      margin-bottom: 25px;
+    }
 
-        .status-dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            margin-left: 8px;
-            border-radius: 50%;
-            background: #6edb8c;
-            box-shadow: 0 0 12px #6edb8c;
-        }
+    .eyebrow {
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+    }
 
-        .scoreboard {
-            margin-top: 35px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
+    .hero h1 {
+      font-size: clamp(36px, 7vw, 66px);
+      font-weight: 900;
+      margin-top: 13px;
+      background: linear-gradient(120deg, #fff, #e3c995, #a98a56);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
 
-        .score-card {
-            padding: 24px 15px;
-            text-align: center;
-            border-radius: 20px;
-            background: #0c0c0c;
-            border: 1px solid #2d2d2d;
-            transition: .3s;
-        }
+    .hero h2 {
+      font-size: 17px;
+      color: #d0cbc2;
+      font-weight: 400;
+      margin-top: 10px;
+    }
 
-        .score-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--gold);
-        }
+    .hero p {
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 2.5;
+      margin-top: 20px;
+    }
 
-        .team-symbol {
-            font-size: 38px;
-            margin-bottom: 10px;
-        }
+    .hero-line {
+      width: 90px;
+      height: 1px;
+      margin-top: 32px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
 
-        .score-card h3 {
-            font-size: 19px;
-        }
+    /* PLAYER BAR */
 
-        .score {
-            margin-top: 12px;
-            font-size: 36px;
-            font-weight: bold;
-            color: var(--gold-light);
-        }
+    .player-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 25px;
+      border: 1px solid rgba(201,169,110,0.23);
+      border-radius: 17px;
+      background: linear-gradient(110deg, rgba(201,169,110,0.09), rgba(255,255,255,0.025));
+    }
 
-        .teams {
-            margin-top: 70px;
-        }
+    .player-details {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
+    .player-avatar {
+      width: 53px;
+      height: 53px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.06);
+      font-size: 27px;
+    }
 
-        .team {
-            padding: 30px;
-            border-radius: 22px;
-            background: linear-gradient(145deg, #151515, #0b0b0b);
-            border: 1px solid #303030;
-            transition: .3s;
-        }
+    .player-caption {
+      color: var(--muted);
+      font-size: 10px;
+    }
 
-        .team:hover {
-            transform: translateY(-6px);
-            border-color: var(--gold);
-            box-shadow: 0 15px 35px rgba(0,0,0,.4);
-        }
+    .player-name {
+      font-size: 17px;
+      font-weight: 800;
+      margin-top: 3px;
+    }
 
-        .team-top {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
+    .player-house {
+      color: var(--gold-light);
+      font-size: 11px;
+      margin-top: 3px;
+    }
 
-        .team-icon {
-            font-size: 45px;
-        }
+    .profile-link {
+      padding: 10px 17px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: #d6d1c7;
+      font-size: 11px;
+      transition: 0.2s;
+    }
 
-        .team h3 {
-            font-size: 25px;
-        }
+    .profile-link:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
 
-        .team-name {
-            color: var(--gold);
-            margin-top: 5px;
-        }
+    /* SECTION */
 
-        .team-info {
-            margin-top: 22px;
-            padding-top: 18px;
-            border-top: 1px solid #292929;
-            color: var(--muted);
-            line-height: 1.9;
-        }
+    .section {
+      padding-top: 65px;
+    }
 
-        .ranking {
-            margin-top: 70px;
-        }
+    .section-heading {
+      text-align: center;
+      margin-bottom: 30px;
+    }
 
-        .ranking-table {
-            overflow: hidden;
-            border-radius: 20px;
-            border: 1px solid #292929;
-        }
+    .section-heading span {
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 4px;
+      font-weight: 700;
+    }
 
-        .ranking-row {
-            display: grid;
-            grid-template-columns: 70px 1fr 100px 100px;
-            align-items: center;
-            padding: 18px 20px;
-            border-bottom: 1px solid #222;
-            background: #101010;
-        }
+    .section-heading h2 {
+      font-size: 25px;
+      margin-top: 9px;
+      font-weight: 800;
+    }
 
-        .ranking-row:last-child {
-            border-bottom: none;
-        }
+    .section-heading p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 9px;
+    }
 
-        .ranking-header {
-            background: #191919;
-            color: var(--gold);
-            font-weight: bold;
-        }
+    /* ARENA */
 
-        .position {
-            font-weight: bold;
-            color: var(--gold-light);
-        }
+    .arena {
+      position: relative;
+      min-height: 390px;
+      overflow: hidden;
+      border-radius: 25px;
+      border: 1px solid rgba(201,169,110,0.24);
+      background:
+        radial-gradient(ellipse at center, rgba(54,94,65,0.30), transparent 70%),
+        linear-gradient(145deg, #111b18, #0b100f 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
 
-        .players {
-            margin-top: 70px;
-        }
+    .arena::before,
+    .arena::after {
+      content: "";
+      position: absolute;
+      width: 110%;
+      height: 1px;
+      background: rgba(201,169,110,0.13);
+      transform: rotate(28deg);
+    }
 
-        .player-box {
-            padding: 30px;
-            text-align: center;
-            border-radius: 22px;
-            border: 1px solid #2d2d2d;
-            background: #101010;
-        }
+    .arena::after {
+      transform: rotate(-28deg);
+    }
 
-        .player-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-        }
+    .field {
+      position: relative;
+      width: min(650px, 100%);
+      height: 270px;
+      border: 2px solid rgba(201,169,110,0.55);
+      border-radius: 50%;
+      background: rgba(37,85,51,0.13);
+      box-shadow:
+        0 0 50px rgba(201,169,110,0.06),
+        inset 0 0 45px rgba(201,169,110,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
 
-        .player-box p {
-            margin-top: 10px;
-            color: var(--muted);
-        }
-      .back {
-            display: block;
-            width: fit-content;
-            margin: 50px auto 10px;
-            padding: 16px 38px;
-            color: #050505;
-            background: linear-gradient(135deg, #f3d58c, #b89043);
-            text-decoration: none;
-            border-radius: 14px;
-            font-weight: bold;
-            transition: .3s;
-        }
-        .back:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(214,181,107,.2);
-        }
+    .field::before {
+      content: "";
+      position: absolute;
+      height: 100%;
+      width: 1px;
+      background: rgba(201,169,110,0.35);
+    }
 
-        footer {
-            margin-top: 90px;
-            padding: 35px 20px;
-            text-align: center;
-            color: #666;
-            border-top: 1px solid #1c1c1c;
-        }
+    .field::after {
+      content: "";
+      position: absolute;
+      width: 95px;
+      height: 95px;
+      border: 1px solid rgba(201,169,110,0.35);
+      border-radius: 50%;
+    }
 
-        @media (max-width: 800px) {
+    .center-mark {
+      font-size: 36px;
+      opacity: 0.75;
+      z-index: 2;
+    }
 
-            .stadium {
-                padding: 20px;
-            }
+    .goal {
+      position: absolute;
+      display: flex;
+      gap: 10px;
+      z-index: 3;
+    }
 
-            .scoreboard {
-                grid-template-columns: repeat(2, 1fr);
-            }
+    .goal.left {
+      left: -12px;
+    }
 
-            .team-grid {
-                grid-template-columns: 1fr;
-            }
+    .goal.right {
+      right: -12px;
+    }
 
-            .ranking-row {
-                grid-template-columns: 50px 1fr 70px 70px;
-                font-size: 14px;
-            }
-        }
+    .goal span {
+      width: 18px;
+      height: 58px;
+      border: 2px solid var(--gold-light);
+      border-bottom: none;
+      border-radius: 50% 50% 0 0;
+      opacity: 0.8;
+    }
 
-        @media (max-width: 500px) {
+    .arena-label {
+      position: absolute;
+      bottom: 18px;
+      color: rgba(234,213,166,0.6);
+      font-size: 9px;
+      letter-spacing: 4px;
+      z-index: 3;
+    }
 
-            .scoreboard {
-                grid-template-columns: 1fr 1fr;
-            }
+    /* MATCH STATUS */
 
-            .field {
-                min-height: 230px;
-            }
+    .match-status {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      margin-top: 18px;
+    }
 
-            .broom {
-                letter-spacing: 5px;
-            }
+    .status-card {
+      padding: 22px 15px;
+      border-radius: 15px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      text-align: center;
+    }
 
-            .ranking-row {
-                grid-template-columns: 35px 1fr 55px 55px;
-                padding: 15px 10px;
-                font-size: 12px;
-            }
-        }
-    </style>
+    .status-card .icon {
+      font-size: 25px;
+      margin-bottom: 9px;
+    }
+
+    .status-card h3 {
+      font-size: 12px;
+      color: #ddd8cf;
+    }
+
+    .status-card p {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 7px;
+      line-height: 1.9;
+    }
+
+    /* HOUSES */
+
+    .houses-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .house-card {
+      padding: 25px 16px;
+      border-radius: 17px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      text-align: center;
+      transition: 0.3s;
+      position: relative;
+    }
+
+    .house-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,0.065);
+    }
+
+    .house-card.mine {
+      border-color: var(--house-color);
+      box-shadow: 0 0 25px var(--house-glow);
+      background: rgba(255,255,255,0.065);
+    }
+
+    .house-card .icon {
+      font-size: 38px;
+      margin-bottom: 12px;
+    }
+
+    .house-card h3 {
+      font-size: 14px;
+      margin-bottom: 7px;
+    }
+
+    .house-card p {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 2;
+    }
+
+    .my-house-label {
+      display: none;
+      margin-top: 12px;
+      color: var(--gold-light);
+      font-size: 9px;
+    }
+
+    .house-card.mine .my-house-label {
+      display: block;
+    }
+
+    .gryffindor { --house-color: #a83b38; --house-glow: rgba(168,59,56,0.10); border-top: 2px solid #a83b38; }
+    .slytherin { --house-color: #397c61; --house-glow: rgba(57,124,97,0.12); border-top: 2px solid #397c61; }
+    .hufflepuff { --house-color: #c4a34d; --house-glow: rgba(196,163,77,0.10); border-top: 2px solid #c4a34d; }
+    .ravenclaw { --house-color: #527ba8; --house-glow: rgba(82,123,168,0.10); border-top: 2px solid #527ba8; }
+
+    /* MATCH NOTICE */
+
+    .notice {
+      padding: 30px;
+      border: 1px solid rgba(201,169,110,0.22);
+      border-radius: 19px;
+      background: linear-gradient(120deg, rgba(201,169,110,0.08), rgba(255,255,255,0.02));
+      text-align: center;
+    }
+
+    .notice-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .notice h3 {
+      color: var(--gold-light);
+      font-size: 17px;
+    }
+
+    .notice p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 2.3;
+      max-width: 600px;
+      margin: 12px auto 0;
+    }
+
+    .notice-status {
+      display: inline-block;
+      padding: 7px 12px;
+      margin-top: 18px;
+      border-radius: 8px;
+      color: #d8c59c;
+      border: 1px solid rgba(201,169,110,0.25);
+      background: rgba(201,169,110,0.07);
+      font-size: 10px;
+    }
+
+    /* FOOTER */
+
+    footer {
+      margin-top: 75px;
+      padding: 35px 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer strong {
+      color: var(--gold);
+      font-size: 20px;
+      letter-spacing: 3px;
+    }
+
+    footer p {
+      color: #777780;
+      font-size: 10px;
+      margin-top: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 22px;
+      margin-top: 20px;
+    }
+
+    .footer-links a {
+      color: #aaaab1;
+      font-size: 11px;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold-light);
+    }
+
+    /* LOADING / ERROR */
+
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg);
+    }
+
+    .loading-screen.hidden {
+      display: none;
+    }
+
+    .loading-symbol {
+      font-size: 43px;
+      color: var(--gold-light);
+      animation: pulse 1.2s infinite alternate;
+    }
+
+    .loading-text {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 17px;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.4; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1.05); }
+    }
+
+    .error-box {
+      display: none;
+      width: min(500px, 90%);
+      margin: 100px auto;
+      padding: 35px;
+      border: 1px solid rgba(228,122,122,0.25);
+      border-radius: 18px;
+      background: rgba(228,122,122,0.05);
+      text-align: center;
+    }
+
+    .error-box h2 {
+      color: #e99b9b;
+      font-size: 19px;
+    }
+
+    .error-box p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 2.2;
+      margin-top: 12px;
+    }
+
+    .error-box button {
+      margin-top: 18px;
+      padding: 10px 18px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: rgba(255,255,255,0.06);
+      color: white;
+      cursor: pointer;
+    }
+
+    @media (max-width: 800px) {
+      .houses-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .match-status {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        gap: 12px;
+      }
+
+      .nav-links a:not(.active) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .player-bar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .arena {
+        min-height: 290px;
+        padding: 15px;
+      }
+
+      .field {
+        height: 190px;
+      }
+
+      .goal span {
+        width: 12px;
+        height: 40px;
+      }
+
+      .houses-grid {
+        gap: 10px;
+      }
+
+      .house-card {
+        padding: 20px 10px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-    <header>
-        <div class="crown">👑</div>
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-symbol">A</div>
+    <div class="loading-text">در حال ورود به ورزشگاه آترامنتوم...</div>
+  </div>
 
-        <h1>🏆 میدان کوییدیچ آترامنتوم</h1>
+  <header class="topbar">
+    <a href="index.html" class="logo">ATRAMENTUM</a>
+
+    <nav class="nav-links">
+      <a href="index.html">صفحه اصلی</a>
+      <a href="stadium.html" class="active">ورزشگاه</a>
+      <a href="profile.html">پروفایل</a>
+      <a href="leaderboard.html">جدول امتیازات</a>
+      <a href="about.html">درباره ما</a>
+    </nav>
+  </header>
+
+  <main class="container" id="stadiumContent" style="display:none">
+
+    <section class="hero">
+      <div class="stadium-symbol">🏟️</div>
+
+      <div class="eyebrow">THE GRAND QUIDDITCH ARENA</div>
+
+      <h1>ورزشگاه آترامنتوم</h1>
+
+      <h2>میدان افتخار، رقابت و تاریخ‌سازی</h2>
+
+      <p>
+        به قلب رقابت‌های آترامنتوم خوش آمدی.
+        اینجا میدان چهار گروه است؛ جایی که مهارت و استراتژی
+        در کنار وفاداری به گروه، سرنوشت مسابقات را رقم می‌زنند.
+      </p>
+
+      <div class="hero-line"></div>
+    </section>
+
+    <section class="player-bar">
+      <div class="player-details">
+        <div class="player-avatar" id="playerAvatar">🏰</div>
+
+        <div>
+          <div class="player-caption">بازیکن حاضر در ورزشگاه</div>
+          <div class="player-name" id="playerName">---</div>
+          <div class="player-house" id="playerHouse">---</div>
+        </div>
+      </div>
+
+      <a href="profile.html" class="profile-link">مشاهده پرونده بازیکن ←</a>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <span>THE ARENA</span>
+        <h2>میدان اصلی کوییدیچ</h2>
+        <p>قلب تپنده رقابت‌های آترامنتوم</p>
+      </div>
+
+      <div class="arena">
+        <div class="field">
+          <div class="goal left">
+            <span></span><span></span><span></span>
+          </div>
+
+          <div class="center-mark">⚡</div>
+
+          <div class="goal right">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <div class="arena-label">ATRAMENTUM QUIDDITCH FIELD</div>
+      </div>
+
+      <div class="match-status">
+
+        <div class="status-card">
+          <div class="icon">🏟️</div>
+          <h3>وضعیت ورزشگاه</h3>
+          <p>ورزشگاه آماده ورود به سیستم مسابقات است.</p>
+        </div>
+
+        <div class="status-card">
+          <div class="icon">⚔️</div>
+          <h3>وضعیت مسابقات</h3>
+          <p>سیستم مسابقات در انتظار راه‌اندازی نهایی است.</p>
+        </div>
+
+        <div class="status-card">
+          <div class="icon">🛡️</div>
+          <h3>گروه بازیکن</h3>
+          <p id="currentHouseStatus">در حال دریافت اطلاعات گروه...</p>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <span>THE FOUR HOUSES</span>
+        <h2>چهار گروه آترامنتوم</h2>
+        <p>هر گروه یک هویت؛ هر بازیکن بخشی از تاریخ</p>
+      </div>
+
+      <div class="houses-grid">
+
+        <div class="house-card gryffindor" data-house="gryffindor">
+          <div class="icon">🦁</div>
+          <h3>Gryffindor</h3>
+          <p>شجاعت، جسارت و اراده</p>
+          <div class="my-house-label">گروه تو</div>
+        </div>
+
+        <div class="house-card slytherin" data-house="slytherin">
+          <div class="icon">🐍</div>
+          <h3>Slytherin</h3>
+          <p>جاه‌طلبی، هوشمندی و استراتژی</p>
+          <div class="my-house-label">گروه تو</div>
+        </div>
+
+        <div class="house-card hufflepuff" data-house="hufflepuff">
+          <div class="icon">🦡</div>
+          <h3>Hufflepuff</h3>
+          <p>وفاداری، پشتکار و انصاف</p>
+          <div class="my-house-label">گروه تو</div>
+        </div>
+
+        <div class="house-card ravenclaw" data-house="ravenclaw">
+          <div class="icon">🦅</div>
+          <h3>Ravenclaw</h3>
+          <p>خرد، خلاقیت و دانش</p>
+          <div class="my-house-label">گروه تو</div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <span>MATCH CENTER</span>
+        <h2>مرکز مسابقات</h2>
+        <p>آماده‌سازی برای رقابت‌های رسمی</p>
+      </div>
+
+      <div class="notice">
+        <div class="notice-icon">🏆</div>
+
+        <h3>فصل رقابت‌های آترامنتوم</h3>
 
         <p>
-            میدان رسمی رقابت چهار گروه آترامنتوم
+          سیستم مسابقات، ثبت نتایج، آمار بازیکنان و جدول امتیازات
+          در حال آماده‌سازی است. پس از راه‌اندازی موتور مسابقات،
+          رویدادهای رسمی و نتایج در این بخش نمایش داده خواهند شد.
         </p>
-    </header>
 
-
-    <main class="container">
-
-        <section class="panel stadium">
-
-            <div class="section-title">
-                <h2>⚔️ میدان بزرگ آترامنتوم</h2>
-                <p>جایی که چهار گروه برای افتخار آترامنتوم رقابت می‌کنند.</p>
-            </div>
-
-            <div class="field">
-
-                <div class="broom">
-                    🧹 ⚡️ 🏆 ⚡️ 🧹
-                </div>
-
-            </div>
-
-            <div class="match-status">
-                <span class="status-dot"></span>
-                میدان آماده است — تیم‌ها آماده ورود به مسابقه شوند.
-            </div>
-
-
-            <div class="scoreboard">
-
-                <div class="score-card">
-                    <div class="team-symbol">🦁</div>
-                    <h3>Gryffindor</h3>
-                    <div class="score">0</div>
-                </div>
-
-                <div class="score-card">
-                    <div class="team-symbol">🐍</div>
-                    <h3>Slytherin</h3>
-                    <div class="score">0</div>
-                </div>
-
-                <div class="score-card">
-                    <div class="team-symbol">🦡</div>
-                    <h3>Hufflepuff</h3>
-                    <div class="score">0</div>
-                </div>
-
-                <div class="score-card">
-                    <div class="team-symbol">🦅</div>
-                    <h3>Ravenclaw</h3>
-                    <div class="score">0</div>
-                </div>
-
-            </div>
-
-
-            <section class="teams">
-
-                <div class="section-title">
-                    <h2>🏰 چهار گروه آترامنتوم</h2>
-                    <p>هر گروه، یک نشان و یک تاریخ دارد.</p>
-                </div>
-
-                <div class="team-grid">
-
-                    <div class="team">
-                        <div class="team-top">
-                            <div class="team-icon">🦁</div>
-
-                            <div>
-                                <h3>Gryffindor</h3>
-                                <div class="team-name">گریفیندور</div>
-                            </div>
-                        </div>
-
-                        <div class="team-info">
-                            وضعیت: آماده رقابت<br>
-                            امتیاز: 0
-                        </div>
-                    </div>
-                    <div class="team">
-                        <div class="team-top">
-                            <div class="team-icon">🐍</div>
-
-                            <div>
-                                <h3>Slytherin</h3>
-                                <div class="team-name">اسلیترین</div>
-                            </div>
-                        </div>
-                        <div class="team-info">
-                            وضعیت: آماده رقابت<br>
-                            امتیاز: 0
-                        </div>
-                    </div>
-
-
-                    <div class="team">
-                        <div class="team-top">
-                            <div class="team-icon">🦡</div>
-
-                            <div>
-                                <h3>Hufflepuff</h3>
-                                <div class="team-name">هافلپاف</div>
-                            </div>
-                        </div>
-
-                        <div class="team-info">
-                            وضعیت: آماده رقابت<br>
-                            امتیاز: 0
-                        </div>
-                    </div>
-
-
-                    <div class="team">
-                        <div class="team-top">
-                            <div class="team-icon">🦅</div>
-
-                            <div>
-                                <h3>Ravenclaw</h3>
-                                <div class="team-name">ریونکلا</div>
-                            </div>
-                        </div>
-
-                        <div class="team-info">
-                            وضعیت: آماده رقابت<br>
-                            امتیاز: 0
-                        </div>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <section class="ranking">
-
-                <div class="section-title">
-                    <h2>🏆 جدول رده‌بندی</h2>
-                    <p>امتیازات رسمی گروه‌ها</p>
-                </div>
-
-                <div class="ranking-table">
-
-                    <div class="ranking-row ranking-header">
-                        <div>رتبه</div>
-                        <div>گروه</div>
-                        <div>امتیاز</div>
-                        <div>بازی</div>
-                    </div>
-
-                    <div class="ranking-row">
-                        <div class="position">1</div>
-                        <div>🦁 Gryffindor</div>
-                        <div>0</div>
-                        <div>0</div>
-                    </div>
-
-                    <div class="ranking-row">
-                        <div class="position">2</div>
-                        <div>🦡 Hufflepuff</div>
-                        <div>0</div>
-                        <div>0</div>
-                    </div>
-
-                    <div class="ranking-row">
-                        <div class="position">3</div>
-                        <div>🐍 Slytherin</div>
-                        <div>0</div>
-                        <div>0</div>
-                    </div>
-
-                    <div class="ranking-row">
-                        <div class="position">4</div>
-                        <div>🦅 Ravenclaw</div>
-                        <div>0</div>
-                        <div>0</div>
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <section class="players">
-
-                <div class="section-title">
-                    <h2>🧙 بازیکنان</h2>
-                    <p>قهرمانان میدان در این بخش معرفی خواهند شد.</p>
-                </div>
-
-                <div class="player-box">
-
-                    <div class="player-icon">⚡️</div>
-
-                    <h3>تالار بازیکنان آترامنتوم</h3>
-
-                    <p>
-                        اطلاعات بازیکنان، پست‌ها، آمار و رکوردهای مسابقات
-                        در ساختار رسمی کوییدیچ ثبت خواهد شد.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <a href="index.html" class="back">
-                ↩️ بازگشت به صفحه اصلی
-            </a>
-
-        </section>
-
-    </main>
-
-
-    <footer>
-        Atramentum Quidditch © 2026
-    </footer>
-    <script>
-    const teams = document.querySelectorAll(".team");
-
-    teams.forEach(team => {
-
-        team.addEventListener("click", function () {
-
-            teams.forEach(item => {
-                item.classList.remove("selected");
-            });
-
-            this.classList.add("selected");
-
-            const teamName = this.querySelector("h3").textContent;
-
-            alert("🏆 " + teamName + " انتخاب شد!");
+        <div class="notice-status">در انتظار آغاز فصل رسمی</div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="error-box" id="errorBox">
+    <h2>ورود به ورزشگاه ناموفق بود</h2>
+    <p id="errorMessage">اطلاعات بازیکن دریافت نشد.</p>
+    <button id="retryButton">تلاش دوباره</button>
+  </div>
+
+  <footer>
+    <strong>ATRAMENTUM</strong>
+    <p>میدان رقابت چهار گروه</p>
+
+    <div class="footer-links">
+      <a href="index.html">صفحه اصلی</a>
+      <a href="profile.html">پروفایل</a>
+      <a href="rules.html">قوانین</a>
+      <a href="about.html">درباره ما</a>
+    </div>
+
+    <p>© 2026 Atramentum Quidditch — All Rights Reserved</p>
+  </footer>
+
+  <script>
+    const loadingScreen = document.getElementById("loadingScreen");
+    const stadiumContent = document.getElementById("stadiumContent");
+    const errorBox = document.getElementById("errorBox");
+    const errorMessage = document.getElementById("errorMessage");
+
+    const teams = {
+      gryffindor: {
+        name: "Gryffindor",
+        persian: "گریفیندور",
+        emoji: "🦁"
+      },
+
+      slytherin: {
+        name: "Slytherin",
+        persian: "اسلیترین",
+        emoji: "🐍"
+      },
+
+      hufflepuff: {
+        name: "Hufflepuff",
+        persian: "هافلپاف",
+        emoji: "🦡"
+      },
+
+      ravenclaw: {
+        name: "Ravenclaw",
+        persian: "ریونکلا",
+        emoji: "🦅"
+      }
+    };
+
+    function hideLoading() {
+      loadingScreen.classList.add("hidden");
+    }
+
+    function showError(text) {
+      hideLoading();
+      stadiumContent.style.display = "none";
+      errorBox.style.display = "block";
+      errorMessage.textContent = text;
+    }
+
+    async function loadStadium() {
+      const token = localStorage.getItem("atramentumSession");
+
+      if (!token) {
+        window.location.replace("index.html");
+        return;
+      }
+
+      loadingScreen.classList.remove("hidden");
+      errorBox.style.display = "none";
+      stadiumContent.style.display = "none";
+
+      try {
+        const response = await fetch("/api/profile", {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          },
+          cache: "no-store"
         });
 
-    });
-</script>
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("atramentumSession");
+          window.location.replace("index.html");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("دریافت اطلاعات بازیکن از سرور ناموفق بود.");
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.playerId) {
+          throw new Error("اطلاعات بازیکن معتبر نیست.");
+        }
+
+        renderPlayer(data);
+
+        stadiumContent.style.display = "block";
+        errorBox.style.display = "none";
+        hideLoading();
+
+      } catch (error) {
+        showError(error.message || "ارتباط با سرور برقرار نشد.");
+      }
+    }
+
+    function renderPlayer(data) {
+      const team = teams[data.teamId] || {
+        name: data.teamId || "Unknown",
+        persian: "نامشخص",
+        emoji: "🏰"
+      };
+
+      document.getElementById("playerName").innerText =
+        data.name || "بازیکن آترامنتوم";
+
+      document.getElementById("playerHouse").innerText =
+        team.name + " | " + team.persian;
+
+      document.getElementById("playerAvatar").innerText = team.emoji;
+
+      document.getElementById("currentHouseStatus").innerText =
+        "بازیکن عضو گروه " + team.name + " است.";
+
+      document.querySelectorAll(".house-card").forEach(function(card) {
+        card.classList.remove("mine");
+      });
+
+      const myHouse = document.querySelector(
+        '.house-card[data-house="' + data.teamId + '"]'
+      );
+
+      if (myHouse) {
+        myHouse.classList.add("mine");
+      }
+    }
+
+    document.getElementById("retryButton").addEventListener("click", loadStadium);
+
+    loadStadium();
+  </script>
 
 </body>
-
-<!-- منوی اصلی -->
-<button class="menu-btn" onclick="toggleMenu()">☰</button>
-
-<div class="side-menu" id="sideMenu">
-    <div class="menu-header">
-        <span>⚡️</span>
-        <h2>ATRAMENTUM</h2>
-        <button class="close-btn" onclick="toggleMenu()">×</button>
-    </div>
-
-    <div class="menu-items">
-
-        <a href="index.html">
-            <span>🏠</span>
-            <span>خانه</span>
-        </a>
-
-        <a href="stadium.html">
-            <span>🏟</span>
-            <span>میدان کوییدیچ</span>
-        </a>
-
-        <a href="teams.html">
-            <span>🛡</span>
-            <span>تیم‌ها</span>
-        </a>
-
-        <a href="profile.html">
-            <span>👤</span>
-            <span>پروفایل</span>
-        </a>
-
-        <a href="leaderboard.html">
-            <span>🏆</span>
-            <span>رده‌بندی</span>
-        </a>
-
-        <a href="matches.html">
-            <span>⚔️</span>
-            <span>مسابقات</span>
-        </a>
-
-        <a href="rules.html">
-            <span>📜</span>
-            <span>قوانین</span>
-        </a>
-
-        <a href="about.html">
-            <span>✨</span>
-            <span>درباره آترامنتوم</span>
-        </a>
-
-    </div>
-</div>
-
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
-
-</body>
-
-<style>
-/* منوی سه خط */
-.menu-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    width: 50px;
-    height: 50px;
-    border: 1px solid #555;
-    border-radius: 12px;
-    background: #111;
-    color: white;
-    font-size: 26px;
-    cursor: pointer;
-}
-
-.side-menu {
-    position: fixed;
-    top: 0;
-    right: -330px;
-    width: 300px;
-    height: 100vh;
-    z-index: 9998;
-    background: #0b0b0b;
-    border-left: 1px solid #444;
-    transition: right 0.3s ease;
-    padding: 25px;
-    box-sizing: border-box;
-}
-
-.side-menu.open {
-    right: 0;
-}
-.menu-items {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 30px;
-}
-
-.menu-items a {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-
-    padding: 17px 16px;
-
-    color: #eeeeee;
-    text-decoration: none;
-
-    font-size: 19px;
-    font-weight: 600;
-
-    border-radius: 14px;
-    background: rgba(255,255,255,0.03);
-
-    transition: all 0.25s ease;
-}
-
-.menu-items a:hover {
-    background: rgba(255,255,255,0.09);
-    transform: translateX(-6px);
-}
-
-.menu-items a span:first-child {
-    font-size: 25px;
-    width: 32px;
-    text-align: center;
-}
-</style>
-
-<script>
-function toggleMenu() {
-    const menu = document.getElementById("sideMenu");
-    menu.classList.toggle("open");
-}
-</script>
-
 </html>
