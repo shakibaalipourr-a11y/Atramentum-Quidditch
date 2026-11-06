@@ -1,1348 +1,902 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>پروفایل بازیکن | Atramentum Quidditch</title>
-
-
-<style>
-
-/* =========================
-   GLOBAL
-========================= */
-
-* {
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-
-    margin: 0;
-
-    background:
-        radial-gradient(
-            circle at 50% 0%,
-            #202020 0%,
-            #090909 45%,
-            #030303 100%
-        );
-
-    color: #eee;
-
-    font-family: Tahoma, Arial, sans-serif;
-
-    min-height: 100vh;
-
-    overflow-x: hidden;
-}
-
-
-/* =========================
-   MENU BUTTON
-========================= */
-
-.menu-btn {
-
-    position: fixed;
-
-    top: 20px;
-    right: 20px;
-
-    z-index: 9999;
-
-    width: 52px;
-    height: 52px;
-
-    border: 1px solid #555;
-
-    border-radius: 14px;
-
-    background: rgba(10,10,10,0.9);
-
-    color: white;
-
-    font-size: 27px;
-
-    cursor: pointer;
-
-    transition: 0.3s;
-
-    backdrop-filter: blur(10px);
-}
-
-.menu-btn:hover {
-
-    background: #1c1c1c;
-
-    transform: scale(1.05);
-}
-
-
-/* =========================
-   SIDE MENU
-========================= */
-
-.side-menu {
-
-    position: fixed;
-
-    top: 0;
-
-    right: -340px;
-
-    width: 320px;
-
-    height: 100vh;
-
-    z-index: 9998;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(20,20,20,0.98),
-            rgba(5,5,5,0.99)
-        );
-
-    border-left: 1px solid #444;
-
-    padding: 25px;
-
-    box-shadow:
-        -15px 0 50px rgba(0,0,0,0.7);
-
-    transition: right 0.35s ease;
-
-    overflow-y: auto;
-}
-
-.side-menu.open {
-
-    right: 0;
-}
-
-
-/* =========================
-   MENU HEADER
-========================= */
-
-.menu-header {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    padding-bottom: 20px;
-
-    border-bottom: 1px solid #333;
-}
-
-.menu-header span {
-
-    font-size: 25px;
-}
-
-.menu-header h2 {
-
-    margin: 0;
-
-    font-size: 20px;
-
-    letter-spacing: 3px;
-}
-
-.close-btn {
-
-    background: none;
-
-    border: none;
-
-    color: #aaa;
-
-    font-size: 32px;
-
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-.close-btn:hover {
-
-    color: white;
-
-    transform: rotate(90deg);
-}
-
-
-/* =========================
-   MENU ITEMS
-========================= */
-
-.menu-items {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 12px;
-
-    margin-top: 30px;
-}
-
-.menu-items a {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 18px;
-
-    padding: 17px 16px;
-
-    color: #eee;
-
-    text-decoration: none;
-
-    font-size: 18px;
-
-    font-weight: 600;
-
-    border-radius: 14px;
-
-    background: rgba(255,255,255,0.04);
-
-    transition: all 0.25s ease;
-}
-
-.menu-items a:hover {
-
-    background: rgba(255,255,255,0.1);
-
-    transform: translateX(-6px);
-}
-
-.menu-items a span:first-child {
-
-    font-size: 25px;
-
-    width: 34px;
-
-    text-align: center;
-}
-
-
-/* =========================
-   OVERLAY
-========================= */
-
-.menu-overlay {
-
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(0,0,0,0.65);
-
-    z-index: 9997;
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    transition: 0.3s;
-
-    backdrop-filter: blur(3px);
-}
-
-.menu-overlay.active {
-
-    opacity: 1;
-
-    visibility: visible;
-}
-
-
-/* =========================
-   HERO
-========================= */
-
-.hero {
-
-    text-align: center;
-
-    padding:
-
-        130px
-        20px
-        70px;
-}
-
-.hero-symbol {
-
-    font-size: 60px;
-
-    margin-bottom: 15px;
-
-    filter:
-        drop-shadow(
-            0 0 20px
-            rgba(255,255,255,0.15)
-        );
-}
-
-.hero h1 {
-
-    margin: 0;
-
-    font-size:
-        clamp(38px, 7vw, 70px);
-
-    letter-spacing: 5px;
-
-    color: #fff;
-}
-
-.hero p {
-
-    color: #999;
-
-    font-size: 17px;
-
-    margin-top: 15px;
-}
-
-
-/* =========================
-   PROFILE CONTAINER
-========================= */
-
-.profile-container {
-
-    width: min(1050px, 90%);
-
-    margin: auto;
-
-    padding-bottom: 100px;
-}
-
-
-/* =========================
-   PROFILE CARD
-========================= */
-  .profile-card {
-    position: relative;
-
-    padding: 45px;
-
-    border-radius: 28px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,0.065),
-            rgba(255,255,255,0.015)
-        );
-
-    border: 1px solid rgba(255,255,255,0.13);
-
-    box-shadow:
-        0 25px 80px
-        rgba(0,0,0,0.5);
-
-    overflow: hidden;
-}
-
-.profile-card::before {
-
-    content: "";
-
-    position: absolute;
-
-    top: 0;
-    right: 0;
-
-    width: 4px;
-
-    height: 100%;
-
-    background:
-        linear-gradient(
-            180deg,
-            #aaa,
-            transparent
-        );
-}
-
-
-/* =========================
-   PROFILE TOP
-========================= */
-
-.profile-top {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 35px;
-
-    padding-bottom: 35px;
-
-    border-bottom: 1px solid #292929;
-}
-
-
-/* =========================
-   AVATAR
-========================= */
-
-.avatar {
-
-    width: 150px;
-
-    height: 150px;
-
-    flex-shrink: 0;
-
-    border-radius: 50%;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 70px;
-
-    background:
-        radial-gradient(
-            circle,
-            #242424,
-            #080808
-        );
-
-    border: 2px solid #555;
-
-    box-shadow:
-        0 0 40px
-        rgba(255,255,255,0.08);
-}
-
-
-/* =========================
-   PLAYER NAME
-========================= */
-
-.player-info h2 {
-
-    margin: 0;
-
-    font-size: 38px;
-
-    color: #fff;
-}
-
-.player-info .username {
-
-    color: #777;
-
-    font-size: 15px;
-
-    margin-top: 5px;
-}
-
-.status {
-
-    display: inline-block;
-
-    margin-top: 12px;
-
-    padding: 7px 15px;
-
-    border-radius: 20px;
-
-    background:
-        rgba(100,180,100,0.08);
-
-    border: 1px solid
-        rgba(120,190,120,0.25);
-
-    color: #aaa;
-
-    font-size: 13px;
-}
-
-
-/* =========================
-   TEAM BADGE
-========================= */
-
-.team-badge {
-
-    margin-right: auto;
-
-    min-width: 150px;
-
-    text-align: center;
-
-    padding: 18px;
-
-    border-radius: 18px;
-
-    background: rgba(255,255,255,0.035);
-
-    border: 1px solid #333;
-}
-
-.team-badge .team-icon {
-
-    display: block;
-
-    font-size: 42px;
-
-    margin-bottom: 7px;
-}
-
-.team-badge span:last-child {
-
-    color: #bbb;
-
-    font-size: 15px;
-}
-
-
-/* =========================
-   SECTION TITLE
-========================= */
-
-.section-title {
-
-    margin:
-
-        40px
-        0
-        20px;
-
-    font-size: 23px;
-
-    color: #ddd;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-}
-
-
-/* =========================
-   INFORMATION GRID
-========================= */
-
-.info-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(210px, 1fr)
-        );
-
-    gap: 15px;
-}
-
-.info-box {
-
-    padding: 22px;
-
-    border-radius: 17px;
-
-    background:
-        rgba(255,255,255,0.035);
-
-    border: 1px solid #292929;
-
-    transition: 0.3s;
-}
-
-.info-box:hover {
-
-    transform: translateY(-4px);
-
-    background:
-        rgba(255,255,255,0.06);
-
-    border-color: #444;
-}
-
-.info-box .label {
-
-    display: block;
-
-    color: #777;
-
-    font-size: 13px;
-
-    margin-bottom: 7px;
-}
-
-.info-box .value {
-
-    color: #eee;
-
-    font-size: 18px;
-
-    font-weight: bold;
-}
-
-
-/* =========================
-   STATS
-========================= */
-
-.stats {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(150px, 1fr)
-        );
-
-    gap: 15px;
-}
-
-.stat {
-
-    text-align: center;
-
-    padding: 25px 15px;
-
-    border-radius: 18px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,0.055),
-            rgba(255,255,255,0.015)
-        );
-
-    border: 1px solid #292929;
-}
-
-.stat-number {
-
-    font-size: 32px;
-
-    font-weight: bold;
-
-    color: #fff;
-}
-
-.stat-label {
-
-    color: #777;
-
-    font-size: 13px;
-
-    margin-top: 5px;
-}
-
-
-/* =========================
-   MATCH HISTORY
-========================= */
-
-.matches {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 12px;
-}
-
-.match {
-  display: grid;
-    grid-template-columns:
-        1fr
-        auto
-        1fr;
-
-    align-items: center;
-
-    gap: 15px;
-
-    padding: 18px;
-
-    border-radius: 15px;
-
-    background:
-        rgba(255,255,255,0.03);
-
-    border: 1px solid #292929;
-}
-
-.match-team {
-
-    color: #bbb;
-
-    font-size: 15px;
-}
-
-.match-team:last-child {
-
-    text-align: left;
-}
-
-.match-result {
-
-    padding: 7px 13px;
-
-    border-radius: 10px;
-
-    background: #151515;
-
-    border: 1px solid #333;
-
-    color: #aaa;
-
-    font-size: 13px;
-}
-
-
-/* =========================
-   EMPTY PROFILE NOTICE
-========================= */
-
-.notice {
-
-    margin-top: 35px;
-
-    padding: 25px;
-
-    border-radius: 18px;
-
-    text-align: center;
-
-    background:
-        rgba(255,255,255,0.025);
-
-    border: 1px dashed #444;
-
-    color: #888;
-
-    line-height: 2;
-}
-
-
-/* =========================
-   BUTTONS
-========================= */
-
-.buttons {
-
-    display: flex;
-
-    justify-content: center;
-
-    gap: 15px;
-
-    margin-top: 40px;
-
-    flex-wrap: wrap;
-}
-
-.button {
-
-    display: inline-block;
-
-    padding: 14px 28px;
-
-    border-radius: 14px;
-
-    color: #eee;
-
-    text-decoration: none;
-
-    background: #151515;
-
-    border: 1px solid #444;
-
-    transition: 0.3s;
-}
-
-.button:hover {
-
-    background: #252525;
-
-    transform: translateY(-3px);
-}
-
-
-/* =========================
-   FOOTER
-========================= */
-
-footer {
-
-    text-align: center;
-
-    padding: 40px 20px;
-
-    border-top: 1px solid #151515;
-
-    color: #666;
-
-    font-size: 14px;
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 700px) {
-
-    .side-menu {
-
-        width: 290px;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08090d">
+  <title>پروفایل بازیکن | Atramentum</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --bg: #08090d;
+      --panel: rgba(255,255,255,0.045);
+      --border: rgba(255,255,255,0.09);
+      --gold: #c9a96e;
+      --gold-light: #ead5a6;
+      --text: #f1f0ed;
+      --muted: #9999a3;
+      --green: #65c58b;
+      --red: #e47a7a;
     }
 
-    .profile-card {
-
-        padding: 28px 20px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .profile-top {
-
-        flex-direction: column;
-
-        text-align: center;
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .team-badge {
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 10%, rgba(126,91,43,0.14), transparent 40%),
+        radial-gradient(ellipse at 90% 70%, rgba(40,65,70,0.10), transparent 40%);
+    }
 
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .container {
+      width: min(1120px, 92%);
+      margin: auto;
+    }
+
+    /* Header */
+
+    .topbar {
+      height: 78px;
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8,9,13,0.82);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .logo {
+      color: var(--gold-light);
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-links a {
+      color: #aaaab1;
+      font-size: 12px;
+      transition: 0.2s;
+    }
+
+    .header-links a:hover,
+    .header-links a.active {
+      color: var(--gold-light);
+    }
+
+    .logout-button {
+      padding: 9px 16px;
+      border: 1px solid rgba(228,122,122,0.3);
+      border-radius: 9px;
+      background: rgba(228,122,122,0.06);
+      color: #e99b9b;
+      cursor: pointer;
+      font-size: 11px;
+      transition: 0.2s;
+    }
+
+    .logout-button:hover {
+      background: rgba(228,122,122,0.15);
+    }
+
+    /* Page heading */
+
+    .page-heading {
+      padding: 55px 0 28px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 4px;
+    }
+
+    .page-heading h1 {
+      font-size: clamp(27px, 5vw, 39px);
+      margin-top: 9px;
+      font-weight: 800;
+    }
+
+    .page-heading p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 9px;
+    }
+
+    /* Profile hero */
+
+    .profile-hero {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 25px;
+      align-items: stretch;
+    }
+
+    .identity-card {
+      position: relative;
+      overflow: hidden;
+      padding: 35px;
+      border-radius: 22px;
+      border: 1px solid rgba(201,169,110,0.22);
+      background: linear-gradient(125deg, rgba(201,169,110,0.10), rgba(255,255,255,0.025));
+    }
+
+    .identity-card::after {
+      content: "A";
+      position: absolute;
+      left: 20px;
+      bottom: -90px;
+      font-size: 270px;
+      font-weight: 900;
+      color: rgba(201,169,110,0.035);
+      pointer-events: none;
+    }
+
+    .identity-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .identity-top {
+      display: flex;
+      align-items: center;
+      gap: 23px;
+    }
+
+    .avatar {
+      width: 95px;
+      height: 95px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 25px;
+      border: 1px solid rgba(201,169,110,0.5);
+      background: linear-gradient(145deg, rgba(201,169,110,0.19), rgba(255,255,255,0.025));
+      font-size: 43px;
+      color: var(--gold-light);
+    }
+
+    .player-label {
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 3px;
+      font-weight: 700;
+    }
+
+    .player-name {
+      font-size: clamp(25px, 4vw, 35px);
+      font-weight: 900;
+      margin-top: 5px;
+    }
+
+    .player-code {
+      direction: ltr;
+      text-align: right;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 5px;
+      letter-spacing: 2px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 25px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: rgba(0,0,0,0.15);
+      color: #c9c9cf;
+      font-size: 10px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(101,197,139,0.5);
+    }
+
+    /* House card */
+
+    .house-card {
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--panel);
+      transition: 0.3s;
+    }
+
+    .house-emblem {
+      width: 83px;
+      height: 83px;
+      display: grid;
+      place-items: center;
+      border-radius: 23px;
+      background: rgba(255,255,255,0.05);
+      font-size: 44px;
+      margin-bottom: 17px;
+    }
+
+    .house-label {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .house-name {
+      color: var(--gold-light);
+      font-size: 18px;
+      font-weight: 800;
+      margin-top: 5px;
+    }
+
+    .house-description {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 8px;
+      line-height: 2;
+    }
+
+    /* Sections */
+
+    .section {
+      margin-top: 45px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .section-title h2 {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .section-title span {
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2px;
+    }
+
+    /* Information */
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .info-card {
+      padding: 22px 19px;
+      border-radius: 15px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+
+    .info-card .label {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .info-card .value {
+      color: #e6e3dd;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    /* Stats */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat-card {
+      padding: 24px 17px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel);
+      text-align: center;
+    }
+
+    .stat-icon {
+      font-size: 25px;
+      margin-bottom: 10px;
+    }
+
+    .stat-number {
+      font-size: 27px;
+      font-weight: 900;
+      color: var(--gold-light);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* History */
+
+    .history-panel {
+      padding: 30px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--panel);
+      text-align: center;
+    }
+
+    .history-icon {
+      font-size: 37px;
+      margin-bottom: 12px;
+    }
+
+    .history-panel h3 {
+      font-size: 15px;
+      color: #dedbd5;
+    }
+
+    .history-panel p {
+      font-size: 11px;
+      line-height: 2.2;
+      color: var(--muted);
+      margin-top: 9px;
+    }
+
+    /* Footer */
+
+    footer {
+      margin-top: 70px;
+      padding: 35px 20px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer strong {
+      color: var(--gold);
+      font-size: 19px;
+      letter-spacing: 3px;
+    }
+
+    footer p {
+      color: #777780;
+      font-size: 10px;
+      margin-top: 12px;
+    }
+
+    /* Loading and errors */
+
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      transition: opacity 0.3s;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-symbol {
+      color: var(--gold-light);
+      font-size: 43px;
+      animation: pulse 1.2s infinite alternate;
+    }
+
+    .loading-text {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 18px;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.4; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1.05); }
+    }
+
+    .page-error {
+      display: none;
+      width: min(500px, 90%);
+      margin: 100px auto;
+      padding: 35px;
+      border: 1px solid rgba(228,122,122,0.25);
+      border-radius: 18px;
+      background: rgba(228,122,122,0.05);
+      text-align: center;
+    }
+
+    .page-error h2 {
+      color: #e99b9b;
+      font-size: 20px;
+    }
+
+    .page-error p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 2.3;
+      margin-top: 13px;
+    }
+
+    .retry-button {
+      margin-top: 20px;
+      padding: 11px 20px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: white;
+      cursor: pointer;
+    }
+
+    @media (max-width: 850px) {
+      .profile-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .house-card {
+        flex-direction: row;
+        gap: 17px;
+      }
+
+      .house-emblem {
         margin: 0;
+        width: 65px;
+        height: 65px;
+        font-size: 33px;
+      }
 
-        width: 100%;
+      .info-grid,
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
-    .player-info h2 {
+    @media (max-width: 550px) {
+      .topbar {
+        padding: 0 4%;
+      }
 
-        font-size: 30px;
+      .header-links {
+        gap: 12px;
+      }
+
+      .header-links a:not(.active) {
+        display: none;
+      }
+
+      .logo {
+        font-size: 16px;
+      }
+
+      .identity-card {
+        padding: 25px 20px;
+      }
+
+      .avatar {
+        width: 75px;
+        height: 75px;
+        font-size: 34px;
+      }
+
+      .identity-top {
+        gap: 15px;
+      }
+
+      .info-grid,
+      .stats-grid {
+        gap: 9px;
+      }
+
+      .info-card {
+        padding: 17px 13px;
+      }
+
+      .stat-card {
+        padding: 20px 10px;
+      }
+
+      .history-panel {
+        padding: 25px 18px;
+      }
     }
-
-    .match {
-
-        grid-template-columns:
-            1fr;
-
-        text-align: center;
-    }
-
-    .match-team:last-child {
-
-        text-align: center;
-    }
-
-}
-
-</style>
-
+  </style>
 </head>
-
 
 <body>
 
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-symbol">A</div>
+    <div class="loading-text">در حال ورود به پرونده بازیکن...</div>
+  </div>
 
-<!-- =========================
-     MENU
-========================= -->
+  <header class="topbar">
+    <a href="index.html" class="logo">ATRAMENTUM</a>
 
-<button
-    class="menu-btn"
-    onclick="toggleMenu()">
+    <nav class="header-links">
+      <a href="stadium.html">ورزشگاه</a>
+      <a href="leaderboard.html">جدول امتیازات</a>
+      <a href="about.html">درباره ما</a>
+      <a href="profile.html" class="active">پروفایل</a>
+      <button class="logout-button" id="logoutButton">خروج از حساب</button>
+    </nav>
+  </header>
 
-    ☰
+  <main class="container" id="profileContent" style="display:none">
 
-</button>
-
-
-<div
-    class="side-menu"
-    id="sideMenu">
-
-
-    <div class="menu-header">
-
-        <span>⚡️</span>
-
-        <h2>ATRAMENTUM</h2>
-
-        <button
-            class="close-btn"
-            onclick="toggleMenu()">
-
-            ×
-
-        </button>
-
+    <div class="page-heading">
+      <div class="eyebrow">PLAYER RECORDS / ATRAMENTUM</div>
+      <h1>پرونده بازیکن</h1>
+      <p>اطلاعات هویتی، گروه و سوابق رقابتی تو در آترامنتوم</p>
     </div>
 
+    <section class="profile-hero">
 
-    <div class="menu-items">
+      <div class="identity-card">
+        <div class="identity-content">
 
-        <a href="index.html">
+          <div class="identity-top">
+            <div class="avatar" id="playerAvatar">⚔️</div>
 
-            <span>🏠</span>
+            <div>
+              <div class="player-label">OFFICIAL PLAYER</div>
+              <h2 class="player-name" id="playerName">---</h2>
+              <div class="player-code" id="playerCode">PLAYER</div>
+            </div>
+          </div>
 
-            <span>خانه</span>
-
-        </a>
-
-
-        <a href="stadium.html">
-
-            <span>🏟</span>
-
-            <span>میدان کوییدیچ</span>
-
-        </a>
-
-
-        <a href="teams.html">
-
-            <span>🛡</span>
-
-            <span>تیم‌ها</span>
-
-        </a>
-
-
-        <a href="profile.html">
-
-            <span>👤</span>
-
-            <span>پروفایل</span>
-
-        </a>
-
-
-        <a href="leaderboard.html">
-
-            <span>🏆</span>
-
-            <span>رده‌بندی</span>
-
-        </a>
-
-
-        <a href="matches.html">
-
-            <span>⚔️</span>
-
-            <span>مسابقات</span>
-
-        </a>
-
-
-        <a href="rules.html">
-
-            <span>📜</span>
-
-            <span>قوانین</span>
-
-        </a>
-
-
-        <a href="about.html">
-
-            <span>✨</span>
-
-            <span>درباره آترامنتوم</span>
-
-        </a>
-
-    </div>
-
-</div>
-
-
-<div
-    class="menu-overlay"
-    id="menuOverlay"
-    onclick="toggleMenu()">
-</div>
-
-
-
-<!-- =========================
-     HERO
-========================= -->
-
-<header class="hero">
-
-    <div class="hero-symbol">
-        👤
-    </div>
-
-    <h1>
-        پروفایل بازیکن
-    </h1>
-
-    <p>
-        پرونده رسمی بازیکن در کوییدیچ آترامنتوم
-    </p>
-
-</header>
-
-
-
-<!-- =========================
-     PROFILE
-========================= -->
-
-<main class="profile-container">
-
-
-    <section class="profile-card">
-
-
-        <!-- PROFILE TOP -->
-
-        <div class="profile-top">
-          <div class="avatar">
-                🧙
-
+          <div class="status-row">
+            <div class="status-pill">
+              <span class="status-dot"></span>
+              <span id="playerStatus">در حال بررسی وضعیت</span>
             </div>
 
-
-            <div class="player-info">
-
-                <h2>
-                    بازیکن آترامنتوم
-                </h2>
-
-                <div class="username">
-                    @player
-                </div>
-
-                <div class="status">
-                    🟢 بازیکن فعال
-                </div>
-
+            <div class="status-pill">
+              🏅 بازیکن ثبت‌شده
             </div>
-
-
-            <div class="team-badge">
-
-                <span class="team-icon">
-                    🐍
-                </span>
-
-                <span>
-                    انتخاب تیم نشده
-                </span>
-
-            </div>
-
+          </div>
 
         </div>
+      </div>
 
-
-
-        <!-- =========================
-             BASIC INFORMATION
-        ========================= -->
-
-        <h3 class="section-title">
-            📜 اطلاعات بازیکن
-        </h3>
-
-
-        <div class="info-grid">
-
-
-            <div class="info-box">
-
-                <span class="label">
-                    نام بازیکن
-                </span>
-
-                <span class="value">
-                    هنوز ثبت نشده
-                </span>
-
-            </div>
-
-
-            <div class="info-box">
-
-                <span class="label">
-                    شماره بازیکن
-                </span>
-
-                <span class="value">
-                    —
-                </span>
-
-            </div>
-
-
-            <div class="info-box">
-
-                <span class="label">
-                    تیم
-                </span>
-
-                <span class="value">
-                    هنوز انتخاب نشده
-                </span>
-
-            </div>
-
-
-            <div class="info-box">
-
-                <span class="label">
-                    پست بازی
-                </span>
-
-                <span class="value">
-                    هنوز انتخاب نشده
-                </span>
-
-            </div>
-
-
+      <div class="house-card" id="houseCard">
+        <div class="house-emblem" id="houseEmblem">🏰</div>
+        <div>
+          <div class="house-label">YOUR HOUSE</div>
+          <div class="house-name" id="houseName">---</div>
+          <div class="house-description" id="houseDescription">
+            گروه اختصاصی بازیکن
+          </div>
         </div>
-
-
-
-        <!-- =========================
-             STATS
-        ========================= -->
-
-        <h3 class="section-title">
-            🏆 آمار بازیکن
-        </h3>
-
-
-        <div class="stats">
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    0
-                </div>
-
-                <div class="stat-label">
-                    مسابقات
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    0
-                </div>
-
-                <div class="stat-label">
-                    پیروزی
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    0
-                </div>
-
-                <div class="stat-label">
-                    شکست
-                </div>
-
-            </div>
-
-
-            <div class="stat">
-
-                <div class="stat-number">
-                    0
-                </div>
-
-                <div class="stat-label">
-                    امتیاز
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =========================
-             MATCH HISTORY
-        ========================= -->
-
-        <h3 class="section-title">
-            ⚔️ سابقه مسابقات
-        </h3>
-
-
-        <div class="matches">
-
-
-            <div class="match">
-
-                <div class="match-team">
-                    تیم شما
-                </div>
-
-                <div class="match-result">
-                    هنوز مسابقه‌ای ثبت نشده
-                </div>
-
-                <div class="match-team">
-                    حریف
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =========================
-             NOTICE
-        ========================= -->
-
-        <div class="notice">
-
-            این پروفایل در حال حاضر نمونه اولیه است.
-            <br>
-
-            پس از ثبت بازیکن و انتخاب تیم،
-            اطلاعات واقعی بازیکن در این بخش نمایش داده خواهد شد.
-
-        </div>
-
-
-
-        <!-- =========================
-             BUTTONS
-        ========================= -->
-      <div class="buttons">
-            <a
-                href="stadium.html"
-                class="button">
-
-                🏟 ورود به میدان
-
-            </a>
-
-
-            <a
-                href="index.html"
-                class="button">
-
-                ↩️ صفحه اصلی
-
-            </a>
-
-        </div>
-
+      </div>
 
     </section>
 
+    <section class="section">
+      <div class="section-title">
+        <h2>اطلاعات هویتی</h2>
+        <span>PLAYER IDENTITY</span>
+      </div>
 
-</main>
+      <div class="info-grid">
 
+        <div class="info-card">
+          <div class="label">نام بازیکن</div>
+          <div class="value" id="infoName">---</div>
+        </div>
 
+        <div class="info-card">
+          <div class="label">شماره بازیکن</div>
+          <div class="value" id="playerNumber">---</div>
+        </div>
 
-<!-- =========================
-     FOOTER
-========================= -->
+        <div class="info-card">
+          <div class="label">گروه</div>
+          <div class="value" id="playerTeam">---</div>
+        </div>
 
-<footer>
+        <div class="info-card">
+          <div class="label">موقعیت بازی</div>
+          <div class="value" id="playerPosition">---</div>
+        </div>
 
-    Atramentum Quidditch © 2026
+      </div>
+    </section>
 
-    <br>
+    <section class="section">
+      <div class="section-title">
+        <h2>آمار رقابتی</h2>
+        <span>PLAYER STATISTICS</span>
+      </div>
 
-    ✦ پرونده بازیکنان آترامنتوم ✦
+      <div class="stats-grid">
 
-</footer>
+        <div class="stat-card">
+          <div class="stat-icon">🏟️</div>
+          <div class="stat-number" id="matchesPlayed">—</div>
+          <div class="stat-label">مسابقات انجام‌شده</div>
+        </div>
 
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-number" id="matchesWon">—</div>
+          <div class="stat-label">پیروزی‌ها</div>
+        </div>
 
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-number" id="totalPoints">—</div>
+          <div class="stat-label">امتیاز ثبت‌شده</div>
+        </div>
 
-<!-- =========================
-     JAVASCRIPT
-========================= -->
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-number" id="specialActions">—</div>
+          <div class="stat-label">عملکرد ویژه</div>
+        </div>
 
-<script>
+      </div>
+    </section>
 
-function toggleMenu() {
+    <section class="section">
+      <div class="section-title">
+        <h2>تاریخچه مسابقات</h2>
+        <span>MATCH HISTORY</span>
+      </div>
 
-    const menu =
-        document.getElementById("sideMenu");
+      <div class="history-panel">
+        <div class="history-icon">📜</div>
+        <h3>سوابق مسابقات</h3>
+        <p id="historyMessage">
+          هنوز مسابقه‌ای در پرونده این بازیکن ثبت نشده است.
+          پس از اتصال سیستم مسابقات، نتایج اینجا نمایش داده خواهند شد.
+        </p>
+      </div>
+    </section>
 
-    const overlay =
-        document.getElementById("menuOverlay");
+  </main>
 
+  <div class="page-error" id="pageError">
+    <h2>دسترسی به پرونده ممکن نیست</h2>
+    <p id="errorMessage">
+      دریافت اطلاعات بازیکن با مشکل مواجه شد.
+    </p>
+    <button class="retry-button" id="retryButton">تلاش دوباره</button>
+  </div>
 
-    menu.classList.toggle("open");
+  <footer>
+    <strong>ATRAMENTUM</strong>
+    <p>پرونده رسمی بازیکنان آترامنتوم</p>
+    <p>© 2026 Atramentum Quidditch</p>
+  </footer>
 
-    overlay.classList.toggle("active");
+  <script>
+    const loadingScreen = document.getElementById("loadingScreen");
+    const profileContent = document.getElementById("profileContent");
+    const pageError = document.getElementById("pageError");
+    const errorMessage = document.getElementById("errorMessage");
 
-}
+    const teams = {
+      gryffindor: {
+        name: "Gryffindor",
+        persian: "گریفیندور",
+        emoji: "🦁",
+        description: "شجاعت، جسارت و اراده",
+        color: "#a83b38"
+      },
 
+      slytherin: {
+        name: "Slytherin",
+        persian: "اسلیترین",
+        emoji: "🐍",
+        description: "جاه‌طلبی، هوشمندی و استراتژی",
+        color: "#397c61"
+      },
 
-/* بستن منو با ESC */
+      hufflepuff: {
+        name: "Hufflepuff",
+        persian: "هافلپاف",
+        emoji: "🦡",
+        description: "وفاداری، پشتکار و انصاف",
+        color: "#c4a34d"
+      },
 
-document.addEventListener(
-    "keydown",
-    function(event) {
+      ravenclaw: {
+        name: "Ravenclaw",
+        persian: "ریونکلا",
+        emoji: "🦅",
+        description: "خرد، خلاقیت و دانش",
+        color: "#527ba8"
+      }
+    };
 
-        if (event.key === "Escape") {
+    const positions = {
+      Chaser: "مهاجم",
+      Keeper: "دروازه‌بان",
+      Beater: "مدافع",
+      Seeker: "جوینده"
+    };
 
-            document
-                .getElementById("sideMenu")
-                .classList.remove("open");
+    function hideLoading() {
+      loadingScreen.classList.add("hidden");
+    }
 
+    function showError(text) {
+      hideLoading();
+      profileContent.style.display = "none";
+      pageError.style.display = "block";
+      errorMessage.textContent = text;
+    }
 
-            document
-                .getElementById("menuOverlay")
-                .classList.remove("active");
+    function showProfile() {
+      pageError.style.display = "none";
+      profileContent.style.display = "block";
+      hideLoading();
+    }
 
+    async function loadProfile() {
+      const token = localStorage.getItem("atramentumSession");
+
+      if (!token) {
+        window.location.replace("index.html");
+        return;
+      }
+
+      loadingScreen.classList.remove("hidden");
+      pageError.style.display = "none";
+      profileContent.style.display = "none";
+
+      try {
+        const response = await fetch("/api/profile", {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          },
+          cache: "no-store"
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("atramentumSession");
+          window.location.replace("index.html");
+          return;
         }
 
+        if (!response.ok) {
+          throw new Error("خطا در دریافت اطلاعات از سرور.");
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.playerId) {
+          throw new Error("اطلاعات بازیکن در پاسخ سرور معتبر نیست.");
+        }
+
+        renderProfile(data);
+        showProfile();
+
+      } catch (error) {
+        showError(error.message || "ارتباط با سرور برقرار نشد.");
+      }
     }
-);
 
-</script>
+    function renderProfile(data) {
+      const team = teams[data.teamId] || {
+        name: data.teamId || "نامشخص",
+        persian: "نامشخص",
+        emoji: "🏰",
+        description: "گروه بازیکن",
+        color: "#c9a96e"
+      };
 
+      const position = positions[data.position] || data.position || "نامشخص";
+      const active = data.active === true || data.active === 1;
+
+      document.getElementById("playerName").innerText = data.name || "بازیکن";
+      document.getElementById("infoName").innerText = data.name || "نامشخص";
+
+      document.getElementById("playerCode").innerText =
+        "PLAYER #" + String(data.playerId).padStart(4, "0");
+
+      document.getElementById("playerNumber").innerText =
+        data.playerNumber || "—";
+
+      document.getElementById("playerTeam").innerText =
+        team.name + " / " + team.persian;
+
+      document.getElementById("playerPosition").innerText = position;
+
+      document.getElementById("houseName").innerText = team.name;
+      document.getElementById("houseEmblem").innerText = team.emoji;
+      document.getElementById("houseDescription").innerText = team.description;
+
+      document.getElementById("houseCard").style.borderColor = team.color;
+
+      document.getElementById("playerStatus").innerText =
+        active ? "بازیکن فعال" : "بازیکن غیرفعال";
+
+      document.getElementById("playerStatus").previousElementSibling.style.background =
+        active ? "#65c58b" : "#e47a7a";
+
+      document.getElementById("playerAvatar").innerText = team.emoji;
+
+      // آمار تا زمان اتصال سیستم مسابقات، عمداً عدد ساختگی ندارند.
+      document.getElementById("matchesPlayed").innerText = "—";
+      document.getElementById("matchesWon").innerText = "—";
+      document.getElementById("totalPoints").innerText = "—";
+      document.getElementById("specialActions").innerText = "—";
+    }
+
+    document.getElementById("logoutButton").addEventListener("click", function() {
+      localStorage.removeItem("atramentumSession");
+      window.location.replace("index.html");
+    });
+
+    document.getElementById("retryButton").addEventListener("click", loadProfile);
+
+    loadProfile();
+  </script>
 
 </body>
-
 </html>
