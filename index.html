@@ -1,132 +1,826 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08090d">
+  <title>Atramentum | دنیای کوییدیچ</title>
 
-    <title>Atramentum Quidditch</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
 
-    <style>
-        body {
-            margin: 0;
-            background: #080808;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+    :root {
+      --bg: #08090d;
+      --panel: rgba(255,255,255,0.045);
+      --border: rgba(255,255,255,0.09);
+      --gold: #c9a96e;
+      --gold-light: #ead5a6;
+      --text: #f1f0ed;
+      --muted: #9999a3;
+    }
 
-        .header {
-            padding: 50px 20px;
-            background: linear-gradient(180deg, #191919, #080808);
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        .logo {
-            font-size: 70px;
-        }
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        h1 {
-            font-size: 45px;
-            margin: 15px 0;
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(133,99,49,0.16), transparent 45%),
+        radial-gradient(ellipse at 0% 70%, rgba(44,55,77,0.12), transparent 40%);
+    }
 
-        .subtitle {
-            color: #aaa;
-            font-size: 19px;
-        }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-        .card {
-            width: 80%;
-            max-width: 700px;
-            margin: 60px auto;
-            padding: 45px 25px;
-            background: #121212;
-            border: 1px solid #333;
-            border-radius: 25px;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
-        }
+    button, input {
+      font: inherit;
+    }
 
-        .card h2 {
-            font-size: 30px;
-        }
+    /* Navigation */
 
-        .card p {
-            color: #bbb;
-            font-size: 18px;
-            line-height: 2;
-        }
+    .topbar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 10;
+      padding: 25px 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-        .button {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 16px 40px;
-            background: white;
-            color: black;
-            text-decoration: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            transition: 0.2s;
-        }
+    .logo {
+      color: var(--gold-light);
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
 
-        .button:hover {
-            transform: scale(1.05);
-            background: #dddddd;
-        }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 27px;
+    }
 
-        footer {
-            margin-top: 100px;
-            padding: 25px;
-            color: #666;
-        }
-    </style>
+    .nav-links a {
+      color: #b5b3b0;
+      font-size: 12px;
+      transition: 0.25s;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold-light);
+    }
+
+    .nav-login {
+      padding: 10px 19px;
+      border: 1px solid rgba(201,169,110,0.45);
+      border-radius: 10px;
+      color: var(--gold-light) !important;
+    }
+
+    /* Hero */
+
+    .hero {
+      min-height: 760px;
+      padding: 150px 20px 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 120px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: rgba(201,169,110,0.07);
+      filter: blur(90px);
+      z-index: -1;
+    }
+
+    .crest {
+      width: 112px;
+      height: 112px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(201,169,110,0.5);
+      border-radius: 30px;
+      background: linear-gradient(145deg, rgba(201,169,110,0.14), rgba(255,255,255,0.015));
+      color: var(--gold-light);
+      font-size: 57px;
+      box-shadow: 0 0 70px rgba(201,169,110,0.08);
+      margin-bottom: 35px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 5px;
+      font-weight: 700;
+      margin-bottom: 17px;
+    }
+
+    .hero h1 {
+      font-size: clamp(43px, 9vw, 88px);
+      font-weight: 900;
+      letter-spacing: 4px;
+      line-height: 1.25;
+      background: linear-gradient(120deg, #fff, #e3c995, #a98a56);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero h2 {
+      font-size: clamp(17px, 3vw, 23px);
+      font-weight: 400;
+      color: #d2cec6;
+      margin-top: 18px;
+    }
+
+    .hero-description {
+      max-width: 650px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 2.6;
+      margin-top: 23px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 13px;
+      margin-top: 35px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .primary-button,
+    .secondary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 170px;
+      padding: 13px 23px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      transition: 0.25s;
+    }
+
+    .primary-button {
+      background: linear-gradient(135deg, #e5cc9a, #b28d51);
+      color: #17130c;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(201,169,110,0.13);
+    }
+
+    .primary-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(201,169,110,0.22);
+    }
+
+    .secondary-button {
+      border: 1px solid var(--border);
+      color: #d0cdd0;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .secondary-button:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      transform: translateY(-3px);
+    }
+
+    .hero-divider {
+      width: 100px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin-top: 55px;
+    }
+
+    /* General sections */
+
+    .container {
+      width: min(1100px, 90%);
+      margin: auto;
+    }
+
+    section {
+      padding: 65px 0;
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 38px;
+    }
+
+    .section-heading span {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 4px;
+      font-weight: 700;
+    }
+
+    .section-heading h2 {
+      font-size: 27px;
+      font-weight: 800;
+      margin-top: 10px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 11px;
+    }
+
+    /* Login */
+
+    .login-section {
+      padding-top: 25px;
+    }
+
+    .login-card {
+      width: min(520px, 100%);
+      margin: auto;
+      padding: 38px;
+      border-radius: 23px;
+      border: 1px solid rgba(201,169,110,0.24);
+      background: linear-gradient(145deg, rgba(201,169,110,0.075), rgba(255,255,255,0.025));
+      box-shadow: 0 25px 80px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .login-icon {
+      font-size: 38px;
+      margin-bottom: 17px;
+    }
+
+    .login-card h2 {
+      font-size: 23px;
+      color: var(--gold-light);
+    }
+
+    .login-card > p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 2.2;
+      margin-top: 10px;
+    }
+
+    .input-wrapper {
+      margin-top: 25px;
+      text-align: right;
+    }
+
+    .input-wrapper label {
+      display: block;
+      color: #c8c5bd;
+      font-size: 12px;
+      margin-bottom: 9px;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      padding: 15px 16px;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 11px;
+      color: white;
+      outline: none;
+      text-align: center;
+      direction: ltr;
+      letter-spacing: 3px;
+      font-size: 16px;
+      transition: 0.25s;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.08);
+    }
+
+    .input-wrapper input::placeholder {
+      color: #666670;
+      letter-spacing: 1px;
+    }
+
+    .login-button {
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    .login-button:disabled {
+      opacity: 0.55;
+      cursor: wait;
+      transform: none;
+    }
+
+    .message {
+      display: none;
+      margin-top: 16px;
+      padding: 11px;
+      border-radius: 9px;
+      font-size: 12px;
+      line-height: 1.9;
+    }
+
+    .message.error {
+      display: block;
+      color: #ffb3b3;
+      background: rgba(180,45,45,0.12);
+      border: 1px solid rgba(220,70,70,0.2);
+    }
+
+    .message.success {
+      display: block;
+      color: #b7e7c7;
+      background: rgba(45,150,80,0.12);
+      border: 1px solid rgba(80,190,110,0.2);
+    }
+
+    .login-note {
+      color: #777780;
+      font-size: 10px;
+      margin-top: 20px;
+      line-height: 2;
+    }
+
+    /* Features */
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 17px;
+    }
+
+    .feature-card {
+      padding: 28px 23px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(201,169,110,0.4);
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 14px;
+    }
+
+    .feature-card h3 {
+      font-size: 15px;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 2.2;
+    }
+
+    /* Houses */
+
+    .houses-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .house-card {
+      padding: 25px 15px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .house-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255,255,255,0.065);
+    }
+
+    .house-card .icon {
+      font-size: 37px;
+      margin-bottom: 13px;
+    }
+
+    .house-card h3 {
+      font-size: 14px;
+      margin-bottom: 7px;
+    }
+
+    .house-card p {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 2;
+    }
+
+    .gryffindor { border-top: 2px solid #a83b38; }
+    .slytherin { border-top: 2px solid #397c61; }
+    .hufflepuff { border-top: 2px solid #c4a34d; }
+    .ravenclaw { border-top: 2px solid #527ba8; }
+
+    /* Final banner */
+
+    .final-banner {
+      margin: 35px 0 75px;
+      padding: 45px 25px;
+      border: 1px solid rgba(201,169,110,0.22);
+      border-radius: 22px;
+      background: linear-gradient(120deg, rgba(201,169,110,0.10), rgba(255,255,255,0.02));
+      text-align: center;
+    }
+
+    .final-banner h2 {
+      font-size: 23px;
+      color: var(--gold-light);
+    }
+
+    .final-banner p {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 13px 0 23px;
+      line-height: 2.2;
+    }
+
+    /* Footer */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 20px 25px;
+      text-align: center;
+    }
+
+    .footer-logo {
+      color: var(--gold);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    footer p {
+      color: #777780;
+      font-size: 10px;
+      margin-top: 12px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 22px;
+      margin-top: 22px;
+    }
+
+    .footer-links a {
+      color: #aaaab1;
+      font-size: 11px;
+      transition: 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold-light);
+    }
+
+    @media (max-width: 800px) {
+      .nav-links {
+        gap: 13px;
+      }
+
+      .nav-links a:not(.nav-login) {
+        display: none;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .houses-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero {
+        min-height: 690px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .topbar {
+        padding: 20px 5%;
+      }
+
+      .logo {
+        font-size: 17px;
+      }
+
+      .login-card {
+        padding: 27px 20px;
+      }
+
+      .houses-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero-actions {
+        width: 100%;
+      }
+
+      .primary-button,
+      .secondary-button {
+        min-width: 145px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-    <header class="header">
+  <header class="topbar">
+    <a href="index.html" class="logo">ATRAMENTUM</a>
 
-        <div class="logo">
-            🧹🏆
+    <nav class="nav-links">
+      <a href="#features">ویژگی‌ها</a>
+      <a href="#houses">گروه‌ها</a>
+      <a href="about.html">درباره ما</a>
+      <a href="rules.html">قوانین</a>
+      <a href="#login" class="nav-login">ورود بازیکنان</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="crest">A</div>
+
+      <div class="eyebrow">WELCOME TO THE WORLD OF ATRAMENTUM</div>
+
+      <h1>ATRAMENTUM</h1>
+
+      <h2>اینجا افسانه‌ها ساخته می‌شوند.</h2>
+
+      <p class="hero-description">
+        به دنیایی وارد شو که در آن مهارت، استراتژی و وفاداری
+        سرنوشت رقابت‌ها را رقم می‌زنند.
+        چهار گروه، یک میدان و فرصتی برای ثبت نامت در تاریخ آترامنتوم.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#login" class="primary-button">ورود به آترامنتوم</a>
+        <a href="about.html" class="secondary-button">کشف دنیای آترامنتوم</a>
+      </div>
+
+      <div class="hero-divider"></div>
+    </section>
+
+    <div class="container">
+
+      <section class="login-section" id="login">
+        <div class="section-heading">
+          <span>PLAYER ACCESS</span>
+          <h2>ورود بازیکن</h2>
+          <p>برای ورود به دنیای رقابت، کد بازیکن خود را وارد کن.</p>
         </div>
 
-        <h1>
-            آترامنتوم کوییدیچ
-        </h1>
+        <div class="login-card">
+          <div class="login-icon">🗝️</div>
 
-        <p class="subtitle">
-            به میدان کوییدیچ آترامنتوم خوش آمدید
+          <h2>دروازه آترامنتوم</h2>
+
+          <p>
+            هر بازیکن دارای یک کد اختصاصی است.
+            با وارد کردن کد خود، وارد حساب بازیکنت شو.
+          </p>
+
+          <form id="loginForm">
+            <div class="input-wrapper">
+              <label for="playerCode">کد اختصاصی بازیکن</label>
+
+              <input
+                type="text"
+                id="playerCode"
+                maxlength="20"
+                placeholder="مثلاً ENZO001"
+                autocomplete="off"
+                spellcheck="false"
+                required
+              >
+            </div>
+
+            <button type="submit" class="primary-button login-button" id="loginButton">
+              ورود به حساب بازیکن
+            </button>
+
+            <div class="message" id="message" role="status"></div>
+          </form>
+
+          <div class="login-note">
+            کد بازیکن خود را از مسئول ثبت‌نام دریافت کن.
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="section-heading">
+          <span>THE EXPERIENCE</span>
+          <h2>تجربه آترامنتوم</h2>
+          <p>هر بخش، بخشی از مسیر رقابت توست.</p>
+        </div>
+
+        <div class="features-grid">
+
+          <div class="feature-card">
+            <div class="feature-icon">🏟️</div>
+            <h3>ورزشگاه</h3>
+            <p>
+              وارد میدان شو و فضای رقابت میان چهار گروه را تجربه کن.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>آمار بازیکنان</h3>
+            <p>
+              عملکرد و دستاوردهای خود را در پروفایل بازیکنت دنبال کن.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">🏆</div>
+            <h3>جدول رقابت‌ها</h3>
+            <p>
+              نتایج و جایگاه گروه‌ها را در مسیر قهرمانی دنبال کن.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="houses">
+        <div class="section-heading">
+          <span>FOUR HOUSES</span>
+          <h2>چهار گروه، یک آترامنتوم</h2>
+          <p>به گروه خود وفادار بمان و برای افتخار آن رقابت کن.</p>
+        </div>
+
+        <div class="houses-grid">
+
+          <div class="house-card gryffindor">
+            <div class="icon">🦁</div>
+            <h3>Gryffindor</h3>
+            <p>شجاعت و جسارت</p>
+          </div>
+
+          <div class="house-card slytherin">
+            <div class="icon">🐍</div>
+            <h3>Slytherin</h3>
+            <p>جاه‌طلبی و استراتژی</p>
+          </div>
+
+          <div class="house-card hufflepuff">
+            <div class="icon">🦡</div>
+            <h3>Hufflepuff</h3>
+            <p>وفاداری و پشتکار</p>
+          </div>
+
+          <div class="house-card ravenclaw">
+            <div class="icon">🦅</div>
+            <h3>Ravenclaw</h3>
+            <p>خرد و خلاقیت</p>
+          </div>
+
+        </div>
+      </section>
+
+      <div class="final-banner">
+        <h2>داستان تو از اینجا آغاز می‌شود.</h2>
+
+        <p>
+          میدان منتظر بازیکنانش است.
+          جایگاه خود را پیدا کن و برای افتخار گروهت بجنگ.
         </p>
 
-    </header>
+        <a href="#login" class="primary-button">ورود به میدان رقابت</a>
+      </div>
 
+    </div>
 
-    <main>
+  </main>
 
-        <section class="card">
+  <footer>
+    <div class="footer-logo">ATRAMENTUM</div>
 
-            <h2>
-                ⚡ آماده‌ای وارد میدان بشی؟
-            </h2>
+    <p>جهانی برای رقابت، افتخار و ساختن تاریخ</p>
 
-            <p>
-                تیم خودت رو انتخاب کن، وارد مسابقات شو
-                و برای قهرمانی بجنگ!
-            </p>
+    <div class="footer-links">
+      <a href="index.html">صفحه اصلی</a>
+      <a href="stadium.html">ورزشگاه</a>
+      <a href="about.html">درباره ما</a>
+      <a href="rules.html">قوانین</a>
+    </div>
 
-            <a href="stadium.html" class="button">
-                ورود به میدان 🏆
-            </a>
+    <p>© 2026 Atramentum Quidditch — All Rights Reserved</p>
+  </footer>
 
-        </section>
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const playerCode = document.getElementById("playerCode");
+    const loginButton = document.getElementById("loginButton");
+    const message = document.getElementById("message");
 
-    </main>
+    // بازیکنی که قبلاً وارد شده، مستقیم به ورزشگاه می‌رود.
+    const existingSession = localStorage.getItem("atramentumSession");
 
+    if (existingSession) {
+      window.location.replace("stadium.html");
+    }
 
-    <footer>
-        Atramentum Quidditch © 2026
-    </footer>
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = "message " + type;
+    }
+
+    loginForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const code = playerCode.value.trim().toUpperCase();
+
+      if (!code) {
+        showMessage("لطفاً کد بازیکن را وارد کن.", "error");
+        return;
+      }
+
+      loginButton.disabled = true;
+      loginButton.textContent = "در حال بررسی کد...";
+      message.className = "message";
+
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            code: code
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success || !data.session) {
+          showMessage(data.message || "کد واردشده معتبر نیست.", "error");
+          return;
+        }
+
+        localStorage.setItem("atramentumSession", data.session);
+
+        showMessage("ورود موفقیت‌آمیز بود. در حال انتقال...", "success");
+
+        setTimeout(function() {
+          window.location.href = "profile.html";
+        }, 700);
+
+      } catch (error) {
+        showMessage("ارتباط با سرور برقرار نشد. دوباره تلاش کن.", "error");
+
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "ورود به حساب بازیکن";
+      }
+    });
+  </script>
 
 </body>
-
 </html>
