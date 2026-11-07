@@ -1,0 +1,22 @@
+
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "atramentum-quidditch",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-07",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "atramentum_db",
+      "database_name": "atramentum-db",
+      "database_id": "2eaaed8d-0eaa-4974-bb6c-7bdb7ada04de",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
