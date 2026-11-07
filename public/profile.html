@@ -888,9 +888,25 @@
       document.getElementById("specialActions").innerText = "—";
     }
 
-    document.getElementById("logoutButton").addEventListener("click", function() {
-      localStorage.removeItem("atramentumSession");
-      window.location.replace("index.html");
+    document.getElementById("logoutButton").addEventListener("click", async function() {
+      const token = localStorage.getItem("atramentumSession");
+
+      try {
+        if (token) {
+          await fetch("/api/logout", {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token
+            },
+            cache: "no-store"
+          });
+        }
+      } catch (error) {
+        console.error("Logout request failed:", error);
+      } finally {
+        localStorage.removeItem("atramentumSession");
+        window.location.replace("index.html");
+      }
     });
 
     document.getElementById("retryButton").addEventListener("click", loadProfile);
