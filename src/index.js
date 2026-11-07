@@ -92,7 +92,7 @@ async function handleLogin(request, env) {
     return json({ success: false, message: "Invalid request body" }, 400);
   }
 
-  const code = String(body.code || "").trim();
+  const code = String(body?.code || "").trim();
 
   if (!code || code.length > 100) {
     return json({
