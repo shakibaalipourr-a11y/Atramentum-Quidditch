@@ -4,20 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#08090d">
-  <title>Atramentum | دنیای کوییدیچ</title>
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="به آترامنتوم خوش آمدید؛ جایی که افسانه‌ها ساخته می‌شوند و نام‌ها جاودانه خواهند شد.">
+  <title>ATRAMENTUM | آکادمی افسانه‌ها</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
-
     :root {
-      --bg: #08090d;
-      --panel: rgba(255,255,255,0.045);
-      --border: rgba(255,255,255,0.09);
-      --gold: #c9a96e;
-      --gold-light: #ead5a6;
-      --text: #f1f0ed;
-      --muted: #9999a3;
+      --black: #080808;
+      --deep: #0d0d0d;
+      --panel: #111111;
+      --gold: #c9a45c;
+      --gold-light: #ead39a;
+      --gold-dark: #765526;
+      --white: #eee9df;
+      --muted: #918b80;
+      --line: rgba(201,164,92,.23);
+      --red: #8e2929;
     }
 
     * {
@@ -26,23 +32,16 @@
       box-sizing: border-box;
     }
 
-    body {
-      font-family: 'Vazirmatn', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 90px;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      background:
-        radial-gradient(ellipse at 50% 0%, rgba(133,99,49,0.16), transparent 45%),
-        radial-gradient(ellipse at 0% 70%, rgba(44,55,77,0.12), transparent 40%);
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: "Vazirmatn", sans-serif;
+      overflow-x: hidden;
     }
 
     a {
@@ -54,513 +53,914 @@
       font: inherit;
     }
 
-    /* Navigation */
-
-    .topbar {
-      position: absolute;
-      top: 0;
-      right: 0;
-      left: 0;
-      z-index: 10;
-      padding: 25px 6%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    button, a {
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .logo {
+    ::selection {
+      background: var(--gold);
+      color: #080808;
+    }
+
+    /* BACKGROUND */
+
+    .background-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -2;
+      background:
+        radial-gradient(ellipse at 50% 20%, rgba(120,83,31,.13), transparent 42%),
+        radial-gradient(ellipse at 0% 70%, rgba(85,20,20,.09), transparent 40%),
+        #080808;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      opacity: .035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E");
+    }
+
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: var(--gold-light);
+      opacity: 0;
+      animation: floatParticle linear infinite;
+      box-shadow: 0 0 8px var(--gold);
+    }
+
+    @keyframes floatParticle {
+      0% { transform: translateY(0); opacity: 0; }
+      15% { opacity: .7; }
+      85% { opacity: .35; }
+      100% { transform: translateY(-110vh); opacity: 0; }
+    }
+
+    /* NAVIGATION */
+
+    .navbar {
+      height: 82px;
+      padding: 0 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(8,8,8,.83);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(201,164,92,.15);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-symbol {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--gold);
       color: var(--gold-light);
-      font-size: 21px;
-      font-weight: 900;
+      font-family: "Cinzel", serif;
+      font-size: 25px;
+      transform: rotate(45deg);
+    }
+
+    .brand-symbol span {
+      transform: rotate(-45deg);
+    }
+
+    .brand-name {
+      font-family: "Cinzel", serif;
+      font-size: 17px;
       letter-spacing: 3px;
+      color: var(--gold-light);
+      font-weight: 700;
     }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 27px;
+      gap: 34px;
     }
 
     .nav-links a {
-      color: #b5b3b0;
+      color: #aaa49a;
       font-size: 12px;
-      transition: 0.25s;
+      transition: .3s;
     }
 
     .nav-links a:hover {
       color: var(--gold-light);
     }
 
-    .nav-login {
-      padding: 10px 19px;
-      border: 1px solid rgba(201,169,110,0.45);
-      border-radius: 10px;
+    .nav-enter {
+      border: 1px solid var(--gold-dark);
+      padding: 10px 23px;
       color: var(--gold-light) !important;
+      transition: .3s;
     }
 
-    /* Hero */
+    .nav-enter:hover {
+      background: var(--gold);
+      color: #080808 !important;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: 0;
+      color: var(--gold);
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    /* HERO */
 
     .hero {
-      min-height: 760px;
-      padding: 150px 20px 90px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+      min-height: 850px;
+      height: 100vh;
+      max-height: 1050px;
       position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+      padding: 120px 20px 70px;
+      isolation: isolate;
     }
 
     .hero::before {
       content: "";
       position: absolute;
-      top: 120px;
-      width: 380px;
-      height: 380px;
-      border-radius: 50%;
-      background: rgba(201,169,110,0.07);
-      filter: blur(90px);
-      z-index: -1;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(to bottom, rgba(8,8,8,.55), rgba(8,8,8,.35) 45%, #080808 100%),
+        radial-gradient(ellipse at 50% 42%, rgba(151,109,48,.20), transparent 48%),
+        linear-gradient(135deg, #17130d, #080808 55%, #17100d);
     }
 
-    .crest {
-      width: 112px;
-      height: 112px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(201,169,110,0.5);
-      border-radius: 30px;
-      background: linear-gradient(145deg, rgba(201,169,110,0.14), rgba(255,255,255,0.015));
-      color: var(--gold-light);
-      font-size: 57px;
-      box-shadow: 0 0 70px rgba(201,169,110,0.08);
-      margin-bottom: 35px;
+    .hero::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: min(700px, 90vw);
+      height: min(700px, 90vw);
+      border: 1px solid rgba(201,164,92,.12);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 35px rgba(201,164,92,.025),
+        0 0 0 70px rgba(201,164,92,.018),
+        0 0 100px rgba(201,164,92,.08);
+      animation: rotate 80s linear infinite;
+    }
+
+    @keyframes rotate {
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-content {
+      max-width: 1000px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-emblem {
+      font-size: 56px;
+      color: var(--gold);
+      margin-bottom: 27px;
+      text-shadow: 0 0 35px rgba(201,164,92,.5);
+      animation: emblemGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes emblemGlow {
+      0%,100% { text-shadow: 0 0 15px rgba(201,164,92,.25); }
+      50% { text-shadow: 0 0 45px rgba(201,164,92,.75); }
     }
 
     .eyebrow {
       color: var(--gold);
       font-size: 11px;
       letter-spacing: 5px;
-      font-weight: 700;
-      margin-bottom: 17px;
+      margin-bottom: 24px;
+      font-family: "Cinzel", serif;
     }
 
     .hero h1 {
-      font-size: clamp(43px, 9vw, 88px);
-      font-weight: 900;
-      letter-spacing: 4px;
-      line-height: 1.25;
-      background: linear-gradient(120deg, #fff, #e3c995, #a98a56);
-      -webkit-background-clip: text;
+      font-family: "Cinzel", serif;
+      font-size: clamp(48px, 10vw, 112px);
+      line-height: 1.1;
+      font-weight: 800;
+      letter-spacing: 5px;
+      background: linear-gradient(180deg, #fff3ce 5%, #d5b779 42%, #84612f 85%);
       background-clip: text;
+      -webkit-background-clip: text;
       color: transparent;
+      filter: drop-shadow(0 8px 30px rgba(0,0,0,.8));
+    }
+
+    .hero-divider {
+      width: 180px;
+      height: 1px;
+      margin: 33px auto;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      position: relative;
+    }
+
+    .hero-divider::after {
+      content: "✦";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%);
+      background: #0b0907;
+      color: var(--gold-light);
+      padding: 0 12px;
+      font-size: 14px;
     }
 
     .hero h2 {
-      font-size: clamp(17px, 3vw, 23px);
-      font-weight: 400;
-      color: #d2cec6;
-      margin-top: 18px;
+      font-size: clamp(19px, 3vw, 29px);
+      font-weight: 500;
+      color: #e8ddc6;
+      margin-bottom: 17px;
     }
 
     .hero-description {
-      max-width: 650px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 2.6;
-      margin-top: 23px;
+      max-width: 600px;
+      margin: auto;
+      line-height: 2.3;
+      color: #a7a095;
+      font-size: 14px;
+      font-weight: 300;
     }
 
     .hero-actions {
       display: flex;
-      gap: 13px;
-      margin-top: 35px;
-      flex-wrap: wrap;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 43px;
     }
 
-    .primary-button,
-    .secondary-button {
+    .btn {
+      min-width: 190px;
+      padding: 15px 27px;
+      border: 1px solid var(--gold);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 170px;
-      padding: 13px 23px;
-      border-radius: 11px;
+      gap: 12px;
       font-size: 13px;
-      font-weight: 700;
-      transition: 0.25s;
-    }
-
-    .primary-button {
-      background: linear-gradient(135deg, #e5cc9a, #b28d51);
-      color: #17130c;
-      border: none;
+      transition: .35s;
       cursor: pointer;
-      box-shadow: 0 8px 30px rgba(201,169,110,0.13);
     }
 
-    .primary-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 35px rgba(201,169,110,0.22);
+    .btn-primary {
+      background: linear-gradient(135deg, #d6b875, #9a7137);
+      color: #100d08;
+      font-weight: 800;
+      box-shadow: 0 8px 35px rgba(166,119,48,.15);
     }
 
-    .secondary-button {
-      border: 1px solid var(--border);
-      color: #d0cdd0;
-      background: rgba(255,255,255,0.025);
+    .btn-primary:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(201,164,92,.3);
     }
 
-    .secondary-button:hover {
-      border-color: var(--gold);
+    .btn-outline {
       color: var(--gold-light);
-      transform: translateY(-3px);
+      background: rgba(0,0,0,.2);
     }
 
-    .hero-divider {
-      width: 100px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      margin-top: 55px;
+    .btn-outline:hover {
+      background: rgba(201,164,92,.12);
+      transform: translateY(-4px);
     }
 
-    /* General sections */
-
-    .container {
-      width: min(1100px, 90%);
-      margin: auto;
+    .hero-bottom {
+      position: absolute;
+      bottom: 32px;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: #756b59;
+      font-size: 10px;
+      letter-spacing: 3px;
     }
 
-    section {
-      padding: 65px 0;
+    .scroll-line {
+      width: 1px;
+      height: 35px;
+      background: linear-gradient(var(--gold), transparent);
+      animation: scrollMove 2s infinite;
+    }
+
+    @keyframes scrollMove {
+      0%,100% { transform: scaleY(.5); opacity: .4; }
+      50% { transform: scaleY(1); opacity: 1; }
+    }
+
+    /* GENERAL SECTIONS */
+
+    .section {
+      padding: 110px 8%;
+      position: relative;
     }
 
     .section-heading {
       text-align: center;
-      margin-bottom: 38px;
+      margin-bottom: 65px;
     }
 
-    .section-heading span {
+    .section-heading .small-title {
       color: var(--gold);
+      font-family: "Cinzel", serif;
       font-size: 11px;
       letter-spacing: 4px;
-      font-weight: 700;
+      margin-bottom: 17px;
     }
 
     .section-heading h2 {
-      font-size: 27px;
-      font-weight: 800;
-      margin-top: 10px;
+      font-size: clamp(25px, 4vw, 38px);
+      color: var(--white);
+      font-weight: 700;
     }
 
     .section-heading p {
       color: var(--muted);
-      font-size: 12px;
-      margin-top: 11px;
+      font-size: 13px;
+      line-height: 2.2;
+      max-width: 650px;
+      margin: 17px auto 0;
     }
 
-    /* Login */
+    /* INTRO */
 
-    .login-section {
-      padding-top: 25px;
+    .intro {
+      background: linear-gradient(180deg, #080808, #100e0a 50%, #080808);
+      border-top: 1px solid rgba(201,164,92,.12);
+      border-bottom: 1px solid rgba(201,164,92,.12);
     }
 
-    .login-card {
-      width: min(520px, 100%);
+    .intro-content {
+      max-width: 900px;
       margin: auto;
-      padding: 38px;
-      border-radius: 23px;
-      border: 1px solid rgba(201,169,110,0.24);
-      background: linear-gradient(145deg, rgba(201,169,110,0.075), rgba(255,255,255,0.025));
-      box-shadow: 0 25px 80px rgba(0,0,0,0.2);
       text-align: center;
     }
 
-    .login-icon {
-      font-size: 38px;
+    .intro-quote {
+      font-size: clamp(19px, 3vw, 27px);
+      line-height: 2.2;
+      color: #e6d4ad;
+      font-weight: 400;
+    }
+
+    .intro-text {
+      max-width: 750px;
+      margin: 27px auto 0;
+      color: #918b80;
+      font-size: 14px;
+      line-height: 2.5;
+    }
+
+    /* FEATURES */
+
+    .features-grid {
+      max-width: 1150px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .feature-card {
+      background: linear-gradient(145deg, #17140f, #0c0c0c 70%);
+      border: 1px solid var(--line);
+      padding: 39px 27px;
+      text-align: center;
+      transition: .4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(201,164,92,.07);
+      filter: blur(30px);
+      top: -60px;
+      right: -40px;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(201,164,92,.65);
+      box-shadow: 0 15px 50px rgba(0,0,0,.35);
+    }
+
+    .feature-icon {
+      color: var(--gold);
+      font-size: 35px;
+      margin-bottom: 23px;
+    }
+
+    .feature-card h3 {
+      color: var(--gold-light);
+      font-size: 17px;
+      margin-bottom: 13px;
+    }
+
+    .feature-card p {
+      color: #8f897f;
+      font-size: 12px;
+      line-height: 2.3;
+    }
+
+    /* HOUSES */
+
+    .houses {
+      background:
+        radial-gradient(ellipse at 50% 50%, rgba(125,86,36,.09), transparent 65%),
+        #0a0908;
+    }
+
+    .house-grid {
+      max-width: 1250px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .house-card {
+      min-height: 320px;
+      padding: 36px 22px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,.1);
+      background: linear-gradient(160deg, #171717, #0c0c0c);
+      position: relative;
+      overflow: hidden;
+      transition: .4s;
+    }
+
+    .house-card:hover {
+      transform: translateY(-9px);
+    }
+
+    .house-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 3px;
+      background: var(--house-color);
+      box-shadow: 0 0 25px var(--house-color);
+    }
+
+    .house-card.slytherin { --house-color: #3d9b70; }
+    .house-card.gryffindor { --house-color: #a94738; }
+    .house-card.hufflepuff { --house-color: #c49a42; }
+    .house-card.ravenclaw { --house-color: #5485b6; }
+
+    .house-symbol {
+      font-size: 52px;
+      margin-bottom: 22px;
+      filter: drop-shadow(0 0 13px var(--house-color));
+    }
+
+    .house-card h3 {
+      color: var(--house-color);
+      font-size: 22px;
+      margin-bottom: 8px;
+      font-family: "Cinzel", serif;
+    }
+
+    .house-card .house-persian {
+      color: #e4d9c3;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .house-card p {
+      color: #8c867c;
+      font-size: 11px;
+      line-height: 2.2;
+    }
+
+    /* QUIDDITCH */
+
+    .quidditch {
+      background: linear-gradient(180deg, #080808, #11100d, #080808);
+      text-align: center;
+    }
+
+    .quidditch-box {
+      max-width: 1000px;
+      margin: auto;
+      padding: 65px 30px;
+      border: 1px solid rgba(201,164,92,.3);
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(201,164,92,.13), transparent 65%),
+        #0c0b09;
+      position: relative;
+    }
+
+    .quidditch-symbol {
+      font-size: 65px;
+      color: var(--gold);
+      margin-bottom: 25px;
+    }
+
+    .quidditch-box h2 {
+      font-family: "Cinzel", serif;
+      color: var(--gold-light);
+      font-size: clamp(27px, 5vw, 45px);
+      margin-bottom: 20px;
+    }
+
+    .quidditch-box p {
+      max-width: 650px;
+      margin: auto;
+      color: #a29a8c;
+      font-size: 13px;
+      line-height: 2.5;
+    }
+
+    .quidditch-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 35px;
+    }
+
+    /* LOGIN */
+
+    .login-section {
+      background:
+        radial-gradient(ellipse at 50% 50%, rgba(115,77,32,.13), transparent 60%),
+        #090909;
+      border-top: 1px solid var(--line);
+    }
+
+    .login-wrapper {
+      max-width: 530px;
+      margin: auto;
+      padding: 45px;
+      border: 1px solid rgba(201,164,92,.35);
+      background: linear-gradient(145deg, #17140f, #0c0c0c);
+      box-shadow: 0 25px 90px rgba(0,0,0,.5);
+      position: relative;
+    }
+
+    .login-wrapper::before,
+    .login-wrapper::after {
+      content: "✦";
+      position: absolute;
+      color: var(--gold);
+      font-size: 20px;
+    }
+
+    .login-wrapper::before {
+      top: 14px;
+      right: 17px;
+    }
+
+    .login-wrapper::after {
+      bottom: 14px;
+      left: 17px;
+    }
+
+    .login-emblem {
+      text-align: center;
+      font-size: 43px;
+      color: var(--gold);
       margin-bottom: 17px;
     }
 
-    .login-card h2 {
-      font-size: 23px;
-      color: var(--gold-light);
-    }
-
-    .login-card > p {
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 2.2;
-      margin-top: 10px;
-    }
-
-    .input-wrapper {
-      margin-top: 25px;
-      text-align: right;
-    }
-
-    .input-wrapper label {
-      display: block;
-      color: #c8c5bd;
-      font-size: 12px;
-      margin-bottom: 9px;
-    }
-
-    .input-wrapper input {
-      width: 100%;
-      padding: 15px 16px;
-      background: rgba(0,0,0,0.28);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 11px;
-      color: white;
-      outline: none;
+    .login-wrapper h2 {
       text-align: center;
+      color: var(--gold-light);
+      font-size: 25px;
+      margin-bottom: 12px;
+    }
+
+    .login-subtitle {
+      text-align: center;
+      color: #918a7e;
+      font-size: 12px;
+      line-height: 2;
+      margin-bottom: 32px;
+    }
+
+    .form-label {
+      display: block;
+      color: #c6bda9;
+      font-size: 12px;
+      margin-bottom: 11px;
+    }
+
+    .code-input {
+      width: 100%;
+      padding: 17px 18px;
+      background: #080808;
+      border: 1px solid rgba(201,164,92,.3);
+      color: var(--gold-light);
+      outline: none;
       direction: ltr;
-      letter-spacing: 3px;
-      font-size: 16px;
-      transition: 0.25s;
+      text-align: center;
+      letter-spacing: 4px;
+      font-family: "Cinzel", serif;
+      font-size: 18px;
+      transition: .3s;
     }
 
-    .input-wrapper input:focus {
+    .code-input:focus {
       border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(201,169,110,0.08);
+      box-shadow: 0 0 20px rgba(201,164,92,.1);
     }
 
-    .input-wrapper input::placeholder {
-      color: #666670;
-      letter-spacing: 1px;
+    .code-input::placeholder {
+      color: #625943;
+      letter-spacing: 3px;
     }
 
     .login-button {
       width: 100%;
-      margin-top: 18px;
+      margin-top: 20px;
+      padding: 16px;
+      background: linear-gradient(135deg, #d5b675, #94703c);
+      border: none;
+      color: #0b0906;
+      font-weight: 900;
+      cursor: pointer;
+      transition: .3s;
+    }
+
+    .login-button:hover {
+      filter: brightness(1.12);
+      box-shadow: 0 8px 25px rgba(201,164,92,.2);
     }
 
     .login-button:disabled {
-      opacity: 0.55;
+      opacity: .6;
       cursor: wait;
-      transform: none;
     }
 
     .message {
       display: none;
-      margin-top: 16px;
-      padding: 11px;
-      border-radius: 9px;
+      margin-top: 18px;
+      padding: 12px;
       font-size: 12px;
-      line-height: 1.9;
+      line-height: 2;
+      text-align: center;
+      border: 1px solid transparent;
+    }
+
+    .message.show {
+      display: block;
     }
 
     .message.error {
-      display: block;
-      color: #ffb3b3;
-      background: rgba(180,45,45,0.12);
-      border: 1px solid rgba(220,70,70,0.2);
+      color: #ef9b9b;
+      background: rgba(142,41,41,.12);
+      border-color: rgba(142,41,41,.35);
     }
 
     .message.success {
-      display: block;
-      color: #b7e7c7;
-      background: rgba(45,150,80,0.12);
-      border: 1px solid rgba(80,190,110,0.2);
+      color: #b7d8b8;
+      background: rgba(55,120,67,.12);
+      border-color: rgba(55,120,67,.35);
     }
 
-    .login-note {
-      color: #777780;
-      font-size: 10px;
+    .continue-box {
+      display: none;
       margin-top: 20px;
-      line-height: 2;
-    }
-
-    /* Features */
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 17px;
-    }
-
-    .feature-card {
-      padding: 28px 23px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
       text-align: center;
-      transition: 0.3s;
+      padding: 15px;
+      border: 1px solid var(--line);
+      background: rgba(201,164,92,.05);
     }
 
-    .feature-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(201,169,110,0.4);
+    .continue-box.show {
+      display: block;
     }
 
-    .feature-icon {
-      font-size: 32px;
-      margin-bottom: 14px;
-    }
-
-    .feature-card h3 {
-      font-size: 15px;
-      color: var(--gold-light);
-      margin-bottom: 10px;
-    }
-
-    .feature-card p {
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 2.2;
-    }
-
-    /* Houses */
-
-    .houses-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-    }
-
-    .house-card {
-      padding: 25px 15px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 17px;
-      text-align: center;
-      transition: 0.3s;
-    }
-
-    .house-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255,255,255,0.065);
-    }
-
-    .house-card .icon {
-      font-size: 37px;
+    .continue-box p {
+      color: #c6bda9;
+      font-size: 12px;
       margin-bottom: 13px;
     }
 
-    .house-card h3 {
-      font-size: 14px;
-      margin-bottom: 7px;
+    .continue-box a {
+      color: var(--gold-light);
+      font-size: 13px;
+      text-decoration: underline;
     }
 
-    .house-card p {
-      font-size: 10px;
-      color: var(--muted);
-      line-height: 2;
-    }
-
-    .gryffindor { border-top: 2px solid #a83b38; }
-    .slytherin { border-top: 2px solid #397c61; }
-    .hufflepuff { border-top: 2px solid #c4a34d; }
-    .ravenclaw { border-top: 2px solid #527ba8; }
-
-    /* Final banner */
+    /* FINAL BANNER */
 
     .final-banner {
-      margin: 35px 0 75px;
-      padding: 45px 25px;
-      border: 1px solid rgba(201,169,110,0.22);
-      border-radius: 22px;
-      background: linear-gradient(120deg, rgba(201,169,110,0.10), rgba(255,255,255,0.02));
+      padding: 100px 20px;
       text-align: center;
+      background:
+        linear-gradient(rgba(8,8,8,.85), rgba(8,8,8,.95)),
+        radial-gradient(ellipse at center, #59401f, #080808 70%);
+      border-top: 1px solid var(--line);
+    }
+
+    .final-banner .final-symbol {
+      color: var(--gold);
+      font-size: 37px;
+      margin-bottom: 23px;
     }
 
     .final-banner h2 {
-      font-size: 23px;
+      font-family: "Cinzel", serif;
+      font-size: clamp(27px, 5vw, 49px);
       color: var(--gold-light);
+      margin-bottom: 20px;
     }
 
     .final-banner p {
-      color: var(--muted);
-      font-size: 12px;
-      margin: 13px 0 23px;
-      line-height: 2.2;
+      color: #9c9486;
+      font-size: 13px;
+      margin-bottom: 30px;
     }
 
-    /* Footer */
+    /* FOOTER */
 
     footer {
-      border-top: 1px solid var(--border);
-      padding: 40px 20px 25px;
+      padding: 40px 8% 25px;
+      background: #060606;
+      border-top: 1px solid rgba(201,164,92,.2);
       text-align: center;
     }
 
-    .footer-logo {
+    .footer-brand {
+      font-family: "Cinzel", serif;
       color: var(--gold);
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 3px;
+      font-size: 23px;
+      letter-spacing: 4px;
+      margin-bottom: 14px;
     }
 
     footer p {
-      color: #777780;
-      font-size: 10px;
-      margin-top: 12px;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 22px;
-      margin-top: 22px;
-    }
-
-    .footer-links a {
-      color: #aaaab1;
+      color: #716b61;
       font-size: 11px;
-      transition: 0.2s;
+      line-height: 2.2;
     }
 
-    .footer-links a:hover {
-      color: var(--gold-light);
+    .footer-line {
+      height: 1px;
+      max-width: 500px;
+      margin: 25px auto;
+      background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
     }
 
-    @media (max-width: 800px) {
-      .nav-links {
-        gap: 13px;
-      }
+    .copyright {
+      color: #575148;
+      font-size: 10px;
+    }
 
-      .nav-links a:not(.nav-login) {
-        display: none;
+    /* REVEAL ANIMATION */
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .house-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
 
       .features-grid {
         grid-template-columns: 1fr;
-      }
-
-      .houses-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .hero {
-        min-height: 690px;
+        max-width: 550px;
       }
     }
 
-    @media (max-width: 480px) {
-      .topbar {
-        padding: 20px 5%;
+    @media (max-width: 700px) {
+      .navbar {
+        height: 70px;
+        padding: 0 5%;
       }
 
-      .logo {
-        font-size: 17px;
+      .brand-name {
+        font-size: 14px;
       }
 
-      .login-card {
-        padding: 27px 20px;
+      .menu-toggle {
+        display: block;
       }
 
-      .houses-grid {
-        grid-template-columns: 1fr 1fr;
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 70px;
+        right: 0;
+        left: 0;
+        padding: 25px;
+        flex-direction: column;
+        gap: 23px;
+        background: rgba(8,8,8,.97);
+        border-bottom: 1px solid var(--line);
       }
 
-      .hero-actions {
+      .nav-links.open {
+        display: flex;
+      }
+
+      .hero {
+        min-height: 750px;
+        height: auto;
+      }
+
+      .hero h1 {
+        letter-spacing: 1px;
+      }
+
+      .hero-description {
+        font-size: 12px;
+      }
+
+      .section {
+        padding: 80px 6%;
+      }
+
+      .house-grid {
+        gap: 12px;
+      }
+
+      .house-card {
+        min-height: 290px;
+        padding: 28px 13px;
+      }
+
+      .login-wrapper {
+        padding: 35px 22px;
+      }
+
+      .btn {
         width: 100%;
       }
 
-      .primary-button,
-      .secondary-button {
-        min-width: 145px;
+      .hero-actions,
+      .quidditch-actions {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .house-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
       }
     }
   </style>
@@ -568,208 +968,361 @@
 
 <body>
 
-  <header class="topbar">
-    <a href="index.html" class="logo">ATRAMENTUM</a>
+  <div class="background-glow"></div>
+  <div class="grain"></div>
+  <div class="particles" id="particles"></div>
 
-    <nav class="nav-links">
-      <a href="#features">ویژگی‌ها</a>
+  <!-- NAVIGATION -->
+
+  <header class="navbar">
+    <a href="#" class="brand">
+      <div class="brand-symbol"><span>A</span></div>
+      <span class="brand-name">ATRAMENTUM</span>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="باز کردن منو">☰</button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#about">درباره آکادمی</a>
       <a href="#houses">گروه‌ها</a>
-      <a href="about.html">درباره ما</a>
-      <a href="rules.html">قوانین</a>
-      <a href="#login" class="nav-login">ورود بازیکنان</a>
+      <a href="#quidditch">کوییدیچ</a>
+      <a href="#login" class="nav-enter">ورود بازیکنان</a>
     </nav>
   </header>
 
   <main>
 
-    <section class="hero">
-      <div class="crest">A</div>
+    <!-- HERO -->
 
-      <div class="eyebrow">WELCOME TO THE WORLD OF ATRAMENTUM</div>
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <div class="hero-emblem">✧</div>
+        <div class="eyebrow">THE ACADEMY OF LEGENDS</div>
 
-      <h1>ATRAMENTUM</h1>
+        <h1>ATRAMENTUM</h1>
 
-      <h2>اینجا افسانه‌ها ساخته می‌شوند.</h2>
+        <div class="hero-divider"></div>
 
-      <p class="hero-description">
-        به دنیایی وارد شو که در آن مهارت، استراتژی و وفاداری
-        سرنوشت رقابت‌ها را رقم می‌زنند.
-        چهار گروه، یک میدان و فرصتی برای ثبت نامت در تاریخ آترامنتوم.
-      </p>
+        <h2>اینجا افسانه‌ها ساخته می‌شوند.</h2>
 
-      <div class="hero-actions">
-        <a href="#login" class="primary-button">ورود به آترامنتوم</a>
-        <a href="about.html" class="secondary-button">کشف دنیای آترامنتوم</a>
-      </div>
-
-      <div class="hero-divider"></div>
-    </section>
-
-    <div class="container">
-
-      <section class="login-section" id="login">
-        <div class="section-heading">
-          <span>PLAYER ACCESS</span>
-          <h2>ورود بازیکن</h2>
-          <p>برای ورود به دنیای رقابت، کد بازیکن خود را وارد کن.</p>
-        </div>
-
-        <div class="login-card">
-          <div class="login-icon">🗝️</div>
-
-          <h2>دروازه آترامنتوم</h2>
-
-          <p>
-            هر بازیکن دارای یک کد اختصاصی است.
-            با وارد کردن کد خود، وارد حساب بازیکنت شو.
-          </p>
-
-          <form id="loginForm">
-            <div class="input-wrapper">
-              <label for="playerCode">کد اختصاصی بازیکن</label>
-
-              <input
-                type="text"
-                id="playerCode"
-                maxlength="20"
-                placeholder="مثلاً ENZO001"
-                autocomplete="off"
-                spellcheck="false"
-                required
-              >
-            </div>
-
-            <button type="submit" class="primary-button login-button" id="loginButton">
-              ورود به حساب بازیکن
-            </button>
-
-            <div class="message" id="message" role="status"></div>
-          </form>
-
-          <div class="login-note">
-            کد بازیکن خود را از مسئول ثبت‌نام دریافت کن.
-          </div>
-        </div>
-      </section>
-
-      <section id="features">
-        <div class="section-heading">
-          <span>THE EXPERIENCE</span>
-          <h2>تجربه آترامنتوم</h2>
-          <p>هر بخش، بخشی از مسیر رقابت توست.</p>
-        </div>
-
-        <div class="features-grid">
-
-          <div class="feature-card">
-            <div class="feature-icon">🏟️</div>
-            <h3>ورزشگاه</h3>
-            <p>
-              وارد میدان شو و فضای رقابت میان چهار گروه را تجربه کن.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <h3>آمار بازیکنان</h3>
-            <p>
-              عملکرد و دستاوردهای خود را در پروفایل بازیکنت دنبال کن.
-            </p>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon">🏆</div>
-            <h3>جدول رقابت‌ها</h3>
-            <p>
-              نتایج و جایگاه گروه‌ها را در مسیر قهرمانی دنبال کن.
-            </p>
-          </div>
-
-        </div>
-      </section>
-
-      <section id="houses">
-        <div class="section-heading">
-          <span>FOUR HOUSES</span>
-          <h2>چهار گروه، یک آترامنتوم</h2>
-          <p>به گروه خود وفادار بمان و برای افتخار آن رقابت کن.</p>
-        </div>
-
-        <div class="houses-grid">
-
-          <div class="house-card gryffindor">
-            <div class="icon">🦁</div>
-            <h3>Gryffindor</h3>
-            <p>شجاعت و جسارت</p>
-          </div>
-
-          <div class="house-card slytherin">
-            <div class="icon">🐍</div>
-            <h3>Slytherin</h3>
-            <p>جاه‌طلبی و استراتژی</p>
-          </div>
-
-          <div class="house-card hufflepuff">
-            <div class="icon">🦡</div>
-            <h3>Hufflepuff</h3>
-            <p>وفاداری و پشتکار</p>
-          </div>
-
-          <div class="house-card ravenclaw">
-            <div class="icon">🦅</div>
-            <h3>Ravenclaw</h3>
-            <p>خرد و خلاقیت</p>
-          </div>
-
-        </div>
-      </section>
-
-      <div class="final-banner">
-        <h2>داستان تو از اینجا آغاز می‌شود.</h2>
-
-        <p>
-          میدان منتظر بازیکنانش است.
-          جایگاه خود را پیدا کن و برای افتخار گروهت بجنگ.
+        <p class="hero-description">
+          به سرزمینی قدم بگذار که قدرت، خرد، شجاعت و وفاداری
+          سرنوشت را رقم می‌زنند.
+          در آترامنتوم، نام‌ها فقط نوشته نمی‌شوند؛
+          آن‌ها در تاریخ جاودانه خواهند شد.
         </p>
 
-        <a href="#login" class="primary-button">ورود به میدان رقابت</a>
+        <div class="hero-actions">
+          <a href="#login" class="btn btn-primary">
+            ورود به آترامنتوم <span>✦</span>
+          </a>
+
+          <a href="#about" class="btn btn-outline">
+            کشف دنیای آترامنتوم
+          </a>
+        </div>
       </div>
 
-    </div>
+      <div class="hero-bottom">
+        <span>DISCOVER THE UNKNOWN</span>
+        <div class="scroll-line"></div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+
+    <section class="section intro" id="about">
+      <div class="intro-content reveal">
+        <div class="section-heading">
+          <div class="small-title">BEYOND THE ORDINARY</div>
+          <h2>فراتر از یک آکادمی</h2>
+        </div>
+
+        <div class="intro-quote">
+          «هر افسانه‌ای از یک انتخاب آغاز می‌شود؛
+          اما تنها کسانی که جرئت ایستادن دارند،
+          در تاریخ باقی می‌مانند.»
+        </div>
+
+        <p class="intro-text">
+          آترامنتوم دنیایی برای رقابت، یادگیری، افتخار و ساختن میراث است.
+          اینجا هر عضو بخشی از داستانی بزرگ‌تر است.
+          هر گروه هویتی دارد، هر رقابت معنایی،
+          و هر پیروزی نامی که به یاد خواهد ماند.
+        </p>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+
+    <section class="section" id="experience">
+      <div class="section-heading reveal">
+        <div class="small-title">THE ATRAMENTUM EXPERIENCE</div>
+        <h2>جهانی برای ساختن نام تو</h2>
+        <p>
+          درهای آکادمی به روی رقابت، افتخار و تجربه‌های تازه باز است.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <article class="feature-card reveal">
+          <div class="feature-icon">♛</div>
+          <h3>میراث و افتخار</h3>
+          <p>
+            نام خود را در تاریخ آکادمی ثبت کن و برای ساختن میراثی ماندگار تلاش کن.
+          </p>
+        </article>
+
+        <article class="feature-card reveal">
+          <div class="feature-icon">⚔</div>
+          <h3>رقابت و قهرمانی</h3>
+          <p>
+            در میدان رقابت حاضر شو، توانایی‌هایت را نشان بده و برای افتخار گروهت بجنگ.
+          </p>
+        </article>
+
+        <article class="feature-card reveal">
+          <div class="feature-icon">✧</div>
+          <h3>هویت و تعلق</h3>
+          <p>
+            به گروه خود افتخار کن و بخشی از جامعه‌ای باش که هر عضو در آن اهمیت دارد.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- HOUSES -->
+
+    <section class="section houses" id="houses">
+      <div class="section-heading reveal">
+        <div class="small-title">FOUR HOUSES · ONE LEGACY</div>
+        <h2>چهار گروه؛ چهار هویت</h2>
+        <p>
+          چهار مسیر متفاوت، چهار فلسفه مستقل و یک آکادمی.
+          تو به کدام میراث تعلق داری؟
+        </p>
+      </div>
+
+      <div class="house-grid">
+
+        <article class="house-card slytherin reveal">
+          <div class="house-symbol">🐍</div>
+          <h3>SLYTHERIN</h3>
+          <div class="house-persian">اسلیترین</div>
+          <p>
+            جاه‌طلبی، زیرکی، اراده و قدرت.
+            میراث کسانی که برای رسیدن به قله، مسیر خود را می‌سازند.
+          </p>
+        </article>
+
+        <article class="house-card gryffindor reveal">
+          <div class="house-symbol">🦁</div>
+          <h3>GRYFFINDOR</h3>
+          <div class="house-persian">گریفیندور</div>
+          <p>
+            شجاعت، جسارت، افتخار و وفاداری.
+            میراث کسانی که در سخت‌ترین لحظات عقب نمی‌نشینند.
+          </p>
+        </article>
+
+        <article class="house-card hufflepuff reveal">
+          <div class="house-symbol">🦡</div>
+          <h3>HUFFLEPUFF</h3>
+          <div class="house-persian">هافلپاف</div>
+          <p>
+            پشتکار، عدالت، صبوری و دوستی.
+            میراث کسانی که ارزش واقعی را در تلاش می‌یابند.
+          </p>
+        </article>
+
+        <article class="house-card ravenclaw reveal">
+          <div class="house-symbol">🦅</div>
+          <h3>RAVENCLAW</h3>
+          <div class="house-persian">ریونکلا</div>
+          <p>
+            خرد، دانش، خلاقیت و کنجکاوی.
+            میراث کسانی که مرزهای دانستن را گسترش می‌دهند.
+          </p>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- QUIDDITCH -->
+
+    <section class="section quidditch" id="quidditch">
+      <div class="section-heading reveal">
+        <div class="small-title">THE GREAT COMPETITION</div>
+        <h2>میدان بزرگ کوییدیچ</h2>
+        <p>
+          رقابتی میان گروه‌ها؛ جایی که تلاش، هماهنگی و مهارت اهمیت پیدا می‌کنند.
+        </p>
+      </div>
+
+      <div class="quidditch-box reveal">
+        <div class="quidditch-symbol">⚡</div>
+        <h2>THE QUIDDITCH LEGACY</h2>
+
+        <p>
+          وارد میدان شو، برای گروهت رقابت کن،
+          عملکرد خود را ثبت کن و در مسیر قهرمانی قدم بردار.
+          هر مسابقه بخشی از تاریخ آترامنتوم است.
+        </p>
+
+        <div class="quidditch-actions">
+          <a href="#login" class="btn btn-primary">ورود به میدان رقابت</a>
+          <a href="stadium.html" class="btn btn-outline">مشاهده ورزشگاه</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGIN -->
+
+    <section class="section login-section" id="login">
+      <div class="section-heading reveal">
+        <div class="small-title">YOUR STORY BEGINS HERE</div>
+        <h2>ورود به آکادمی</h2>
+        <p>
+          برای ورود به حساب بازیکن، کد اختصاصی خود را وارد کن.
+        </p>
+      </div>
+
+      <div class="login-wrapper reveal">
+        <div class="login-emblem">♛</div>
+
+        <h2>بازگشت به آترامنتوم</h2>
+
+        <p class="login-subtitle">
+          هویت خود را تأیید کن و به دنیای آکادمی بازگرد.
+        </p>
+
+        <form id="loginForm">
+          <label class="form-label" for="playerCode">
+            کد اختصاصی بازیکن
+          </label>
+
+          <input
+            class="code-input"
+            type="text"
+            id="playerCode"
+            name="playerCode"
+            placeholder="ENZO001"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            maxlength="40"
+            required
+          >
+
+          <button class="login-button" id="loginButton" type="submit">
+            ورود به حساب بازیکن ✦
+          </button>
+
+          <div class="message" id="message" role="status" aria-live="polite"></div>
+        </form>
+
+        <div class="continue-box" id="continueBox">
+          <p>یک نشست ورود قبلی در این مرورگر پیدا شد.</p>
+          <a href="stadium.html">ادامه به ورزشگاه آترامنتوم ←</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL -->
+
+    <section class="final-banner">
+      <div class="final-symbol">✧</div>
+      <h2>افسانه تو از اینجا آغاز می‌شود.</h2>
+      <p>نامت را انتخاب کن. میراثت را بساز. در تاریخ باقی بمان.</p>
+      <a href="#login" class="btn btn-primary">ورود به میدان رقابت</a>
+    </section>
 
   </main>
 
+  <!-- FOOTER -->
+
   <footer>
-    <div class="footer-logo">ATRAMENTUM</div>
+    <div class="footer-brand">ATRAMENTUM</div>
+    <p>THE ACADEMY OF LEGENDS</p>
 
-    <p>جهانی برای رقابت، افتخار و ساختن تاریخ</p>
+    <div class="footer-line"></div>
 
-    <div class="footer-links">
-      <a href="index.html">صفحه اصلی</a>
-      <a href="stadium.html">ورزشگاه</a>
-      <a href="about.html">درباره ما</a>
-      <a href="rules.html">قوانین</a>
+    <p>
+      جایی که افسانه‌ها ساخته می‌شوند.
+    </p>
+
+    <div class="copyright">
+      © 2026 ATRAMENTUM. ALL RIGHTS RESERVED.
     </div>
-
-    <p>© 2026 Atramentum Quidditch — All Rights Reserved</p>
   </footer>
 
   <script>
+    // MOBILE MENU
+
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+
+    menuToggle.addEventListener("click", () => {
+      navLinks.classList.toggle("open");
+      menuToggle.textContent =
+        navLinks.classList.contains("open") ? "✕" : "☰";
+    });
+
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("open");
+        menuToggle.textContent = "☰";
+      });
+    });
+
+    // SCROLL REVEAL
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll(".reveal").forEach(element => {
+      revealObserver.observe(element);
+    });
+
+    // PARTICLES
+
+    const particleContainer = document.getElementById("particles");
+
+    for (let i = 0; i < 35; i++) {
+      const particle = document.createElement("span");
+      particle.className = "particle";
+      particle.style.left = Math.random() * 100 + "%";
+      particle.style.top = (Math.random() * 100 + 100) + "%";
+      particle.style.animationDuration = (12 + Math.random() * 20) + "s";
+      particle.style.animationDelay = (Math.random() * 15) + "s";
+      particleContainer.appendChild(particle);
+    }
+
+    // LOGIN SYSTEM
+
     const loginForm = document.getElementById("loginForm");
     const playerCode = document.getElementById("playerCode");
     const loginButton = document.getElementById("loginButton");
     const message = document.getElementById("message");
-
-    // بازیکنی که قبلاً وارد شده، مستقیم به ورزشگاه می‌رود.
-    const existingSession = localStorage.getItem("atramentumSession");
-
-    if (existingSession) {
-      window.location.replace("stadium.html");
-    }
+    const continueBox = document.getElementById("continueBox");
 
     function showMessage(text, type) {
       message.textContent = text;
-      message.className = "message " + type;
+      message.className = "message show " + type;
+    }
+
+    // Show continuation option without hiding the homepage.
+
+    const existingSession = localStorage.getItem("atramentumSession");
+
+    if (existingSession) {
+      continueBox.classList.add("show");
     }
 
     loginForm.addEventListener("submit", async function(event) {
@@ -792,32 +1345,47 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            code: code
-          })
+          body: JSON.stringify({ code: code })
         });
 
-        const data = await response.json();
+        let data;
+
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("پاسخ سرور قابل خواندن نیست.");
+        }
 
         if (!response.ok || !data.success || !data.session) {
-          showMessage(data.message || "کد واردشده معتبر نیست.", "error");
+          showMessage(
+            data.message || "کد واردشده معتبر نیست.",
+            "error"
+          );
           return;
         }
 
         localStorage.setItem("atramentumSession", data.session);
 
-        showMessage("ورود موفقیت‌آمیز بود. در حال انتقال...", "success");
+        showMessage(
+          "ورود موفقیت‌آمیز بود. در حال انتقال...",
+          "success"
+        );
 
-        setTimeout(function() {
+        setTimeout(() => {
           window.location.href = "profile.html";
         }, 700);
 
       } catch (error) {
-        showMessage("ارتباط با سرور برقرار نشد. دوباره تلاش کن.", "error");
+        console.error("Login error:", error);
+
+        showMessage(
+          "ارتباط با سرور برقرار نشد. لطفاً دوباره تلاش کن.",
+          "error"
+        );
 
       } finally {
         loginButton.disabled = false;
-        loginButton.textContent = "ورود به حساب بازیکن";
+        loginButton.textContent = "ورود به حساب بازیکن ✦";
       }
     });
   </script>
