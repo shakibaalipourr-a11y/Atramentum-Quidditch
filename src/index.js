@@ -92,7 +92,7 @@ async function handleLogin(request, env) {
     return json({ success: false, message: "Invalid request body" }, 400);
   }
 
-  const code = String(body.code || "").trim();
+  const code = String(body?.code || "").trim();
 
   if (!code || code.length > 100) {
     return json({
@@ -132,7 +132,9 @@ async function handleLogin(request, env) {
   return json({
     success: true,
     message: "Login successful.",
+    // Keep both names during the frontend compatibility transition.
     token: token,
+    session: token,
     playerId: player.id,
     name: player.name,
     teamId: player.team_id,
