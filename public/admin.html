@@ -41,7 +41,7 @@
         <button class="btn" id="loginButton">ورود امن به تالار</button>
       </form>
       <div class="message" id="loginMessage" role="status"></div>
-      <button class="btn secondary" id="showSetup">راه‌اندازی اولیه مدیر کل</button>
+      <button class="btn secondary hidden" id="showSetup">راه‌اندازی اولیه مدیر کل</button>
     </section>
 
     <section class="panel hidden" id="setupPanel">
@@ -155,7 +155,18 @@
     try{await api("/api/admin/logout",{method:"POST"});}catch{}
     sessionStorage.removeItem("atramentumAdminSession");currentAdmin=null;show(authPanel);
   });
+  async function checkSetupAvailability(){
+    try{
+      const response=await fetch("/api/admin/setup-status",{cache:"no-store"});
+      const data=await response.json();
+      const needsSetup=!!(response.ok&&data.success&&!data.configured);
+      $("showSetup").classList.toggle("hidden",!needsSetup);
+    }catch{
+      $("showSetup").classList.add("hidden");
+    }
+  }
   if(getToken())loadDashboard().catch(()=>{sessionStorage.removeItem("atramentumAdminSession");show(authPanel);});
+  checkSetupAvailability();
 </script>
 </body>
 </html>
