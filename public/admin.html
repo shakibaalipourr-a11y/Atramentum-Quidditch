@@ -216,9 +216,19 @@
   document.querySelectorAll("[data-match-status]").forEach(button=>button.addEventListener("click",()=>sendMatchAction({action:"status",status:button.dataset.matchStatus})));
   $("saveScores").addEventListener("click",async()=>{
     if(!selectedMatch)return;
-    const home=Number($("homeScoreInput").value),away=Number($("awayScoreInput").value);
-    if(!$("homeScoreInput").disabled)await sendMatchAction({action:"score",teamId:selectedMatch.home_team_id,score:home});
-    if(!$("awayScoreInput").disabled)await sendMatchAction({action:"score",teamId:selectedMatch.away_team_id,score:away});
+    const scores=[];
+    if(!$("homeScoreInput").disabled){
+      const score=Number($("homeScoreInput").value);
+      if(!Number.isSafeInteger(score)||score<0||score>9999)return message("matchMessage","امتیاز میزبان معتبر نیست.","error");
+      scores.push({teamId:selectedMatch.home_team_id,score});
+    }
+    if(!$("awayScoreInput").disabled){
+      const score=Number($("awayScoreInput").value);
+      if(!Number.isSafeInteger(score)||score<0||score>9999)return message("matchMessage","امتیاز میهمان معتبر نیست.","error");
+      scores.push({teamId:selectedMatch.away_team_id,score});
+    }
+    if(!scores.length)return message("matchMessage","حساب شما اجازه تغییر امتیاز این مسابقه را ندارد.","error");
+    await sendMatchAction({action:"scores",scores});
   });
   $("saveMatchEvent").addEventListener("click",()=>{
     const description=$("matchEventText").value.trim();if(!description)return message("matchMessage","شرح رویداد را وارد کن.","error");
