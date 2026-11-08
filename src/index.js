@@ -250,9 +250,13 @@ async function handleMatches(request, env) {
       m.scheduled_at,
       m.status,
       m.winner_team_id,
+      m.home_team_id,
+      m.away_team_id,
       home.name AS home_team,
+      home.display_name AS home_name,
       home.emblem AS home_emblem,
       away.name AS away_team,
+      away.display_name AS away_name,
       away.emblem AS away_emblem
     FROM matches m
     JOIN teams home ON home.id = m.home_team_id
