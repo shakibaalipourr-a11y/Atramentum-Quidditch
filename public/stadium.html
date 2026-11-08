@@ -805,20 +805,6 @@
       <div class="hero-line"></div>
     </section>
 
-    <section class="player-bar">
-      <div class="player-details">
-        <div class="player-avatar" id="playerAvatar">🏰</div>
-
-        <div>
-          <div class="player-caption">بازیکن حاضر در ورزشگاه</div>
-          <div class="player-name" id="playerName">---</div>
-          <div class="player-house" id="playerHouse">---</div>
-        </div>
-      </div>
-
-      <a href="profile.html" class="profile-link">مشاهده پرونده بازیکن ←</a>
-    </section>
-
     <section class="section">
       <div class="section-heading">
         <span>THE ARENA</span>
@@ -1058,14 +1044,6 @@
         persian: "نامشخص",
         emoji: "🏰"
       };
-
-      document.getElementById("playerName").innerText =
-        data.name || "بازیکن آترامنتوم";
-
-      document.getElementById("playerHouse").innerText =
-        team.name + " | " + team.persian;
-
-      document.getElementById("playerAvatar").innerText = team.emoji;
 
       document.getElementById("currentHouseStatus").innerText =
         "بازیکن عضو گروه " + team.name + " است.";
