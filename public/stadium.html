@@ -1249,8 +1249,13 @@
           liveLabel.textContent=homeName+" "+homeScore+" — "+awayScore+" "+awayName+" · "+statusLabel;
           if(data.revision===liveRevision)return;
           liveRevision=data.revision;
+          const teamPositionIndexes={};
           (data.positions||[]).forEach((p,index)=>{
-            const mesh=players[index];if(!mesh)return;
+            const teamId=String(p.teamId||"");
+            const candidates=teamId?players.filter(mesh=>mesh.userData.teamId===teamId):players;
+            const teamIndex=teamId?(teamPositionIndexes[teamId]||0):index;
+            const mesh=candidates[teamIndex];if(!mesh)return;
+            if(teamId)teamPositionIndexes[teamId]=teamIndex+1;
             mesh.position.set(p.x,p.y,p.z);
             mesh.userData.serverDriven=true;
           });
