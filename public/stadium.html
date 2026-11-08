@@ -369,6 +369,18 @@
       z-index: 3;
     }
 
+    .arena-3d-shell{display:block;min-height:560px;height:min(68vw,650px);padding:0;background:radial-gradient(ellipse at 50% 58%,#1c3929 0%,#09120f 68%,#06090a 100%);isolation:isolate}
+    #arena3d{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
+    #arena3d canvas{display:block;width:100%;height:100%;outline:none}
+    .arena-3d-overlay{position:absolute;top:18px;right:20px;z-index:4;display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#f1e4c7;font-size:11px;padding:10px 14px;border:1px solid rgba(201,169,110,.25);border-radius:30px;background:rgba(5,9,8,.66);backdrop-filter:blur(12px);pointer-events:none}
+    .arena-live-dot{width:8px;height:8px;border-radius:50%;background:#6bd99b;box-shadow:0 0 12px #6bd99b}
+    .arena-3d-hint{color:#a9a9a1;font-size:9px}
+    .arena-3d-label{position:absolute;bottom:76px;left:0;right:0;z-index:3;text-align:center;color:rgba(234,213,166,.62);font-size:9px;letter-spacing:4px;pointer-events:none}
+    .arena-3d-controls{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:5;width:max-content;max-width:95%}
+    .arena-3d-controls button{border:1px solid rgba(201,169,110,.35);border-radius:9px;padding:9px 14px;color:#ead5a6;background:rgba(7,10,9,.78);cursor:pointer;font-size:10px;backdrop-filter:blur(10px)}
+    .arena-3d-controls button:hover{background:rgba(201,169,110,.18)}
+    .arena-3d-fallback{position:absolute;inset:0;display:grid;place-items:center;padding:25px;color:#ead5a6;text-align:center;line-height:2.2;background:radial-gradient(ellipse,rgba(48,105,68,.45),rgba(5,10,8,.95))}
+    @media(max-width:700px){.arena-3d-shell{min-height:390px;height:115vw;max-height:520px;border-radius:17px}.arena-3d-overlay{top:10px;right:10px;left:10px;justify-content:center;font-size:10px}.arena-3d-hint{width:100%;text-align:center}.arena-3d-controls{bottom:10px;gap:5px}.arena-3d-controls button{padding:8px 10px;font-size:9px}.arena-3d-label{bottom:62px;font-size:7px}}
     /* MATCH STATUS */
 
     .match-status {
@@ -717,20 +729,15 @@
         <p>قلب تپنده رقابت‌های آترامنتوم</p>
       </div>
 
-      <div class="arena">
-        <div class="field">
-          <div class="goal left">
-            <span></span><span></span><span></span>
-          </div>
-
-          <div class="center-mark">⚡</div>
-
-          <div class="goal right">
-            <span></span><span></span><span></span>
-          </div>
+      <div class="arena arena-3d-shell">
+        <div id="arena3d" role="img" aria-label="نمای سه‌بعدی ورزشگاه کوییدیچ آترامنتوم"></div>
+        <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span>نمای سه‌بعدی ورزشگاه</span><span class="arena-3d-hint">برای چرخاندن، بکشید · برای زوم، دو انگشت</span></div>
+        <div class="arena-3d-label">ATRAMENTUM GRAND QUIDDITCH ARENA</div>
+        <div class="arena-3d-controls">
+          <button type="button" data-camera="overview">نمای کلی</button>
+          <button type="button" data-camera="field">نمای زمین</button>
+          <button type="button" data-camera="top">نمای بالا</button>
         </div>
-
-        <div class="arena-label">ATRAMENTUM QUIDDITCH FIELD</div>
       </div>
 
       <div class="match-status">
@@ -967,5 +974,41 @@
     loadStadium();
   </script>
 
+  <script type="module">
+    const mount=document.getElementById("arena3d");
+    if(mount)try{
+      const THREE=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
+      const {OrbitControls}=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js");
+      const scene=new THREE.Scene();scene.background=new THREE.Color(0x07100d);scene.fog=new THREE.Fog(0x07100d,95,190);
+      const camera=new THREE.PerspectiveCamera(43,1,.1,260);camera.position.set(74,62,82);
+      const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
+      renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
+      const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.055;controls.minDistance=42;controls.maxDistance=145;controls.maxPolarAngle=Math.PI*.48;controls.target.set(0,5,0);
+      scene.add(new THREE.HemisphereLight(0xc7e6d3,0x10150f,2));
+      const moon=new THREE.DirectionalLight(0xffe2ad,2.6);moon.position.set(-35,65,25);moon.castShadow=true;moon.shadow.mapSize.set(1024,1024);scene.add(moon);
+      const glow=new THREE.PointLight(0x3eaa76,65,100);glow.position.set(15,22,-20);scene.add(glow);
+      const floor=new THREE.Mesh(new THREE.CircleGeometry(82,96),new THREE.MeshStandardMaterial({color:0x101c16,roughness:.95}));floor.rotation.x=-Math.PI/2;floor.position.y=-.7;floor.receiveShadow=true;scene.add(floor);
+      const stands=new THREE.Group();stands.scale.set(1.42,1,.92);scene.add(stands);
+      [{t:48,b:57,h:7,y:7,c:0x25251e},{t:41,b:49,h:6,y:13,c:0x343026},{t:35,b:42,h:5,y:18,c:0x222a24}].forEach(v=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(v.t,v.b,v.h,112,1,true),new THREE.MeshStandardMaterial({color:v.c,roughness:.82,side:THREE.DoubleSide}));m.position.y=v.y;m.receiveShadow=true;stands.add(m)});
+      [4,10,16,21].forEach((y,i)=>{const ring=new THREE.Mesh(new THREE.TorusGeometry(50-i*4.3,.32,8,128),new THREE.MeshStandardMaterial({color:0xc5a164,metalness:.72,roughness:.32,emissive:0x4a3210,emissiveIntensity:.18}));ring.rotation.x=Math.PI/2;ring.scale.set(1.42,.92,1);ring.position.y=y;scene.add(ring)});
+      const field=new THREE.Mesh(new THREE.PlaneGeometry(78,30),new THREE.MeshStandardMaterial({color:0x245337,roughness:.94,side:THREE.DoubleSide}));field.rotation.x=-Math.PI/2;field.position.y=.05;field.receiveShadow=true;scene.add(field);
+      const lineMat=new THREE.LineBasicMaterial({color:0xd7c18f,transparent:true,opacity:.8});
+      function line(x,z,X,Z){scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,.12,z),new THREE.Vector3(X,.12,Z)]),lineMat))}
+      line(-39,-15,39,-15);line(-39,15,39,15);line(-39,-15,-39,15);line(39,-15,39,15);line(0,-15,0,15);
+      const center=new THREE.Mesh(new THREE.TorusGeometry(7,.12,8,64),lineMat);center.rotation.x=Math.PI/2;center.position.y=.16;scene.add(center);
+      function goals(x,d){[-5,0,5].forEach(z=>{const pole=new THREE.Mesh(new THREE.CylinderGeometry(.16,.22,8,12),new THREE.MeshStandardMaterial({color:0xc8a45e,metalness:.65,roughness:.35}));pole.position.set(x,4,z);scene.add(pole);const hoop=new THREE.Mesh(new THREE.TorusGeometry(2.1,.14,10,32),new THREE.MeshStandardMaterial({color:0xe4c783,metalness:.72,roughness:.28}));hoop.position.set(x+d*1.7,8,z);hoop.rotation.y=Math.PI/2;scene.add(hoop)})}
+      goals(-39,-1);goals(39,1);
+      const colors=[0xb84a42,0x42a879,0xd2ad4e,0x668fc1];
+      for(let i=0;i<48;i++){const q=i/48*Math.PI*2;const crest=new THREE.Mesh(new THREE.BoxGeometry(1.15,2,.45),new THREE.MeshStandardMaterial({color:colors[i%4]}));crest.position.set(Math.cos(q)*68,23,Math.sin(q)*44);crest.lookAt(0,23,0);scene.add(crest)}
+      const players=[];
+      for(let team=0;team<4;team++)for(let j=0;j<3;j++){const q=(team*3+j)/12*Math.PI*2,g=new THREE.Group();const body=new THREE.Mesh(new THREE.SphereGeometry(.9,16,12),new THREE.MeshStandardMaterial({color:colors[team],roughness:.4,emissive:colors[team],emissiveIntensity:.12}));body.scale.set(.8,1.25,.8);g.add(body);const broom=new THREE.Mesh(new THREE.CylinderGeometry(.08,.035,4.4,8),new THREE.MeshStandardMaterial({color:0x9b7542}));broom.rotation.z=Math.PI/2;broom.position.y=-.65;g.add(broom);g.position.set(Math.cos(q)*(12+j*5),7+(j%2)*3,Math.sin(q)*(7+j*2));g.userData={base:g.position.y,phase:team*1.7+j};scene.add(g);players.push(g)}
+      const balls=[[-5,10,1,0xc84a32,1.05],[9,13,-5,0x24272b,.78],[2,16,7,0xe6c45f,.48]].map(v=>{const m=new THREE.Mesh(new THREE.SphereGeometry(v[4],24,18),new THREE.MeshStandardMaterial({color:v[3],metalness:.25,roughness:.32,emissive:v[3],emissiveIntensity:.18}));m.position.set(v[0],v[1],v[2]);scene.add(m);return m});
+      function resize(){const w=mount.clientWidth||1,h=mount.clientHeight||1;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
+      new ResizeObserver(resize).observe(mount);resize();
+      const views={overview:[[74,62,82],[0,5,0]],field:[[52,30,43],[0,5,0]],top:[[0,112,.1],[0,0,0]]};
+      document.querySelectorAll("[data-camera]").forEach(btn=>btn.addEventListener("click",()=>{const v=views[btn.dataset.camera];if(v){camera.position.set(...v[0]);controls.target.set(...v[1]);controls.update()}}));
+      const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08});balls.forEach((b,i)=>{b.position.y+=Math.sin(t*(1.2+i*.25)+i)*.006;b.rotation.x+=.002+i*.001;b.rotation.y+=.004+i*.001});controls.update();renderer.render(scene,camera)}animate();
+    }catch(err){console.error("Atramentum 3D arena:",err);mount.innerHTML='<div class="arena-3d-fallback">نمای سه‌بعدی بارگذاری نشد. اتصال اینترنت و پشتیبانی WebGL را بررسی کنید.</div>'}
+  </script>
 </body>
 </html>
