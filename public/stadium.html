@@ -1010,7 +1010,8 @@
       const colors=[0xb84a42,0x42a879,0xd2ad4e,0x668fc1];
       for(let i=0;i<48;i++){const q=i/48*Math.PI*2;const crest=new THREE.Mesh(new THREE.BoxGeometry(1.15,2,.45),new THREE.MeshStandardMaterial({color:colors[i%4]}));crest.position.set(Math.cos(q)*68,23,Math.sin(q)*44);crest.lookAt(0,23,0);scene.add(crest)}
       const players=[];
-      for(let team=0;team<4;team++)for(let j=0;j<3;j++){const q=(team*3+j)/12*Math.PI*2,g=new THREE.Group();const body=new THREE.Mesh(new THREE.SphereGeometry(.9,16,12),new THREE.MeshStandardMaterial({color:colors[team],roughness:.4,emissive:colors[team],emissiveIntensity:.12}));body.scale.set(.8,1.25,.8);g.add(body);const broom=new THREE.Mesh(new THREE.CylinderGeometry(.08,.035,4.4,8),new THREE.MeshStandardMaterial({color:0x9b7542}));broom.rotation.z=Math.PI/2;broom.position.y=-.65;g.add(broom);g.position.set(Math.cos(q)*(12+j*5),7+(j%2)*3,Math.sin(q)*(7+j*2));g.userData={base:g.position.y,phase:team*1.7+j};scene.add(g);players.push(g)}
+      const teamIds=["gryffindor","slytherin","hufflepuff","ravenclaw"];
+      for(let team=0;team<4;team++)for(let j=0;j<3;j++){const q=(team*3+j)/12*Math.PI*2,g=new THREE.Group();const body=new THREE.Mesh(new THREE.SphereGeometry(.9,16,12),new THREE.MeshStandardMaterial({color:colors[team],roughness:.4,emissive:colors[team],emissiveIntensity:.12}));body.scale.set(.8,1.25,.8);g.add(body);const broom=new THREE.Mesh(new THREE.CylinderGeometry(.08,.035,4.4,8),new THREE.MeshStandardMaterial({color:0x9b7542}));broom.rotation.z=Math.PI/2;broom.position.y=-.65;g.add(broom);g.position.set(Math.cos(q)*(12+j*5),7+(j%2)*3,Math.sin(q)*(7+j*2));g.userData={base:g.position.y,phase:team*1.7+j,teamId:teamIds[team]};g.visible=false;scene.add(g);players.push(g)}
       const balls=[[-5,10,1,0xc84a32,1.05],[9,13,-5,0x24272b,.78],[2,16,7,0xe6c45f,.48]].map(v=>{const m=new THREE.Mesh(new THREE.SphereGeometry(v[4],24,18),new THREE.MeshStandardMaterial({color:v[3],metalness:.25,roughness:.32,emissive:v[3],emissiveIntensity:.18}));m.position.set(v[0],v[1],v[2]);scene.add(m);return m});
       function resize(){const w=mount.clientWidth||1,h=mount.clientHeight||1;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
       new ResizeObserver(resize).observe(mount);resize();
@@ -1027,15 +1028,21 @@
             const listResponse=await fetch("/api/matches",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
             if(!listResponse.ok)return;
             const list=await listResponse.json();
-            const active=(list.matches||[]).find(m=>m.status==="live"||m.status==="paused");
-            if(!active){liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
+            const matches=list.matches||[];
+            const active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled");
+            if(!active){players.forEach(p=>p.visible=false);liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
             liveMatchId=active.id;
           }
           const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
           if(response.status===404){liveMatchId=null;return;}
           if(!response.ok)return;
           const data=await response.json();if(!data.success)return;
-          liveLabel.textContent=(data.match.home_name||data.match.home_team_id)+" "+((data.scores||[]).find(x=>x.team_id===data.match.home_team_id)?.score||0)+" — "+((data.scores||[]).find(x=>x.team_id===data.match.away_team_id)?.score||0)+" "+(data.match.away_name||data.match.away_team_id)+" · "+(data.match.status==="live"?"زنده":"متوقف");
+          const homeId=String(data.match.home_team_id),awayId=String(data.match.away_team_id);
+          players.forEach(p=>{p.visible=p.userData.teamId===homeId||p.userData.teamId===awayId;});
+          const homeScore=(data.scores||[]).find(x=>String(x.team_id)===homeId)?.score||0;
+          const awayScore=(data.scores||[]).find(x=>String(x.team_id)===awayId)?.score||0;
+          const statusLabel={live:"زنده",paused:"متوقف",scheduled:"در انتظار شروع",completed:"پایان‌یافته"}[data.match.status]||data.match.status;
+          liveLabel.textContent=(data.match.home_name||homeId)+" "+homeScore+" — "+awayScore+" "+(data.match.away_name||awayId)+" · "+statusLabel;
           if(data.revision===liveRevision)return;
           liveRevision=data.revision;
           (data.positions||[]).forEach((p,index)=>{
