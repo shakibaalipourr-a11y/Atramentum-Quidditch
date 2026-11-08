@@ -627,8 +627,8 @@ async function handleAdminMatchLive(request, env, matchId) {
     }
     statements.push(env.atramentum_db.prepare(`
       INSERT INTO admin_audit_logs(admin_id,action,target_username,details)
-      VALUES(?,?,?,?,?)
-    `.replace("VALUES(?,?,?,?,?)","VALUES(?,?,?,?)")).bind(
+      VALUES(?,?,?,?)
+    `).bind(
       admin.id,"match_scores_changed",admin.username,JSON.stringify({matchId:id,updates})
     ));
     await env.atramentum_db.batch(statements);
