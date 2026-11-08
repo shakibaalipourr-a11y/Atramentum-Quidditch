@@ -523,7 +523,11 @@ export default {
         return await handleAdminBootstrap(request, env);
       }
 
-      if (path === "/api/admin/recover") {\n        return await handleAdminRecovery(request, env);\n      }\n\n      if (path === "/api/admin/setup-status" && request.method === "GET") {
+      if (path === "/api/admin/recover") {
+        return await handleAdminRecovery(request, env);
+      }
+
+      if (path === "/api/admin/setup-status" && request.method === "GET") {
         return await handleAdminSetupStatus(env);
       }
 
