@@ -731,7 +731,7 @@
 
       <div class="arena arena-3d-shell">
         <div id="arena3d" role="img" aria-label="نمای سه‌بعدی ورزشگاه کوییدیچ آترامنتوم"></div>
-        <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span>نمای سه‌بعدی ورزشگاه</span><span class="arena-3d-hint">برای چرخاندن، بکشید · برای زوم، دو انگشت</span></div>
+        <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span id="arenaLiveLabel">نمای سه‌بعدی ورزشگاه · آمادهٔ مسابقه</span><span class="arena-3d-hint">برای چرخاندن، بکشید · برای زوم، دو انگشت</span></div>
         <div class="arena-3d-label">ATRAMENTUM GRAND QUIDDITCH ARENA</div>
         <div class="arena-3d-controls">
           <button type="button" data-camera="overview">نمای کلی</button>
@@ -1008,6 +1008,42 @@
       const views={overview:[[74,62,82],[0,5,0]],field:[[52,30,43],[0,5,0]],top:[[0,112,.1],[0,0,0]]};
       document.querySelectorAll("[data-camera]").forEach(btn=>btn.addEventListener("click",()=>{const v=views[btn.dataset.camera];if(v){camera.position.set(...v[0]);controls.target.set(...v[1]);controls.update()}}));
       const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08});balls.forEach((b,i)=>{b.position.y+=Math.sin(t*(1.2+i*.25)+i)*.006;b.rotation.x+=.002+i*.001;b.rotation.y+=.004+i*.001});controls.update();renderer.render(scene,camera)}animate();
+      const liveLabel=document.getElementById("arenaLiveLabel");
+      let liveMatchId=null,liveRevision=-1;
+      async function syncLiveMatch(){
+        const token=localStorage.getItem("atramentumSession");
+        if(!token)return;
+        try{
+          if(!liveMatchId){
+            const listResponse=await fetch("/api/matches",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+            if(!listResponse.ok)return;
+            const list=await listResponse.json();
+            const active=(list.matches||[]).find(m=>m.status==="live"||m.status==="paused");
+            if(!active){liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
+            liveMatchId=active.id;
+          }
+          const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+          if(response.status===404){liveMatchId=null;return;}
+          if(!response.ok)return;
+          const data=await response.json();if(!data.success)return;
+          liveLabel.textContent=(data.match.home_name||data.match.home_team_id)+" "+((data.scores||[]).find(x=>x.team_id===data.match.home_team_id)?.score||0)+" — "+((data.scores||[]).find(x=>x.team_id===data.match.away_team_id)?.score||0)+" "+(data.match.away_name||data.match.away_team_id)+" · "+(data.match.status==="live"?"زنده":"متوقف");
+          if(data.revision===liveRevision)return;
+          liveRevision=data.revision;
+          (data.positions||[]).forEach((p,index)=>{
+            const mesh=players[index];if(!mesh)return;
+            mesh.position.set(p.x,p.y,p.z);
+            mesh.userData.serverDriven=true;
+          });
+          (data.balls||[]).forEach((p,index)=>{
+            const mesh=balls[index];if(!mesh)return;
+            mesh.position.set(p.x,p.y,p.z);
+            mesh.userData.serverDriven=true;
+          });
+        }catch(error){console.warn("Live match sync unavailable:",error)}
+      }
+      syncLiveMatch();
+      setInterval(syncLiveMatch,3000);
+
     }catch(err){console.error("Atramentum 3D arena:",err);mount.innerHTML='<div class="arena-3d-fallback">نمای سه‌بعدی بارگذاری نشد. اتصال اینترنت و پشتیبانی WebGL را بررسی کنید.</div>'}
   </script>
 </body>
