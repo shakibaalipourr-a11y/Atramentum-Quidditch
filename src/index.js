@@ -514,6 +514,26 @@ async function handleAdminMatches(request, env) {
   if (!["super_admin","house_admin","referee"].includes(admin.role))
     return json({ success:false,message:"Insufficient permissions." },403);
 
+  if (request.method === "POST") {
+    if (admin.role !== "super_admin") return json({success:false,message:"Only the super administrator may create fixtures."},403);
+    let body;
+    try { body=await request.json(); } catch { return json({success:false,message:"Invalid request body."},400); }
+    const homeTeamId=String(body?.homeTeamId||"");
+    const awayTeamId=String(body?.awayTeamId||"");
+    const scheduledAt=body?.scheduledAt?String(body.scheduledAt):null;
+    if (!homeTeamId || !awayTeamId || homeTeamId===awayTeamId)
+      return json({success:false,message:"Choose two different participating teams."},400);
+    if (scheduledAt && (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}/.test(scheduledAt) || Number.isNaN(Date.parse(scheduledAt))))
+      return json({success:false,message:"Invalid scheduled date and time."},400);
+    const teams=await env.atramentum_db.prepare("SELECT id FROM teams WHERE id IN (?,?)").bind(homeTeamId,awayTeamId).all();
+    if ((teams.results||[]).length!==2) return json({success:false,message:"One or both teams do not exist."},400);
+    const created=await env.atramentum_db.prepare(
+      "INSERT INTO matches(home_team_id,away_team_id,scheduled_at,status) VALUES(?,?,?,'scheduled')"
+    ).bind(homeTeamId,awayTeamId,scheduledAt).run();
+    const matchId=created.meta?.last_row_id;
+    await writeAdminAudit(env,admin.id,"match_created",String(matchId),JSON.stringify({homeTeamId,awayTeamId,scheduledAt}));
+    return json({success:true,matchId,message:"Fixture created."},201);
+  }
   if (request.method === "GET") {
     const result = await env.atramentum_db.prepare(`
       SELECT m.id, m.scheduled_at, m.status, m.winner_team_id,
