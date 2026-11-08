@@ -117,7 +117,7 @@
       tr.children[3].textContent=user.password_configured?"فعال":"در انتظار تنظیم رمز";
       tr.children[3].className=user.password_configured?"status":"pending";
       $("usersBody").appendChild(tr);
-      if(user.username!=="ACAME_IX47"){const option=document.createElement("option");option.value=user.username;option.textContent=user.username+" — "+role;$("targetUser").appendChild(option);}
+      const option=document.createElement("option");option.value=user.username;option.textContent=user.username+" — "+role;$("targetUser").appendChild(option);
     });
   }
   async function submitAdminLogin(usernameId,passwordId,buttonId,messageId){
