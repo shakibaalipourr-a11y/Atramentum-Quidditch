@@ -1242,7 +1242,7 @@
           renderClock();renderEvents(data.events||[]);
           snitch.visible=!currentGameState.snitch_caught_by;
           const teamPicker=document.getElementById("refereeTeam");
-          if(teamPicker.options.length!==3){teamPicker.innerHTML='<option value="">انتخاب گروه</option><option value="'+homeId+'">'+homeName+'</option><option value="'+awayId+'">'+awayName+'</option>';}
+          if(teamPicker.dataset.match!==String(liveMatchId)){teamPicker.innerHTML='<option value="">انتخاب گروه</option><option value="'+homeId+'">'+homeName+'</option><option value="'+awayId+'">'+awayName+'</option>';teamPicker.dataset.match=String(liveMatchId);}
           document.getElementById("homeTeamLabel").textContent=homeName;
           document.getElementById("awayTeamLabel").textContent=awayName;
           document.getElementById("gameScore").textContent=homeScore+" : "+awayScore;
