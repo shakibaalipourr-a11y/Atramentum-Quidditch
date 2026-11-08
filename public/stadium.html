@@ -1183,7 +1183,31 @@
       document.querySelectorAll("[data-camera]").forEach(btn=>btn.addEventListener("click",()=>{const v=views[btn.dataset.camera];if(v){camera.position.set(...v[0]);controls.target.set(...v[1]);controls.update()}}));
       const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{if(!p.userData.serverDriven)p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08;p.rotation.x=Math.sin(t*.8+p.userData.phase)*.035});spectatorGroups.forEach(s=>{s.rotation.z=Math.sin(t*3+s.userData.phase)*.08});balls.forEach((b,i)=>{if(!b.userData.serverDriven){b.position.y=(i===2?16:10+i*3)+Math.sin(t*(1.2+i*.25)+i)*(i===2?2:.65);b.position.x=i===2?2+Math.sin(t*.9)*8:b.position.x}b.rotation.y+=.004+i*.001});wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*16+i*Math.PI)*.45});referee.rotation.y=Math.sin(t*.8)*.08;controls.update();renderer.render(scene,camera)}animate();
       const liveLabel=document.getElementById("arenaLiveLabel");
-      let liveMatchId=null,liveRevision=-1;
+      let liveMatchId=null,liveRevision=-1,currentGameState={elapsed_seconds:0,clock_running:0},currentAdmin=null;
+      const adminToken=()=>sessionStorage.getItem("atramentumAdminSession");
+      async function verifyReferee(){
+        const token=adminToken();if(!token)return;
+        try{const r=await fetch("/api/admin/me",{headers:{Authorization:"Bearer "+token},cache:"no-store"});if(!r.ok)return;
+          const d=await r.json();currentAdmin=d.admin||null;
+          if(currentAdmin&&["referee","super_admin"].includes(currentAdmin.role))document.getElementById("refereePanel").hidden=false;
+        }catch{}
+      }
+      function renderClock(){
+        let seconds=Number(currentGameState.elapsed_seconds||0);
+        if(currentGameState.clock_running&&currentGameState.started_at){
+          const stamp=String(currentGameState.started_at).replace(" ","T")+"Z";
+          const start=Date.parse(stamp);if(Number.isFinite(start))seconds+=Math.max(0,Math.floor((Date.now()-start)/1000));
+        }
+        const mm=String(Math.floor(seconds/60)).padStart(2,"0"),ss=String(seconds%60).padStart(2,"0");
+        document.getElementById("gameClock").textContent=mm+":"+ss;
+      }
+      const eventNames={goal:"گل",foul:"خطا",snitch_caught:"شکار اسنیچ",clock_paused:"توقف مسابقه",clock_resumed:"شروع مسابقه",score_adjustment:"اصلاح امتیاز"};
+      function renderEvents(events){
+        const feed=document.getElementById("gameEventFeed");feed.innerHTML="";
+        (events||[]).slice(0,4).forEach(ev=>{const line=document.createElement("span");const team=ev.team_id?(" · "+(ev.team_id==="slytherin"?"اسلیترین":ev.team_id==="gryffindor"?"گریفیندور":ev.team_id==="hufflepuff"?"هافلپاف":"ریونکلا")):"";line.textContent=(eventNames[ev.event_type]||ev.event_type)+team+(ev.description?" · "+ev.description:"");feed.appendChild(line)});
+        if(!feed.childElementCount){const empty=document.createElement("span");empty.textContent="هنوز رویدادی ثبت نشده";feed.appendChild(empty)}
+      }
+
       async function syncLiveMatch(){
         const token=localStorage.getItem("atramentumSession");
         if(!token)return;
@@ -1201,7 +1225,7 @@
           let active=matches.find(m=>String(m.id)===currentChoice);
           if(!active)active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled")||matches.find(m=>m.status==="completed");
           if(active&&picker.value!==String(active.id))picker.value=String(active.id);
-          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);referee.visible=false;document.getElementById("homeTeamLabel").textContent="—";document.getElementById("awayTeamLabel").textContent="—";document.getElementById("gameScore").textContent="0 : 0";liveLabel.textContent="ورزشگاه آترامنتوم · در انتظار مسابقه";return;}
+          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);referee.visible=false;snitch.visible=false;document.getElementById("homeTeamLabel").textContent="—";document.getElementById("awayTeamLabel").textContent="—";document.getElementById("gameScore").textContent="0 : 0";document.getElementById("gameClock").textContent="00:00";liveLabel.textContent="ورزشگاه آترامنتوم · در انتظار مسابقه";return;}
           if(String(liveMatchId)!==String(active.id)){liveMatchId=active.id;liveRevision=-1;}
           const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
           if(response.status===404){liveMatchId=null;return;}
@@ -1214,6 +1238,11 @@
           const awayScore=(data.scores||[]).find(x=>String(x.team_id)===awayId)?.score||0;
           const statusLabel={live:"زنده",paused:"متوقف",scheduled:"در انتظار شروع",completed:"پایان‌یافته"}[data.match.status]||data.match.status;
           const homeName=data.match.home_name||homeId,awayName=data.match.away_name||awayId;
+          currentGameState=data.gameState||{elapsed_seconds:0,clock_running:0};
+          renderClock();renderEvents(data.events||[]);
+          snitch.visible=!currentGameState.snitch_caught_by;
+          const teamPicker=document.getElementById("refereeTeam");
+          if(teamPicker.options.length!==3){teamPicker.innerHTML='<option value="">انتخاب گروه</option><option value="'+homeId+'">'+homeName+'</option><option value="'+awayId+'">'+awayName+'</option>';}
           document.getElementById("homeTeamLabel").textContent=homeName;
           document.getElementById("awayTeamLabel").textContent=awayName;
           document.getElementById("gameScore").textContent=homeScore+" : "+awayScore;
@@ -1233,6 +1262,24 @@
         }catch(error){console.warn("Live match sync unavailable:",error)}
       }
       document.getElementById("matchPicker").addEventListener("change",()=>{liveMatchId=null;liveRevision=-1;syncLiveMatch()});
+      document.querySelectorAll("[data-ref-command]").forEach(button=>button.addEventListener("click",async()=>{
+        const token=adminToken(),command=button.dataset.refCommand,teamId=document.getElementById("refereeTeam").value;
+        if(!token||!currentAdmin||!["referee","super_admin"].includes(currentAdmin.role)){document.getElementById("refereeFeedback").textContent="ورود معتبر داور یا مدیر ارشد لازم است.";return}
+        if(!liveMatchId){document.getElementById("refereeFeedback").textContent="ابتدا یک مسابقه انتخاب کنید.";return}
+        if((command==="goal"||command==="snitch")&&!teamId){document.getElementById("refereeFeedback").textContent="ابتدا گروه برنده رویداد را انتخاب کنید.";return}
+        if(command==="snitch"&&!confirm("شکار اسنیچ تأیید شود؟ ۱۵۰ امتیاز ثبت و مسابقه پایان می‌یابد."))return;
+        let description="";
+        if(command==="foul")description=prompt("شرح خطا را وارد کنید:","خطای بازی")||"";
+        button.disabled=true;
+        try{
+          const response=await fetch("/api/admin/matches/"+liveMatchId+"/live",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({action:"referee",command,teamId,description})});
+          const result=await response.json();
+          document.getElementById("refereeFeedback").textContent=result.message||"پاسخ نامشخص";
+          if(response.ok){liveRevision=-1;await syncLiveMatch()}
+        }catch(error){document.getElementById("refereeFeedback").textContent="ارتباط با سرور برقرار نشد."}
+        finally{button.disabled=false}
+      }));
+      verifyReferee();setInterval(renderClock,1000);
       document.getElementById("fullscreenButton").addEventListener("click",async()=>{
         try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();}else{await document.exitFullscreen();}}
         catch(error){console.warn("Fullscreen mode is unavailable:",error)}
