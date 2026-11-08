@@ -1126,8 +1126,8 @@
       const players=[];
       const teamIds=["gryffindor","slytherin","hufflepuff","ravenclaw"];
       const broomMat=new THREE.MeshStandardMaterial({color:0x9b7542,roughness:.62});
-      for(let team=0;team<4;team++)for(let j=0;j<3;j++){
-        const q=(team*3+j)/12*Math.PI*2,g=new THREE.Group();
+      for(let team=0;team<4;team++)for(let j=0;j<7;j++){
+        const q=(team*7+j)/28*Math.PI*2,g=new THREE.Group();
         const robe=new THREE.Mesh(new THREE.CylinderGeometry(.42,.62,1.35,10),new THREE.MeshStandardMaterial({color:colors[team],roughness:.5,emissive:colors[team],emissiveIntensity:.08}));robe.position.y=.05;g.add(robe);
         const head=new THREE.Mesh(new THREE.SphereGeometry(.29,14,12),new THREE.MeshStandardMaterial({color:0xc28e70,roughness:.8}));head.position.y=.98;g.add(head);
         const hood=new THREE.Mesh(new THREE.SphereGeometry(.31,14,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0x171b19,roughness:.8}));hood.position.y=1.05;g.add(hood);
@@ -1135,7 +1135,7 @@
         for(const side of [-1,1]){const arm=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,.72,8),armMat);arm.position.set(side*.48,.25,.05);arm.rotation.z=side*.35;g.add(arm)}
         const broom=new THREE.Mesh(new THREE.CylinderGeometry(.055,.035,4.2,8),broomMat);broom.rotation.z=Math.PI/2;broom.position.set(0,-.55,0);g.add(broom);
         const tail=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,8),broomMat);tail.rotation.z=-Math.PI/2;tail.position.set(-2.1,-.55,0);g.add(tail);
-        g.position.set(Math.cos(q)*(12+j*5),7+(j%2)*3,Math.sin(q)*(7+j*2));g.userData={base:g.position.y,phase:team*1.7+j,teamId:teamIds[team],role:["Chaser","Beater","Keeper"][j]};g.visible=false;scene.add(g);players.push(g)
+        g.position.set(Math.cos(q)*(10+(j%4)*6),7+(j%3)*2.5,Math.sin(q)*(8+(j%4)*4));g.userData={base:g.position.y,phase:team*1.7+j,teamId:teamIds[team],role:["Chaser","Chaser","Chaser","Beater","Beater","Keeper","Seeker"][j]};g.visible=false;scene.add(g);players.push(g)
       }
       // Animated spectators seated around all four house sections.
       const spectatorGroups=[];
