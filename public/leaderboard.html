@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
+  <meta name="description" content="جدول رسمی امتیازات گروه‌های آترامنتوم">
+  <title>جدول امتیازات | ATRAMENTUM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:#080808; --panel:#11110f; --panel2:#171612;
+      --gold:#c9a45c; --gold-light:#ead39a; --gold-dim:#80663a;
+      --text:#eee9df; --muted:#9b9589; --line:rgba(201,164,92,.22);
+      --green:#397c61; --red:#a83b38; --blue:#527ba8; --yellow:#c4a34d;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(120,83,31,.16),transparent 42%),var(--bg);color:var(--text);font-family:Vazirmatn,sans-serif}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 80%)}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+    .topbar{height:76px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:rgba(8,8,8,.88);backdrop-filter:blur(18px);position:sticky;top:0;z-index:10}
+    .logo{font-family:Cinzel,serif;font-size:19px;font-weight:800;letter-spacing:3px;color:var(--gold-light)}
+    nav{display:flex;align-items:center;gap:25px;color:#aaa398;font-size:12px}
+    nav a:hover,nav a.active{color:var(--gold-light)}
+    .wrap{width:min(1080px,92%);margin:0 auto;padding:64px 0 45px}
+    .heading{text-align:center;margin-bottom:38px}
+    .eyebrow{font-family:Cinzel,serif;letter-spacing:4px;font-size:10px;color:var(--gold);margin-bottom:14px}
+    h1{font-size:clamp(30px,5vw,48px);font-weight:800;color:var(--gold-light);letter-spacing:-1px}
+    .subtitle{margin:12px auto 0;color:var(--muted);font-size:13px;line-height:2}
+    .ornament{display:flex;align-items:center;justify-content:center;gap:14px;margin:22px auto 0;color:var(--gold)}
+    .ornament:before,.ornament:after{content:"";height:1px;width:76px;background:linear-gradient(90deg,transparent,var(--gold-dim))}
+    .ornament:after{transform:scaleX(-1)}
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+    .summary-card{background:linear-gradient(145deg,rgba(201,164,92,.09),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:13px;padding:18px 20px;text-align:center}
+    .summary-card .label{font-size:11px;color:var(--muted);margin-bottom:7px}
+    .summary-card .value{font-size:25px;font-weight:800;color:var(--gold-light);font-variant-numeric:tabular-nums}
+    .table-panel{border:1px solid var(--line);border-radius:17px;overflow:hidden;background:rgba(17,17,15,.88);box-shadow:0 22px 70px rgba(0,0,0,.35)}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line);gap:12px}
+    .panel-title{font-weight:800;color:var(--gold-light);font-size:15px}
+    .panel-kicker{font-family:Cinzel,serif;color:var(--muted);font-size:9px;letter-spacing:2px;margin-top:4px}
+    .refresh{border:1px solid var(--gold-dim);border-radius:8px;background:transparent;color:var(--gold-light);padding:8px 13px;font-size:11px;cursor:pointer;transition:.2s}
+    .refresh:hover{background:rgba(201,164,92,.12);border-color:var(--gold)}
+    .refresh:disabled{opacity:.55;cursor:wait}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:560px}
+    th{padding:15px 20px;text-align:right;font-size:10px;color:var(--muted);font-weight:600;background:rgba(255,255,255,.018);border-bottom:1px solid rgba(255,255,255,.06)}
+    td{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.055);font-size:13px}
+    tbody tr:last-child td{border-bottom:0}
+    tbody tr{transition:background .2s}
+    tbody tr:hover{background:rgba(201,164,92,.045)}
+    tbody tr.first{background:linear-gradient(90deg,rgba(201,164,92,.07),rgba(201,164,92,.015))}
+    .rank{font-family:Cinzel,serif;color:var(--muted);font-weight:700;font-size:15px}
+    .first .rank{color:var(--gold-light);font-size:18px}
+    .team{display:flex;align-items:center;gap:13px;min-width:190px}
+    .crest{width:42px;height:42px;border:1px solid var(--line);border-radius:11px;display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.025);flex:none}
+    .team-name{font-weight:800;color:#f0eadf}
+    .team-en{font-family:Cinzel,serif;font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:4px;direction:ltr;text-align:right}
+    .points{font-size:17px;font-weight:900;color:var(--gold-light);font-variant-numeric:tabular-nums}
+    .players{color:#c5beb1;font-variant-numeric:tabular-nums}
+    .medal{font-size:17px;margin-right:5px}
+    .status{padding:35px 18px;text-align:center;color:var(--muted);font-size:12px;line-height:2}
+    .status.error{color:#e49a91}
+    .status button{margin-top:12px}
+    .footnote{text-align:center;color:#777166;font-size:10px;line-height:2;margin:18px 0 0}
+    footer{text-align:center;border-top:1px solid rgba(201,164,92,.12);padding:25px 12px;color:#777166;font-size:10px}
+    footer strong{display:block;font-family:Cinzel,serif;color:var(--gold-dim);letter-spacing:3px;font-size:13px;margin-bottom:6px}
+    @media(max-width:650px){
+      .topbar{height:auto;min-height:68px;padding:14px 4%;align-items:flex-start;gap:12px;flex-direction:column}
+      nav{width:100%;gap:18px;overflow-x:auto;white-space:nowrap;padding-bottom:3px}
+      .wrap{padding-top:42px}
+      .summary{gap:8px}
+      .summary-card{padding:14px 7px}
+      .summary-card .label{font-size:9px}
+      .summary-card .value{font-size:21px}
+      .panel-head{padding:16px}
+      td,th{padding:14px}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">ATRAMENTUM</a>
+    <nav aria-label="ناوبری اصلی">
+      <a href="stadium.html">ورزشگاه</a>
+      <a href="leaderboard.html" class="active">جدول امتیازات</a>
+      <a href="about.html">درباره ما</a>
+      <a href="profile.html">پروفایل</a>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="heading">
+      <div class="eyebrow">THE GRAND HOUSE CHAMPIONSHIP</div>
+      <h1>تالار افتخارات</h1>
+      <p class="subtitle">جایگاه رسمی چهار گروه آترامنتوم؛ هر امتیاز، گامی به‌سوی افتخار جاودانه است.</p>
+      <div class="ornament"><span>✦</span></div>
+    </section>
+
+    <section class="summary" aria-label="خلاصه جدول">
+      <div class="summary-card"><div class="label">گروه‌های حاضر</div><div class="value" id="teamCount">—</div></div>
+      <div class="summary-card"><div class="label">مجموع بازیکنان فعال</div><div class="value" id="playerCount">—</div></div>
+      <div class="summary-card"><div class="label">امتیاز کل گروه‌ها</div><div class="value" id="totalPoints">—</div></div>
+    </section>
+
+    <section class="table-panel">
+      <div class="panel-head">
+        <div><div class="panel-title">رتبه‌بندی گروه‌ها</div><div class="panel-kicker">OFFICIAL HOUSE STANDINGS</div></div>
+        <button class="refresh" id="refreshButton" type="button">↻ به‌روزرسانی</button>
+      </div>
+      <div id="tableContent">
+        <div class="status" role="status">در حال دریافت جدول رسمی امتیازات…</div>
+      </div>
+    </section>
+    <p class="footnote">امتیازها مستقیماً از پایگاه دادهٔ رسمی آترامنتوم دریافت می‌شوند.</p>
+  </main>
+
+  <footer><strong>ATRAMENTUM</strong><span>© 2026 Atramentum Quidditch · تالار افتخارات</span></footer>
+
+  <script>
+    const teamDetails = {
+      gryffindor: { fa: "گریفیندور", emoji: "🦁" },
+      slytherin: { fa: "اسلیترین", emoji: "🐍" },
+      hufflepuff: { fa: "هافلپاف", emoji: "🦡" },
+      ravenclaw: { fa: "ریونکلا", emoji: "🦅" }
+    };
+
+    const tableContent = document.getElementById("tableContent");
+    const refreshButton = document.getElementById("refreshButton");
+
+    function number(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed.toLocaleString("fa-IR") : "۰";
+    }
+
+    function renderTable(rows) {
+      const teams = Array.isArray(rows) ? rows : [];
+      const activePlayers = teams.reduce((sum, team) => sum + (Number(team.player_count) || 0), 0);
+      const totalPoints = teams.reduce((sum, team) => sum + (Number(team.points) || 0), 0);
+
+      document.getElementById("teamCount").textContent = number(teams.length);
+      document.getElementById("playerCount").textContent = number(activePlayers);
+      document.getElementById("totalPoints").textContent = number(totalPoints);
+
+      if (!teams.length) {
+        tableContent.innerHTML = '<div class="status">هنوز گروهی برای نمایش در جدول ثبت نشده است.</div>';
+        return;
+      }
+
+      const sorted = [...teams].sort((a, b) =>
+        (Number(b.points) || 0) - (Number(a.points) || 0) ||
+        String(a.name || "").localeCompare(String(b.name || ""))
+      );
+
+      const body = sorted.map((team, index) => {
+        const detail = teamDetails[String(team.name || "").toLowerCase()] || {
+          fa: team.display_name || team.name || "گروه نامشخص",
+          emoji: team.emblem || "🏰"
+        };
+        const rank = index + 1;
+        const medal = rank === 1 ? '<span class="medal" aria-label="رتبه اول">👑</span>' :
+          rank === 2 ? '<span class="medal" aria-label="رتبه دوم">🥈</span>' :
+          rank === 3 ? '<span class="medal" aria-label="رتبه سوم">🥉</span>' : "";
+        const points = Number(team.points) || 0;
+        return '<tr class="' + (rank === 1 ? "first" : "") + '">' +
+          '<td><span class="rank">' + number(rank) + '</span></td>' +
+          '<td><div class="team"><div class="crest">' + detail.emoji + '</div><div><div class="team-name">' + detail.fa + ' ' + medal + '</div><div class="team-en">' + String(team.name || "").toUpperCase() + '</div></div></div></td>' +
+          '<td><span class="points">' + number(points) + '</span></td>' +
+          '<td><span class="players">' + number(team.player_count) + '</span></td>' +
+          '</tr>';
+      }).join("");
+
+      tableContent.innerHTML =
+        '<div class="table-wrap"><table><thead><tr><th>رتبه</th><th>گروه</th><th>امتیاز</th><th>بازیکنان فعال</th></tr></thead><tbody>' +
+        body + '</tbody></table></div>';
+    }
+
+    async function loadLeaderboard() {
+      refreshButton.disabled = true;
+      refreshButton.textContent = "در حال دریافت…";
+      tableContent.innerHTML = '<div class="status" role="status">در حال دریافت جدول رسمی امتیازات…</div>';
+
+      try {
+        const response = await fetch("/api/leaderboard", {
+          method: "GET",
+          cache: "no-store",
+          headers: { "Accept": "application/json" }
+        });
+        if (!response.ok) throw new Error("سرور نتوانست جدول امتیازات را دریافت کند.");
+        const data = await response.json();
+        if (!data.success || !Array.isArray(data.leaderboard)) {
+          throw new Error("پاسخ جدول امتیازات معتبر نیست.");
+        }
+        renderTable(data.leaderboard);
+      } catch (error) {
+        tableContent.innerHTML =
+          '<div class="status error">' + (error.message || "ارتباط با سرور برقرار نشد.") +
+          '<br><button class="refresh" type="button" onclick="loadLeaderboard()">تلاش دوباره</button></div>';
+        document.getElementById("teamCount").textContent = "—";
+        document.getElementById("playerCount").textContent = "—";
+        document.getElementById("totalPoints").textContent = "—";
+      } finally {
+        refreshButton.disabled = false;
+        refreshButton.textContent = "↻ به‌روزرسانی";
+      }
+    }
+
+    refreshButton.addEventListener("click", loadLeaderboard);
+    loadLeaderboard();
+  </script>
+</body>
+</html>
