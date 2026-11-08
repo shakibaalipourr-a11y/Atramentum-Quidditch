@@ -974,11 +974,20 @@
     loadStadium();
   </script>
 
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
   <script type="module">
     const mount=document.getElementById("arena3d");
     if(mount)try{
-      const THREE=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
-      const {OrbitControls}=await import("https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js");
+      const THREE=await import("three");
+      const {OrbitControls}=await import("three/addons/controls/OrbitControls.js");
       const scene=new THREE.Scene();scene.background=new THREE.Color(0x07100d);scene.fog=new THREE.Fog(0x07100d,95,190);
       const camera=new THREE.PerspectiveCamera(43,1,.1,260);camera.position.set(74,62,82);
       const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
