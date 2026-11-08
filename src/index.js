@@ -359,6 +359,17 @@ async function handleAdminBootstrap(request, env) {
   return json({ success: true, message: "Initial administrator password configured. You can now sign in." });
 }
 
+async function handleAdminSetupStatus(env) {
+  const admin = await env.atramentum_db.prepare(`
+    SELECT CASE WHEN password_hash IS NOT NULL AND password_salt IS NOT NULL THEN 1 ELSE 0 END AS configured
+    FROM admin_users
+    WHERE username = 'ACAME_IX47' AND role = 'super_admin'
+    LIMIT 1
+  `).first();
+  if (!admin) return json({ success: false, configured: false }, 404);
+  return json({ success: true, configured: admin.configured === 1 });
+}
+
 async function handleAdminLogin(request, env) {
   if (request.method !== "POST") return json({ success: false, message: "Method not allowed" }, 405);
   let body;
@@ -459,6 +470,10 @@ export default {
 
       if (path === "/api/admin/bootstrap") {
         return await handleAdminBootstrap(request, env);
+      }
+
+      if (path === "/api/admin/setup-status" && request.method === "GET") {
+        return await handleAdminSetupStatus(env);
       }
 
       if (path === "/api/admin/login") {
