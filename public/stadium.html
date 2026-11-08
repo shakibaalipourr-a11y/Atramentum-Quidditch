@@ -1007,7 +1007,7 @@
       new ResizeObserver(resize).observe(mount);resize();
       const views={overview:[[74,62,82],[0,5,0]],field:[[52,30,43],[0,5,0]],top:[[0,112,.1],[0,0,0]]};
       document.querySelectorAll("[data-camera]").forEach(btn=>btn.addEventListener("click",()=>{const v=views[btn.dataset.camera];if(v){camera.position.set(...v[0]);controls.target.set(...v[1]);controls.update()}}));
-      const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08});balls.forEach((b,i)=>{b.position.y+=Math.sin(t*(1.2+i*.25)+i)*.006;b.rotation.x+=.002+i*.001;b.rotation.y+=.004+i*.001});controls.update();renderer.render(scene,camera)}animate();
+      const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{if(!p.userData.serverDriven)p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08});balls.forEach((b,i)=>{if(!b.userData.serverDriven)b.position.y+=Math.sin(t*(1.2+i*.25)+i)*.006;b.rotation.x+=.002+i*.001;b.rotation.y+=.004+i*.001});controls.update();renderer.render(scene,camera)}animate();
       const liveLabel=document.getElementById("arenaLiveLabel");
       let liveMatchId=null,liveRevision=-1;
       async function syncLiveMatch(){
