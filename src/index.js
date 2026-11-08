@@ -615,7 +615,7 @@ async function handleAdminMatchLive(request, env, matchId) {
       if(![match.home_team_id,match.away_team_id].includes(teamId))return json({success:false,message:"Choose a participating team."},400);
       const statements=[
         env.atramentum_db.prepare("INSERT INTO match_team_results(match_id,team_id,score) VALUES(?,?,150) ON CONFLICT(match_id,team_id) DO UPDATE SET score=score+150").bind(id,teamId),
-        env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,snitch_caught_by) VALUES(?,?) ON CONFLICT(match_id) DO UPDATE SET snitch_caught_by=excluded.snitch_caught_by,updated_at=CURRENT_TIMESTAMP").bind(id,teamId),
+        env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,snitch_caught_by,clock_running) VALUES(?,?,0) ON CONFLICT(match_id) DO UPDATE SET snitch_caught_by=excluded.snitch_caught_by,clock_running=0,updated_at=CURRENT_TIMESTAMP").bind(id,teamId),
         env.atramentum_db.prepare("INSERT INTO match_events(match_id,team_id,event_type,points,description) VALUES(?,?,'snitch_caught',150,'داور شکار اسنیچ طلایی را تأیید کرد')").bind(id,teamId),
         env.atramentum_db.prepare("UPDATE matches SET status='completed',winner_team_id=? WHERE id=?").bind(teamId,id)
       ];
