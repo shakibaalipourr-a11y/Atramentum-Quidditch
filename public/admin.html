@@ -22,6 +22,19 @@
     .role{display:inline-block;margin-top:13px;border:1px solid var(--line);border-radius:30px;padding:5px 12px;color:var(--light);font-size:11px}
     .table-wrap{overflow-x:auto;margin-top:22px}table{width:100%;border-collapse:collapse;min-width:560px;font-size:12px}th,td{padding:13px 12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right}th{color:var(--gold);font-weight:600}td{color:#d8d2c7}.ltr{direction:ltr;text-align:left;font-family:Arial,sans-serif}.status{color:var(--green)}.pending{color:var(--gold)}
     .provision{margin-top:30px;padding-top:25px;border-top:1px solid var(--line)}.hint{font-size:11px;color:var(--muted);line-height:2;margin-top:8px}
+    .match-tools{margin-top:26px;padding-top:24px;border-top:1px solid var(--line)}
+    .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+    .match-card{padding:16px;border:1px solid var(--line);border-radius:12px;background:#0b0c0a}
+    .match-card.active{border-color:var(--gold);box-shadow:0 0 0 1px #c9a45c22}
+    .match-card strong{color:var(--light);font-size:13px}
+    .match-card small{display:block;color:var(--muted);margin-top:7px;font-size:10px}
+    .match-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+    .match-actions button,.match-card button{border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:#17150f;color:var(--light);font-size:11px}
+    .match-actions button.primary{background:#b68d48;color:#100d08;font-weight:800}
+    .match-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+    .match-form .full{grid-column:1/-1}
+    .score-line{display:flex;justify-content:space-between;gap:12px;color:#d9d0bd;font-size:12px;margin-top:9px}
+    @media(max-width:650px){.match-grid,.match-form{grid-template-columns:1fr}.match-form .full{grid-column:auto}}
     .note{padding:14px;border:1px solid rgba(201,164,92,.16);border-radius:10px;color:var(--muted);font-size:11px;line-height:2;margin-top:20px}
     @media(max-width:600px){.shell{width:94%;padding-top:18px}.panel{padding:22px 17px}.brand{font-size:21px}.topline{align-items:flex-start}}
   </style>
@@ -61,6 +74,30 @@
     <section class="panel wide hidden" id="dashboard">
       <div class="topline"><div><h1 id="welcome">تالار مدیریت</h1><div class="role" id="roleLabel"></div></div><button class="logout" id="logoutButton">خروج امن</button></div>
       <p class="lead" id="roleDescription"></p>
+      <section class="match-tools" id="matchTools">
+        <div class="topline"><h2>مرکز کنترل مسابقات زنده</h2><button type="button" id="refreshMatches" class="logout">به‌روزرسانی</button></div>
+        <p class="hint">مسابقات، وضعیت بازی و نتیجه‌ها از سرور دریافت می‌شوند. هر تغییر با سطح دسترسی حساب شما بررسی و ثبت خواهد شد.</p>
+        <div class="match-grid" id="matchList"></div>
+        <div class="match-card hidden" id="selectedMatchPanel">
+          <strong id="selectedMatchTitle">مسابقه انتخاب‌شده</strong>
+          <div class="score-line"><span id="homeTeamLabel">میزبان</span><strong id="homeScoreLabel">0</strong></div>
+          <div class="score-line"><span id="awayTeamLabel">میهمان</span><strong id="awayScoreLabel">0</strong></div>
+          <div class="match-actions">
+            <button type="button" class="primary" data-match-status="live">شروع مسابقه</button>
+            <button type="button" data-match-status="paused">توقف موقت</button>
+            <button type="button" data-match-status="completed">پایان مسابقه</button>
+          </div>
+          <div class="match-form">
+            <div><label for="homeScoreInput">امتیاز میزبان</label><input id="homeScoreInput" type="number" min="0" max="9999" value="0"></div>
+            <div><label for="awayScoreInput">امتیاز میهمان</label><input id="awayScoreInput" type="number" min="0" max="9999" value="0"></div>
+            <button type="button" class="btn full" id="saveScores">ثبت امتیازها</button>
+            <div class="full"><label for="matchEventText">شرح رویداد مسابقه</label><input id="matchEventText" maxlength="240" placeholder="مثلاً گل ثبت شد"></div>
+            <button type="button" class="btn secondary full" id="saveMatchEvent">ثبت رویداد</button>
+          </div>
+          <div class="message" id="matchMessage" role="status"></div>
+          <div class="hint" id="matchRevision"></div>
+        </div>
+      </section>
       <div id="superTools" class="hidden">
         <h2>حساب‌های رسمی آترامنتوم</h2>
         <div class="table-wrap"><table><thead><tr><th>نام کاربری</th><th>عنوان</th><th>گروه / نقش</th><th>وضعیت رمز</th></tr></thead><tbody id="usersBody"></tbody></table></div>
@@ -102,9 +139,68 @@
     $("roleLabel").textContent=roleNames[currentAdmin.role]||currentAdmin.role;
     $("roleDescription").textContent=currentAdmin.role==="super_admin"?"دسترسی کامل مدیریتی و مدیریت حساب‌های رسمی.":currentAdmin.role==="house_admin"?"دسترسی مدیریتی محدود به گروه "+(teamNames[currentAdmin.teamId]||"اختصاص‌یافته")+".":"حساب رسمی داوری مسابقات آترامنتوم.";
     show(dashboard);
+    await loadMatches();
     if(currentAdmin.role==="super_admin"){ $("superTools").classList.remove("hidden"); await loadUsers(); }
     else {$("superTools").classList.add("hidden");$("roleNote").textContent="حساب شما احراز هویت شده است. ابزارهای عملیاتی این نقش در مرحله بعد به پنل اضافه می‌شوند.";}
   }
+
+  let selectedMatch=null;
+  let matchList=[];
+  const matchApi=(id,body)=>api("/api/admin/matches/"+id+"/live",body?{method:"POST",body:JSON.stringify(body)}:{});
+  function matchStatusLabel(status){return ({scheduled:"برنامه‌ریزی‌شده",live:"در حال برگزاری",paused:"متوقف موقت",completed:"پایان‌یافته"})[status]||status;}
+  async function loadMatches(){
+    const box=$("matchList");box.innerHTML="<div class='hint'>در حال دریافت مسابقات...</div>";
+    try{
+      const response=await api("/api/admin/matches");const data=await response.json();
+      if(!response.ok||!data.success){box.textContent=data.message||"دریافت مسابقات ناموفق بود.";return;}
+      matchList=data.matches||[];
+      if(!matchList.length){box.innerHTML="<div class='hint'>هنوز مسابقه‌ای در سامانه ثبت نشده است. ابتدا باید مسابقات در دیتابیس ایجاد شوند.</div>";$("selectedMatchPanel").classList.add("hidden");return;}
+      box.innerHTML="";
+      matchList.forEach(m=>{
+        const card=document.createElement("div");card.className="match-card"+(selectedMatch&&selectedMatch.id===m.id?" active":"");
+        const title=document.createElement("strong");title.textContent=(m.home_name||m.home_team_id)+"  VS  "+(m.away_name||m.away_team_id);
+        const meta=document.createElement("small");meta.textContent="مسابقه #"+m.id+" · "+matchStatusLabel(m.status);
+        const score=document.createElement("small");score.textContent="نتیجه: "+m.home_score+" - "+m.away_score;
+        const choose=document.createElement("button");choose.type="button";choose.textContent="مدیریت مسابقه";choose.addEventListener("click",()=>selectMatch(m.id));
+        card.append(title,meta,score,choose);box.appendChild(card);
+      });
+      if(selectedMatch&&matchList.some(m=>m.id===selectedMatch.id))await selectMatch(selectedMatch.id);
+    }catch{box.textContent="ارتباط با سرور برقرار نشد.";}
+  }
+  async function selectMatch(id){
+    const m=matchList.find(x=>x.id===id);if(!m)return;selectedMatch=m;
+    $("selectedMatchPanel").classList.remove("hidden");
+    $("selectedMatchTitle").textContent="مسابقه #"+m.id+" · "+matchStatusLabel(m.status);
+    $("homeTeamLabel").textContent=m.home_name||m.home_team_id;
+    $("awayTeamLabel").textContent=m.away_name||m.away_team_id;
+    $("homeScoreLabel").textContent=m.home_score;$("awayScoreLabel").textContent=m.away_score;
+    $("homeScoreInput").value=m.home_score;$("awayScoreInput").value=m.away_score;
+    const isHouse=currentAdmin.role==="house_admin";
+    $("homeScoreInput").disabled=isHouse&&currentAdmin.teamId!==m.home_team_id;
+    $("awayScoreInput").disabled=isHouse&&currentAdmin.teamId!==m.away_team_id;
+    $("saveScores").disabled=$("homeScoreInput").disabled&&$("awayScoreInput").disabled;
+    try{const r=await matchApi(id);const d=await r.json();if(r.ok&&d.success)$("matchRevision").textContent="آخرین به‌روزرسانی وضعیت زمین: "+(d.updatedAt||"هنوز ثبت نشده")+" · نسخه "+d.revision;}
+    catch{}
+  }
+  async function sendMatchAction(body){
+    if(!selectedMatch)return;
+    message("matchMessage","در حال ثبت تغییر...");
+    try{const r=await matchApi(selectedMatch.id,body);const d=await r.json();if(!r.ok||!d.success){message("matchMessage",d.message||"ثبت تغییر ناموفق بود.","error");return;}message("matchMessage",d.message||"تغییر ثبت شد.","success");await loadMatches();}
+    catch{message("matchMessage","ارتباط با سرور برقرار نشد.","error");}
+  }
+  document.querySelectorAll("[data-match-status]").forEach(button=>button.addEventListener("click",()=>sendMatchAction({action:"status",status:button.dataset.matchStatus})));
+  $("saveScores").addEventListener("click",async()=>{
+    if(!selectedMatch)return;
+    const home=Number($("homeScoreInput").value),away=Number($("awayScoreInput").value);
+    if(!$("homeScoreInput").disabled)await sendMatchAction({action:"score",teamId:selectedMatch.home_team_id,score:home});
+    if(!$("awayScoreInput").disabled)await sendMatchAction({action:"score",teamId:selectedMatch.away_team_id,score:away});
+  });
+  $("saveMatchEvent").addEventListener("click",()=>{
+    const description=$("matchEventText").value.trim();if(!description)return message("matchMessage","شرح رویداد را وارد کن.","error");
+    sendMatchAction({action:"event",eventType:"official_note",description,points:0,teamId:currentAdmin.role==="house_admin"?currentAdmin.teamId:null});
+    $("matchEventText").value="";
+  });
+  $("refreshMatches").addEventListener("click",loadMatches);
   async function loadUsers(){
     const response=await api("/api/admin/users");const data=await response.json();
     if(!response.ok||!data.success){message("passwordMessage",data.message||"دریافت حساب‌ها ناموفق بود.","error");return;}
