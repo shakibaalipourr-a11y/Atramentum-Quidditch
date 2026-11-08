@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>بازیابی امن مدیر کل | ATRAMENTUM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(ellipse at 50% 0%,#61451d55,transparent 48%),#080808;color:#eee9df;font-family:Vazirmatn,sans-serif}
+    main{width:min(520px,100%);padding:28px;border:1px solid #c9a45c55;border-radius:18px;background:#11110f;box-shadow:0 20px 80px #0009}
+    .crest{text-align:center;color:#ead39a;font-size:34px}.brand{text-align:center;color:#ead39a;font:700 23px Cinzel,serif;letter-spacing:4px;margin:6px 0 22px}
+    h1{font-size:20px;color:#ead39a;margin:0 0 8px}.hint{font-size:12px;line-height:2;color:#aaa18f;margin:0 0 20px}
+    label{display:block;margin:15px 0 7px;font-size:12px;color:#d6c7a5}input{width:100%;padding:13px;border:1px solid #ffffff25;border-radius:9px;background:#080808;color:#eee;font:inherit;direction:ltr;text-align:left}
+    input:focus{outline:none;border-color:#c9a45c}button{width:100%;margin-top:20px;padding:13px;border:0;border-radius:9px;background:linear-gradient(135deg,#d6b875,#9a7137);color:#100d08;font:700 14px Vazirmatn;cursor:pointer}
+    button:disabled{opacity:.6;cursor:wait}.message{min-height:24px;margin-top:14px;font-size:12px;line-height:1.9;color:#aaa18f}.error{color:#e99b9b}.success{color:#83c69a}
+    .warning{padding:12px;border:1px solid #c9a45c33;border-radius:9px;margin-top:18px;font-size:11px;line-height:2;color:#bdb29c}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="crest">♛</div><div class="brand">ATRAMENTUM</div>
+    <h1>بازیابی رمز مدیر کل</h1>
+    <p class="hint">این فرم فقط برای یک‌بار بازیابی حساب ACAME_IX47 است. پس از موفقیت، بازیابی دوباره از این مسیر ممکن نخواهد بود.</p>
+    <form id="recoveryForm">
+      <label for="recoverySecret">کلید مجوز بازیابی</label>
+      <input id="recoverySecret" type="password" autocomplete="off" required>
+      <label for="newPassword">رمز عبور جدید مدیر کل</label>
+      <input id="newPassword" type="password" minlength="14" maxlength="200" autocomplete="new-password" required>
+      <button id="submitButton">ثبت رمز جدید مدیر کل</button>
+    </form>
+    <div id="message" class="message" role="status"></div>
+    <div class="warning">پس از مشاهده پیام موفقیت، کلید مجوز بازیابی را از بخش Variables and Secrets در تنظیمات Worker حذف کن. این کلید را با هیچ‌کس به اشتراک نگذار.</div>
+  </main>
+<script>
+  const form=document.getElementById("recoveryForm");
+  const button=document.getElementById("submitButton");
+  const message=document.getElementById("message");
+  form.addEventListener("submit",async event=>{
+    event.preventDefault();
+    button.disabled=true;message.className="message";message.textContent="در حال ثبت امن رمز...";
+    try{
+      const response=await fetch("/api/admin/recover",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        recoverySecret:document.getElementById("recoverySecret").value,
+        password:document.getElementById("newPassword").value
+      })});
+      const data=await response.json();
+      if(!response.ok||!data.success){message.className="message error";message.textContent=data.message||"بازیابی انجام نشد.";return;}
+      form.reset();message.className="message success";message.textContent="رمز مدیر کل با موفقیت تغییر کرد. کلید بازیابی را اکنون از تنظیمات Worker حذف کن.";
+    }catch{message.className="message error";message.textContent="ارتباط با سرور برقرار نشد.";}
+    finally{button.disabled=false;}
+  });
+</script>
+</body>
+</html>
