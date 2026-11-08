@@ -377,7 +377,7 @@
     .nav-links{gap:15px}.nav-links a{font-size:10px}
     #stadiumContent{width:100%;max-width:none;height:100svh;margin:0;display:none}
     .hero,.section-heading,.match-status,.houses-grid,.notice,footer{display:none!important}
-    .player-bar{position:fixed;z-index:32;top:68px;right:18px;width:auto;min-width:220px;padding:9px 13px;gap:10px;border-radius:12px;background:rgba(5,10,8,.78);backdrop-filter:blur(14px);border-color:rgba(201,169,110,.28)}
+    .player-bar{position:fixed;z-index:35;top:86px;left:16px;right:auto;width:auto;min-width:220px;max-width:min(270px,calc(100vw - 32px));padding:9px 13px;gap:10px;border-radius:12px;background:rgba(5,10,8,.88);backdrop-filter:blur(14px);border-color:rgba(201,169,110,.32);box-shadow:0 8px 28px rgba(0,0,0,.35)}
     .player-avatar{width:34px;height:34px;font-size:18px;border-radius:9px}
     .player-caption{font-size:8px}.player-name{font-size:12px}.player-house{font-size:9px}
     .profile-link{font-size:9px;padding:7px 9px}
@@ -399,7 +399,7 @@
     .arena-3d-controls button.active{background:rgba(201,169,110,.28);border-color:#d7bd85}
     @media(max-width:700px){
       .topbar{height:48px;padding:0 12px}.nav-links{display:none}
-      .player-bar{top:108px;right:9px;min-width:0;padding:7px 9px}.player-details{gap:7px}.profile-link{display:none}
+      .player-bar{top:58px;left:9px;right:auto;min-width:0;max-width:calc(100vw - 18px);padding:7px 9px}.player-details{gap:7px}.profile-link{display:none}
       .game-match-picker{top:auto;bottom:72px;left:8px;right:8px;justify-content:space-between;padding:7px 9px;font-size:9px}
       .game-match-picker select{max-width:65%;font-size:9px}
       .game-scoreboard{top:57px;min-width:0;width:auto;gap:8px;padding:7px 10px}
