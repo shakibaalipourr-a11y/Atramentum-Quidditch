@@ -597,6 +597,43 @@ async function handleAdminMatchLive(request, env, matchId) {
     await writeAdminAudit(env,admin.id,"match_status_changed",String(id),JSON.stringify({status:body.status,winnerTeamId:winner}));
     return json({success:true,message:"Match status updated."});
   }
+  if (action === "scores") {
+    if (!Array.isArray(body.scores) || body.scores.length < 1 || body.scores.length > 2)
+      return json({success:false,message:"Provide one or two team scores."},400);
+    const seen = new Set();
+    const updates = [];
+    for (const item of body.scores) {
+      const teamId = String(item?.teamId || "");
+      const score = Number(item?.score);
+      if (![match.home_team_id,match.away_team_id].includes(teamId) || seen.has(teamId) ||
+          !Number.isSafeInteger(score) || score < 0 || score > 9999)
+        return json({success:false,message:"Invalid or duplicate team score."},400);
+      if (admin.role === "house_admin" && teamId !== admin.team_id)
+        return json({success:false,message:"You may only change your own team's score."},403);
+      seen.add(teamId);
+      updates.push({teamId,score});
+    }
+    const statements = [];
+    for (const update of updates) {
+      statements.push(env.atramentum_db.prepare(`
+        INSERT INTO match_team_results(match_id,team_id,score)
+        VALUES(?,?,?)
+        ON CONFLICT(match_id,team_id) DO UPDATE SET score=excluded.score
+      `).bind(id,update.teamId,update.score));
+      statements.push(env.atramentum_db.prepare(`
+        INSERT INTO match_events(match_id,team_id,event_type,points,description)
+        VALUES(?,?,'score_adjustment',0,?)
+      `).bind(id,update.teamId,"Score set to "+update.score+" by "+admin.username));
+    }
+    statements.push(env.atramentum_db.prepare(`
+      INSERT INTO admin_audit_logs(admin_id,action,target_username,details)
+      VALUES(?,?,?,?,?)
+    `.replace("VALUES(?,?,?,?,?)","VALUES(?,?,?,?)")).bind(
+      admin.id,"match_scores_changed",admin.username,JSON.stringify({matchId:id,updates})
+    ));
+    await env.atramentum_db.batch(statements);
+    return json({success:true,message:"All submitted scores were saved."});
+  }
   if (action === "score") {
     const teamId=String(body.teamId||"");
     const score=Number(body.score);
