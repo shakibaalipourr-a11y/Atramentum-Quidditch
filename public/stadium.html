@@ -1024,15 +1024,13 @@
         const token=localStorage.getItem("atramentumSession");
         if(!token)return;
         try{
-          if(!liveMatchId){
-            const listResponse=await fetch("/api/matches",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
-            if(!listResponse.ok)return;
-            const list=await listResponse.json();
-            const matches=list.matches||[];
-            const active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled");
-            if(!active){players.forEach(p=>p.visible=false);liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
-            liveMatchId=active.id;
-          }
+          const listResponse=await fetch("/api/matches",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+          if(!listResponse.ok)return;
+          const list=await listResponse.json();
+          const matches=list.matches||[];
+          const active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled");
+          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
+          if(String(liveMatchId)!==String(active.id)){liveMatchId=active.id;liveRevision=-1;}
           const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
           if(response.status===404){liveMatchId=null;return;}
           if(!response.ok)return;
