@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>مرکز مدیریت | ATRAMENTUM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#080808;--panel:#11110f;--gold:#c9a45c;--light:#ead39a;--text:#eee9df;--muted:#999184;--line:rgba(201,164,92,.22);--red:#d87979;--green:#83c69a}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(130,91,37,.17),transparent 45%),var(--bg);color:var(--text);font-family:Vazirmatn,sans-serif}
+    button,input,select{font:inherit}button{cursor:pointer}.shell{width:min(1050px,92%);margin:auto;padding:38px 0 70px}
+    header{text-align:center;padding:24px 0 34px;border-bottom:1px solid var(--line)}.crest{font-size:35px;color:var(--light)}.brand{font:700 25px Cinzel,serif;letter-spacing:4px;color:var(--light);margin-top:7px}.subtitle{font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:8px}
+    .panel{max-width:570px;margin:35px auto 0;padding:30px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,rgba(201,164,92,.07),rgba(255,255,255,.015)),var(--panel);box-shadow:0 20px 80px #0008}
+    .wide{max-width:900px}.hidden{display:none!important}h1,h2{margin:0;color:var(--light)}h1{font-size:23px}h2{font-size:18px}.lead{font-size:12px;line-height:2.2;color:var(--muted);margin:9px 0 24px}
+    label{display:block;font-size:12px;color:#d6c7a5;margin:16px 0 7px}input,select{width:100%;padding:13px 14px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:#090909;color:var(--text);outline:none}input:focus,select:focus{border-color:var(--gold)}input[dir=ltr]{text-align:left}
+    .btn{width:100%;padding:13px 18px;border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,#d6b875,#9a7137);color:#100d08;font-weight:800;margin-top:20px}.btn.secondary{background:transparent;color:var(--light);margin-top:12px}
+    .message{min-height:22px;margin-top:14px;font-size:12px;line-height:1.9;color:var(--muted)}.message.error{color:var(--red)}.message.success{color:var(--green)}
+    .topline{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.logout{border:1px solid rgba(216,121,121,.4);background:transparent;color:#e99b9b;border-radius:9px;padding:9px 14px}
+    .role{display:inline-block;margin-top:13px;border:1px solid var(--line);border-radius:30px;padding:5px 12px;color:var(--light);font-size:11px}
+    .table-wrap{overflow-x:auto;margin-top:22px}table{width:100%;border-collapse:collapse;min-width:560px;font-size:12px}th,td{padding:13px 12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:right}th{color:var(--gold);font-weight:600}td{color:#d8d2c7}.ltr{direction:ltr;text-align:left;font-family:Arial,sans-serif}.status{color:var(--green)}.pending{color:var(--gold)}
+    .provision{margin-top:30px;padding-top:25px;border-top:1px solid var(--line)}.hint{font-size:11px;color:var(--muted);line-height:2;margin-top:8px}
+    .note{padding:14px;border:1px solid rgba(201,164,92,.16);border-radius:10px;color:var(--muted);font-size:11px;line-height:2;margin-top:20px}
+    @media(max-width:600px){.shell{width:94%;padding-top:18px}.panel{padding:22px 17px}.brand{font-size:21px}.topline{align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header><div class="crest">♛</div><div class="brand">ATRAMENTUM</div><div class="subtitle">ADMINISTRATION & OFFICIALS CHAMBER</div></header>
+
+    <section class="panel" id="authPanel">
+      <h1>ورود به تالار مدیریت</h1>
+      <p class="lead">این درگاه مخصوص مدیران گروه، داوران و مدیر کل آترامنتوم است.</p>
+      <form id="loginForm">
+        <label for="username">نام کاربری</label>
+        <input id="username" dir="ltr" autocomplete="username" maxlength="80" required>
+        <label for="loginPassword">رمز عبور</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+        <button class="btn" id="loginButton">ورود امن به تالار</button>
+      </form>
+      <div class="message" id="loginMessage" role="status"></div>
+      <button class="btn secondary" id="showSetup">راه‌اندازی اولیه مدیر کل</button>
+      <div class="note">حساب مدیر کل فقط یک‌بار راه‌اندازی می‌شود. برای این مرحله باید کلید راه‌اندازی را که در تنظیمات محرمانه Worker قرار می‌گیرد وارد کنی. این کلید و رمز را در GitHub یا گفتگو منتشر نکن.</div>
+    </section>
+
+    <section class="panel hidden" id="setupPanel">
+      <h1>راه‌اندازی مدیر کل</h1>
+      <p class="lead">این مرحله فقط برای اولین راه‌اندازی حساب <bdi>ACAME_IX47</bdi> است و پس از موفقیت دیگر قابل تکرار نیست.</p>
+      <form id="setupForm">
+        <label for="bootstrapSecret">کلید راه‌اندازی محرمانه</label>
+        <input id="bootstrapSecret" type="password" autocomplete="off" required>
+        <label for="setupPassword">رمز عبور جدید مدیر کل (حداقل ۱۴ نویسه)</label>
+        <input id="setupPassword" type="password" minlength="14" maxlength="200" autocomplete="new-password" required>
+        <button class="btn">ثبت امن حساب مدیر کل</button>
+      </form>
+      <div class="message" id="setupMessage" role="status"></div>
+      <button class="btn secondary" id="backToLogin">بازگشت به ورود</button>
+    </section>
+
+    <section class="panel wide hidden" id="dashboard">
+      <div class="topline"><div><h1 id="welcome">تالار مدیریت</h1><div class="role" id="roleLabel"></div></div><button class="logout" id="logoutButton">خروج امن</button></div>
+      <p class="lead" id="roleDescription"></p>
+      <div id="superTools" class="hidden">
+        <h2>حساب‌های رسمی آترامنتوم</h2>
+        <div class="table-wrap"><table><thead><tr><th>نام کاربری</th><th>عنوان</th><th>گروه / نقش</th><th>وضعیت رمز</th></tr></thead><tbody id="usersBody"></tbody></table></div>
+        <div class="provision">
+          <h2>تنظیم یا تغییر رمز حساب</h2>
+          <p class="hint">یک حساب را انتخاب کن و برای آن رمز منحصربه‌فردی با حداقل ۱۴ نویسه تعیین کن. رمز در دیتابیس به‌صورت هش‌شده ذخیره می‌شود.</p>
+          <form id="passwordForm">
+            <label for="targetUser">حساب موردنظر</label><select id="targetUser" required></select>
+            <label for="newPassword">رمز عبور جدید</label><input id="newPassword" type="password" minlength="14" maxlength="200" autocomplete="new-password" required>
+            <button class="btn">ثبت رمز حساب</button>
+          </form>
+          <div class="message" id="passwordMessage" role="status"></div>
+        </div>
+      </div>
+      <div class="note" id="roleNote">دسترسی‌ها بر اساس نقش حساب در سمت سرور کنترل می‌شوند.</div>
+    </section>
+  </div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const authPanel = $("authPanel"), setupPanel = $("setupPanel"), dashboard = $("dashboard");
+  const roleNames = {super_admin:"مدیر کل",house_admin:"مدیر گروه",referee:"داور مسابقات"};
+  const teamNames = {slytherin:"اسلیترین",gryffindor:"گریفیندور",hufflepuff:"هافلپاف",ravenclaw:"ریونکلا"};
+  let currentAdmin = null;
+  const getToken = () => sessionStorage.getItem("atramentumAdminSession");
+  const api = async (path, options={}) => {
+    const headers = {"Content-Type":"application/json", ...(options.headers||{})};
+    if (getToken()) headers.Authorization = "Bearer " + getToken();
+    return fetch(path,{...options,headers,cache:"no-store"});
+  };
+  function message(id,text,type=""){ $(id).textContent=text; $(id).className="message "+type; }
+  function show(panel){[authPanel,setupPanel,dashboard].forEach(x=>x.classList.add("hidden"));panel.classList.remove("hidden");}
+  async function loadDashboard(){
+    const response=await api("/api/admin/me");
+    const data=await response.json();
+    if(!response.ok||!data.success){sessionStorage.removeItem("atramentumAdminSession");show(authPanel);return;}
+    currentAdmin=data.admin;
+    $("welcome").textContent="خوش آمدی، "+currentAdmin.displayName;
+    $("roleLabel").textContent=roleNames[currentAdmin.role]||currentAdmin.role;
+    $("roleDescription").textContent=currentAdmin.role==="super_admin"?"دسترسی کامل مدیریتی و مدیریت حساب‌های رسمی.":currentAdmin.role==="house_admin"?"دسترسی مدیریتی محدود به گروه "+(teamNames[currentAdmin.teamId]||"اختصاص‌یافته")+".":"حساب رسمی داوری مسابقات آترامنتوم.";
+    show(dashboard);
+    if(currentAdmin.role==="super_admin"){ $("superTools").classList.remove("hidden"); await loadUsers(); }
+    else {$("superTools").classList.add("hidden");$("roleNote").textContent="حساب شما احراز هویت شده است. ابزارهای عملیاتی این نقش در مرحله بعد به پنل اضافه می‌شوند.";}
+  }
+  async function loadUsers(){
+    const response=await api("/api/admin/users");const data=await response.json();
+    if(!response.ok||!data.success){message("passwordMessage",data.message||"دریافت حساب‌ها ناموفق بود.","error");return;}
+    $("usersBody").innerHTML="";$("targetUser").innerHTML="";
+    data.users.forEach(user=>{
+      const tr=document.createElement("tr");
+      const role=roleNames[user.role]+(user.team_id?" · "+(teamNames[user.team_id]||user.team_id):"");
+      tr.innerHTML="<td class='ltr'></td><td></td><td></td><td></td>";
+      tr.children[0].textContent=user.username;tr.children[1].textContent=user.display_name;tr.children[2].textContent=role;
+      tr.children[3].textContent=user.password_configured?"فعال":"در انتظار تنظیم رمز";
+      tr.children[3].className=user.password_configured?"status":"pending";
+      $("usersBody").appendChild(tr);
+      if(user.username!=="ACAME_IX47"){const option=document.createElement("option");option.value=user.username;option.textContent=user.username+" — "+role;$("targetUser").appendChild(option);}
+    });
+  }
+  $("loginForm").addEventListener("submit",async event=>{
+    event.preventDefault();$("loginButton").disabled=true;message("loginMessage","در حال بررسی اطلاعات...");
+    try{
+      const response=await fetch("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("username").value.trim(),password:$("loginPassword").value})});
+      const data=await response.json();
+      if(!response.ok||!data.success){message("loginMessage",data.message||"ورود ناموفق بود.","error");return;}
+      sessionStorage.setItem("atramentumAdminSession",data.token);$("loginPassword").value="";await loadDashboard();
+    }catch{message("loginMessage","ارتباط با سرور برقرار نشد.","error");}
+    finally{$("loginButton").disabled=false;}
+  });
+  $("showSetup").addEventListener("click",()=>show(setupPanel));
+  $("backToLogin").addEventListener("click",()=>show(authPanel));
+  $("setupForm").addEventListener("submit",async event=>{
+    event.preventDefault();message("setupMessage","در حال راه‌اندازی...");
+    try{
+      const response=await fetch("/api/admin/bootstrap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({bootstrapSecret:$("bootstrapSecret").value,password:$("setupPassword").value})});
+      const data=await response.json();
+      if(!response.ok||!data.success){message("setupMessage",data.message||"راه‌اندازی ناموفق بود.","error");return;}
+      $("username").value="ACAME_IX47";$("loginPassword").value=$("setupPassword").value;$("bootstrapSecret").value="";$("setupPassword").value="";
+      message("setupMessage","حساب مدیر کل آماده شد. در حال ورود...","success");
+      $("loginForm").requestSubmit();
+    }catch{message("setupMessage","ارتباط با سرور برقرار نشد.","error");}
+  });
+  $("passwordForm").addEventListener("submit",async event=>{
+    event.preventDefault();message("passwordMessage","در حال ثبت رمز...");
+    try{
+      const response=await api("/api/admin/users",{method:"POST",body:JSON.stringify({username:$("targetUser").value,password:$("newPassword").value})});
+      const data=await response.json();
+      if(!response.ok||!data.success){message("passwordMessage",data.message||"ثبت رمز ناموفق بود.","error");return;}
+      $("newPassword").value="";message("passwordMessage","رمز حساب با موفقیت تنظیم شد.","success");await loadUsers();
+    }catch{message("passwordMessage","ارتباط با سرور برقرار نشد.","error");}
+  });
+  $("logoutButton").addEventListener("click",async()=>{
+    try{await api("/api/admin/logout",{method:"POST"});}catch{}
+    sessionStorage.removeItem("atramentumAdminSession");currentAdmin=null;show(authPanel);
+  });
+  if(getToken())loadDashboard().catch(()=>{sessionStorage.removeItem("atramentumAdminSession");show(authPanel);});
+</script>
+</body>
+</html>
