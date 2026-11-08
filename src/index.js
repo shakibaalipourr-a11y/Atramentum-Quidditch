@@ -290,6 +290,27 @@ export default {
     const path = url.pathname;
 
     try {
+
+      if (path === "/api/admin/bootstrap") {
+        return await handleAdminBootstrap(request, env);
+      }
+
+      if (path === "/api/admin/login") {
+        return await handleAdminLogin(request, env);
+      }
+
+      if (path === "/api/admin/me") {
+        return await handleAdminMe(request, env);
+      }
+
+      if (path === "/api/admin/logout") {
+        return await handleAdminLogout(request, env);
+      }
+
+      if (path === "/api/admin/users") {
+        return await handleAdminUsers(request, env);
+      }
+
       if (path === "/api/login") {
         return await handleLogin(request, env);
       }
