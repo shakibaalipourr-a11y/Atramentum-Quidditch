@@ -399,7 +399,7 @@
     .arena-3d-controls button.active{background:rgba(201,169,110,.28);border-color:#d7bd85}
     @media(max-width:700px){
       .topbar{height:48px;padding:0 12px}.nav-links{display:none}
-      .player-bar{top:57px;right:9px;min-width:0;padding:7px 9px}.player-details{gap:7px}.profile-link{display:none}
+      .player-bar{top:108px;right:9px;min-width:0;padding:7px 9px}.player-details{gap:7px}.profile-link{display:none}
       .game-match-picker{top:auto;bottom:72px;left:8px;right:8px;justify-content:space-between;padding:7px 9px;font-size:9px}
       .game-match-picker select{max-width:65%;font-size:9px}
       .game-scoreboard{top:57px;min-width:0;width:auto;gap:8px;padding:7px 10px}
@@ -1103,7 +1103,7 @@
       const THREE=await import("three");
       const {OrbitControls}=await import("three/addons/controls/OrbitControls.js");
       const scene=new THREE.Scene();scene.background=new THREE.Color(0x07100d);scene.fog=new THREE.Fog(0x07100d,95,190);
-      const camera=new THREE.PerspectiveCamera(43,1,.1,260);camera.position.set(74,62,82);
+      const camera=new THREE.PerspectiveCamera(43,1,.1,260);camera.position.set(60,48,66);
       const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
       renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
       const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.055;controls.minDistance=42;controls.maxDistance=145;controls.maxPolarAngle=Math.PI*.48;controls.target.set(0,5,0);
@@ -1135,7 +1135,7 @@
         for(const side of [-1,1]){const arm=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,.72,8),armMat);arm.position.set(side*.48,.25,.05);arm.rotation.z=side*.35;g.add(arm)}
         const broom=new THREE.Mesh(new THREE.CylinderGeometry(.055,.035,4.2,8),broomMat);broom.rotation.z=Math.PI/2;broom.position.set(0,-.55,0);g.add(broom);
         const tail=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,8),broomMat);tail.rotation.z=-Math.PI/2;tail.position.set(-2.1,-.55,0);g.add(tail);
-        g.position.set(Math.cos(q)*(10+(j%4)*6),7+(j%3)*2.5,Math.sin(q)*(8+(j%4)*4));g.userData={base:g.position.y,phase:team*1.7+j,teamId:teamIds[team],role:["Chaser","Chaser","Chaser","Beater","Beater","Keeper","Seeker"][j]};g.visible=false;scene.add(g);players.push(g)
+        g.position.set(Math.cos(q)*(10+(j%4)*6),7+(j%3)*2.5,Math.sin(q)*(8+(j%4)*4));g.scale.setScalar(2.8);g.userData={base:g.position.y,phase:team*1.7+j,teamId:teamIds[team],role:["Chaser","Chaser","Chaser","Beater","Beater","Keeper","Seeker"][j]};g.visible=false;scene.add(g);players.push(g)
       }
       // Animated spectators seated around all four house sections.
       const spectatorGroups=[];
@@ -1179,7 +1179,7 @@
       snitch.position.set(2,16,7);scene.add(snitch);balls.push(snitch);
       function resize(){const w=mount.clientWidth||1,h=mount.clientHeight||1;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
       new ResizeObserver(resize).observe(mount);resize();
-      const views={overview:[[74,62,82],[0,5,0]],field:[[52,30,43],[0,5,0]],top:[[0,112,.1],[0,0,0]]};
+      const views={overview:[[60,48,66],[0,5,0]],field:[[43,25,36],[0,5,0]],top:[[0,96,.1],[0,0,0]]};
       document.querySelectorAll("[data-camera]").forEach(btn=>btn.addEventListener("click",()=>{const v=views[btn.dataset.camera];if(v){camera.position.set(...v[0]);controls.target.set(...v[1]);controls.update()}}));
       const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{if(!p.userData.serverDriven)p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08;p.rotation.x=Math.sin(t*.8+p.userData.phase)*.035});spectatorGroups.forEach(s=>{s.rotation.z=Math.sin(t*3+s.userData.phase)*.08});balls.forEach((b,i)=>{if(!b.userData.serverDriven){b.position.y=(i===2?16:10+i*3)+Math.sin(t*(1.2+i*.25)+i)*(i===2?2:.65);b.position.x=i===2?2+Math.sin(t*.9)*8:b.position.x}b.rotation.y+=.004+i*.001});wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*16+i*Math.PI)*.45});referee.rotation.y=Math.sin(t*.8)*.08;controls.update();renderer.render(scene,camera)}animate();
       const liveLabel=document.getElementById("arenaLiveLabel");
