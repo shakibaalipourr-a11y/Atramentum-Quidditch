@@ -528,9 +528,10 @@ async function handleAdminMatches(request, env) {
       LEFT JOIN match_team_results hr ON hr.match_id=m.id AND hr.team_id=m.home_team_id
       LEFT JOIN match_team_results ar ON ar.match_id=m.id AND ar.team_id=m.away_team_id
       LEFT JOIN match_live_state ls ON ls.match_id=m.id
+      WHERE (? != 'house_admin' OR m.home_team_id = ? OR m.away_team_id = ?)
       ORDER BY CASE m.status WHEN 'live' THEN 0 WHEN 'paused' THEN 1 WHEN 'scheduled' THEN 2 ELSE 3 END,
         m.scheduled_at DESC, m.id DESC
-    `).all();
+    `).bind(admin.role, admin.team_id || "", admin.team_id || "").all();
     return json({success:true,matches:result.results||[],admin:{role:admin.role,teamId:admin.team_id}});
   }
   return json({success:false,message:"Method not allowed."},405);
