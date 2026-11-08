@@ -488,6 +488,26 @@ function canManageMatch(admin, match) {
     (admin.team_id === match.home_team_id || admin.team_id === match.away_team_id);
 }
 
+
+async function handlePublicMatchLive(request, env, matchId) {
+  const player = await getPlayer(request,env);
+  const admin = player ? null : await getAdmin(request,env);
+  if (!player && !admin) return json({success:false,message:"A valid player or administrator session is required."},401);
+  const id=Number(matchId);
+  if (!Number.isSafeInteger(id)||id<1) return json({success:false,message:"Invalid match ID."},400);
+  const match=await getManagedMatch(env,id);
+  if (!match) return json({success:false,message:"Match not found."},404);
+  const [state,scores,events]=await Promise.all([
+    env.atramentum_db.prepare("SELECT positions_json,balls_json,revision,updated_at FROM match_live_state WHERE match_id=?").bind(id).first(),
+    env.atramentum_db.prepare("SELECT team_id,score FROM match_team_results WHERE match_id=?").bind(id).all(),
+    env.atramentum_db.prepare("SELECT id,team_id,event_type,points,description,event_time FROM match_events WHERE match_id=? ORDER BY id DESC LIMIT 20").bind(id).all()
+  ]);
+  let positions=[],balls=[];
+  try{positions=state?.positions_json?JSON.parse(state.positions_json):[]}catch{}
+  try{balls=state?.balls_json?JSON.parse(state.balls_json):[]}catch{}
+  return json({success:true,match,positions,balls,revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[]});
+}
+
 async function handleAdminMatches(request, env) {
   const admin = await getAdmin(request, env);
   if (!admin) return json({ success:false, message:"Admin session expired or invalid." },401);
@@ -719,6 +739,11 @@ export default {
 
       if (path === "/api/leaderboard") {
         return await handleLeaderboard(request, env);
+      }
+
+      const publicLiveMatch = path.match(/^\/api\/matches\/(\d+)\/live$/);
+      if (publicLiveMatch && request.method === "GET") {
+        return await handlePublicMatchLive(request, env, publicLiveMatch[1]);
       }
 
       if (path === "/api/matches") {
