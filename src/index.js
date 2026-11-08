@@ -359,6 +359,58 @@ async function handleAdminBootstrap(request, env) {
   return json({ success: true, message: "Initial administrator password configured. You can now sign in." });
 }
 
+async function handleAdminRecovery(request, env) {
+  if (request.method !== "POST") return json({ success: false, message: "Method not allowed." }, 405);
+  if (!env.ADMIN_RECOVERY_SECRET) return json({ success: false, message: "Recovery is not configured." }, 503);
+
+  let body;
+  try { body = await request.json(); } catch { return json({ success: false, message: "Invalid request body." }, 400); }
+
+  if (!safeEqual(body?.recoverySecret || "", env.ADMIN_RECOVERY_SECRET)) {
+    return json({ success: false, message: "Recovery authorization failed." }, 403);
+  }
+
+  const password = String(body?.password || "");
+  if (password.length < 14 || password.length > 200) {
+    return json({ success: false, message: "Password must be between 14 and 200 characters." }, 400);
+  }
+
+  const saltBytes = new Uint8Array(16);
+  crypto.getRandomValues(saltBytes);
+  const salt = Array.from(saltBytes).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  const passwordHash = await deriveAdminPassword(password, salt);
+
+  const results = await env.atramentum_db.batch([
+    env.atramentum_db.prepare(`
+      UPDATE admin_users
+      SET password_hash = ?, password_salt = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE username = 'ACAME_IX47' AND role = 'super_admin'
+        AND NOT EXISTS (
+          SELECT 1 FROM admin_audit_logs
+          WHERE action = 'super_admin_recovery_completed'
+            AND target_username = 'ACAME_IX47'
+        )
+    `).bind(passwordHash, salt),
+    env.atramentum_db.prepare(`
+      INSERT INTO admin_audit_logs (admin_id, action, target_username, details)
+      SELECT NULL, 'super_admin_recovery_completed', 'ACAME_IX47',
+        'One-time super administrator password recovery completed.'
+      WHERE changes() = 1
+    `)
+  ]);
+
+  if (!results[0]?.meta?.changes) {
+    return json({ success: false, message: "Recovery has already been used or the administrator account is unavailable." }, 409);
+  }
+
+  await env.atramentum_db.prepare(`
+    DELETE FROM admin_sessions
+    WHERE admin_id = (SELECT id FROM admin_users WHERE username = 'ACAME_IX47' LIMIT 1)
+  `).run();
+
+  return json({ success: true, message: "Super administrator password updated. Recovery can no longer be used." });
+}
+
 async function handleAdminSetupStatus(env) {
   const admin = await env.atramentum_db.prepare(`
     SELECT CASE WHEN password_hash IS NOT NULL AND password_salt IS NOT NULL THEN 1 ELSE 0 END AS configured
@@ -471,7 +523,7 @@ export default {
         return await handleAdminBootstrap(request, env);
       }
 
-      if (path === "/api/admin/setup-status" && request.method === "GET") {
+      if (path === "/api/admin/recover") {\n        return await handleAdminRecovery(request, env);\n      }\n\n      if (path === "/api/admin/setup-status" && request.method === "GET") {
         return await handleAdminSetupStatus(env);
       }
 
