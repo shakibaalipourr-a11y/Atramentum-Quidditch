@@ -282,7 +282,7 @@ async function handleHealth(env) {
 
 
 const ADMIN_SESSION_DAYS = 1;
-const ADMIN_PASSWORD_ITERATIONS = 310000;
+const ADMIN_PASSWORD_ITERATIONS = 100000;
 
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2);
