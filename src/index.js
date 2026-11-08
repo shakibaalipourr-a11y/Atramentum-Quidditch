@@ -501,15 +501,16 @@ async function handlePublicMatchLive(request, env, matchId) {
   if (!Number.isSafeInteger(id)||id<1) return json({success:false,message:"Invalid match ID."},400);
   const match=await getManagedMatch(env,id);
   if (!match) return json({success:false,message:"Match not found."},404);
-  const [state,scores,events]=await Promise.all([
+  const [state,scores,events,gameState]=await Promise.all([
     env.atramentum_db.prepare("SELECT positions_json,balls_json,revision,updated_at FROM match_live_state WHERE match_id=?").bind(id).first(),
     env.atramentum_db.prepare("SELECT team_id,score FROM match_team_results WHERE match_id=?").bind(id).all(),
-    env.atramentum_db.prepare("SELECT id,team_id,event_type,points,description,event_time FROM match_events WHERE match_id=? ORDER BY id DESC LIMIT 20").bind(id).all()
+    env.atramentum_db.prepare("SELECT id,team_id,event_type,points,description,event_time FROM match_events WHERE match_id=? ORDER BY id DESC LIMIT 20").bind(id).all(),
+    env.atramentum_db.prepare("SELECT started_at,elapsed_seconds,clock_running,snitch_caught_by FROM match_game_state WHERE match_id=?").bind(id).first()
   ]);
   let positions=[],balls=[];
   try{positions=state?.positions_json?JSON.parse(state.positions_json):[]}catch{}
   try{balls=state?.balls_json?JSON.parse(state.balls_json):[]}catch{}
-  return json({success:true,match,positions,balls,revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[]});
+  return json({success:true,match,positions,balls,revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[],gameState:gameState||{elapsed_seconds:0,clock_running:0,snitch_caught_by:null}});
 }
 
 async function handleAdminMatches(request, env) {
@@ -573,21 +574,63 @@ async function handleAdminMatchLive(request, env, matchId) {
   if (!canManageMatch(admin,match)) return json({success:false,message:"This match is outside your team scope."},403);
 
   if (request.method === "GET") {
-    const [state, scores, events] = await Promise.all([
+    const [state, scores, events, gameState] = await Promise.all([
       env.atramentum_db.prepare("SELECT positions_json, balls_json, revision, updated_at FROM match_live_state WHERE match_id=?").bind(id).first(),
       env.atramentum_db.prepare("SELECT team_id,score,result FROM match_team_results WHERE match_id=?").bind(id).all(),
-      env.atramentum_db.prepare("SELECT id,player_id,team_id,event_type,points,description,event_time FROM match_events WHERE match_id=? ORDER BY id DESC LIMIT 40").bind(id).all()
+      env.atramentum_db.prepare("SELECT id,player_id,team_id,event_type,points,description,event_time FROM match_events WHERE match_id=? ORDER BY id DESC LIMIT 40").bind(id).all(),
+      env.atramentum_db.prepare("SELECT started_at,elapsed_seconds,clock_running,snitch_caught_by FROM match_game_state WHERE match_id=?").bind(id).first()
     ]);
     let positions=[], balls=[];
     try { positions=state?.positions_json?JSON.parse(state.positions_json):[]; } catch {}
     try { balls=state?.balls_json?JSON.parse(state.balls_json):[]; } catch {}
-    return json({success:true,match,positions,balls,revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[]});
+    return json({success:true,match,positions,balls,revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[],gameState:gameState||{elapsed_seconds:0,clock_running:0,snitch_caught_by:null}});
   }
 
   if (request.method !== "POST") return json({success:false,message:"Method not allowed."},405);
   let body;
   try { body=await request.json(); } catch { return json({success:false,message:"Invalid request body."},400); }
   const action=String(body?.action||"");
+  if(action==="referee"){
+    if(!["super_admin","referee"].includes(admin.role))
+      return json({success:false,message:"Only an official or the super administrator may use referee controls."},403);
+    const command=String(body.command||"");
+    const state=await env.atramentum_db.prepare("SELECT started_at,elapsed_seconds,clock_running,snitch_caught_by FROM match_game_state WHERE match_id=?").bind(id).first();
+    const elapsed=Number(state?.elapsed_seconds||0);
+    if(command==="start"||command==="resume"){
+      await env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,started_at,elapsed_seconds,clock_running) VALUES(?,CURRENT_TIMESTAMP,?,1) ON CONFLICT(match_id) DO UPDATE SET started_at=CURRENT_TIMESTAMP,elapsed_seconds=excluded.elapsed_seconds,clock_running=1,updated_at=CURRENT_TIMESTAMP").bind(id,elapsed).run();
+      await env.atramentum_db.prepare("UPDATE matches SET status='live' WHERE id=?").bind(id).run();
+      await env.atramentum_db.prepare("INSERT INTO match_events(match_id,event_type,description) VALUES(?,'clock_resumed','داور زمان مسابقه را آغاز/ادامه داد')").bind(id).run();
+    }else if(command==="pause"){
+      const started=state?.started_at?Date.parse(state.started_at.replace(" ","T")+"Z"):Date.now();
+      const nextElapsed=elapsed+(state?.clock_running?Math.max(0,Math.floor((Date.now()-started)/1000)):0);
+      await env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,elapsed_seconds,clock_running) VALUES(?,?,0) ON CONFLICT(match_id) DO UPDATE SET elapsed_seconds=?,clock_running=0,updated_at=CURRENT_TIMESTAMP").bind(id,nextElapsed,nextElapsed).run();
+      await env.atramentum_db.prepare("UPDATE matches SET status='paused' WHERE id=?").bind(id).run();
+      await env.atramentum_db.prepare("INSERT INTO match_events(match_id,event_type,description) VALUES(?,'clock_paused','داور مسابقه را متوقف کرد')").bind(id).run();
+    }else if(command==="foul"){
+      const description=String(body.description||"خطای ثبت‌شده توسط داور").trim().slice(0,220);
+      await env.atramentum_db.prepare("INSERT INTO match_events(match_id,event_type,description) VALUES(?,'foul',?)").bind(id,description).run();
+    }else if(command==="snitch"){
+      if(state?.snitch_caught_by)return json({success:false,message:"The Golden Snitch has already been caught."},409);
+      const teamId=String(body.teamId||"");
+      if(![match.home_team_id,match.away_team_id].includes(teamId))return json({success:false,message:"Choose a participating team."},400);
+      const statements=[
+        env.atramentum_db.prepare("INSERT INTO match_team_results(match_id,team_id,score) VALUES(?,?,150) ON CONFLICT(match_id,team_id) DO UPDATE SET score=score+150").bind(id,teamId),
+        env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,snitch_caught_by) VALUES(?,?) ON CONFLICT(match_id) DO UPDATE SET snitch_caught_by=excluded.snitch_caught_by,updated_at=CURRENT_TIMESTAMP").bind(id,teamId),
+        env.atramentum_db.prepare("INSERT INTO match_events(match_id,team_id,event_type,points,description) VALUES(?,?,'snitch_caught',150,'داور شکار اسنیچ طلایی را تأیید کرد')").bind(id,teamId),
+        env.atramentum_db.prepare("UPDATE matches SET status='completed',winner_team_id=? WHERE id=?").bind(teamId,id)
+      ];
+      await env.atramentum_db.batch(statements);
+    }else if(command==="goal"){
+      const teamId=String(body.teamId||"");
+      if(![match.home_team_id,match.away_team_id].includes(teamId))return json({success:false,message:"Choose a participating team."},400);
+      await env.atramentum_db.batch([
+        env.atramentum_db.prepare("INSERT INTO match_team_results(match_id,team_id,score) VALUES(?,?,10) ON CONFLICT(match_id,team_id) DO UPDATE SET score=score+10").bind(id,teamId),
+        env.atramentum_db.prepare("INSERT INTO match_events(match_id,team_id,event_type,points,description) VALUES(?,?,'goal',10,'گل تأییدشده توسط داور')").bind(id,teamId)
+      ]);
+    }else return json({success:false,message:"Unknown referee command."},400);
+    await writeAdminAudit(env,admin.id,"referee_"+command,String(id),JSON.stringify({command,teamId:body.teamId||null}));
+    return json({success:true,message:"Referee action recorded."});
+  }
   const allowedStatus=["scheduled","live","paused","completed"];
   if (action === "status") {
     if (!allowedStatus.includes(body.status)) return json({success:false,message:"Invalid match status."},400);
