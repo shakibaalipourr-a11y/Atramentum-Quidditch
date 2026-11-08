@@ -1012,6 +1012,27 @@
       const players=[];
       const teamIds=["gryffindor","slytherin","hufflepuff","ravenclaw"];
       for(let team=0;team<4;team++)for(let j=0;j<3;j++){const q=(team*3+j)/12*Math.PI*2,g=new THREE.Group();const body=new THREE.Mesh(new THREE.SphereGeometry(.9,16,12),new THREE.MeshStandardMaterial({color:colors[team],roughness:.4,emissive:colors[team],emissiveIntensity:.12}));body.scale.set(.8,1.25,.8);g.add(body);const broom=new THREE.Mesh(new THREE.CylinderGeometry(.08,.035,4.4,8),new THREE.MeshStandardMaterial({color:0x9b7542}));broom.rotation.z=Math.PI/2;broom.position.y=-.65;g.add(broom);g.position.set(Math.cos(q)*(12+j*5),7+(j%2)*3,Math.sin(q)*(7+j*2));g.userData={base:g.position.y,phase:team*1.7+j,teamId:teamIds[team]};g.visible=false;scene.add(g);players.push(g)}
+      // Referee: a distinct black-and-gold official standing at midfield.
+      const referee=new THREE.Group();
+      const refBlack=new THREE.MeshStandardMaterial({color:0x151719,roughness:.72});
+      const refGold=new THREE.MeshStandardMaterial({color:0xc8a45e,metalness:.65,roughness:.3});
+      const refSkin=new THREE.MeshStandardMaterial({color:0xb98568,roughness:.85});
+      const robe=new THREE.Mesh(new THREE.CylinderGeometry(.48,.78,1.45,16),refBlack);
+      robe.position.y=.92;referee.add(robe);
+      const robeTrim=new THREE.Mesh(new THREE.TorusGeometry(.72,.055,8,32),refGold);
+      robeTrim.rotation.x=Math.PI/2;robeTrim.position.y=.27;referee.add(robeTrim);
+      const head=new THREE.Mesh(new THREE.SphereGeometry(.31,16,12),refSkin);
+      head.position.y=1.92;referee.add(head);
+      const cap=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.12,16),refBlack);
+      cap.position.y=2.2;referee.add(cap);
+      function refLimb(a,b,r,material){const start=new THREE.Vector3(...a),end=new THREE.Vector3(...b),delta=end.clone().sub(start);const limb=new THREE.Mesh(new THREE.CylinderGeometry(r*.78,r,delta.length(),10),material);limb.position.copy(start.add(end).multiplyScalar(.5));limb.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());referee.add(limb)}
+      refLimb([-.36,1.42,0],[-.62,.72,.02],.14,refBlack);
+      refLimb([.36,1.42,0],[.62,.72,.02],.14,refBlack);
+      refLimb([-.23,.3,0],[-.25,.08,0],.17,refBlack);
+      refLimb([.23,.3,0],[.25,.08,0],.17,refBlack);
+      const whistle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.16,10),refGold);
+      whistle.position.set(0,1.58,.34);referee.add(whistle);
+      referee.position.set(0,.12,0);referee.visible=false;scene.add(referee);
       const balls=[[-5,10,1,0xc84a32,1.05],[9,13,-5,0x24272b,.78],[2,16,7,0xe6c45f,.48]].map(v=>{const m=new THREE.Mesh(new THREE.SphereGeometry(v[4],24,18),new THREE.MeshStandardMaterial({color:v[3],metalness:.25,roughness:.32,emissive:v[3],emissiveIntensity:.18}));m.position.set(v[0],v[1],v[2]);scene.add(m);return m});
       function resize(){const w=mount.clientWidth||1,h=mount.clientHeight||1;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
       new ResizeObserver(resize).observe(mount);resize();
@@ -1029,7 +1050,7 @@
           const list=await listResponse.json();
           const matches=list.matches||[];
           const active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled");
-          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
+          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);referee.visible=false;liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
           if(String(liveMatchId)!==String(active.id)){liveMatchId=active.id;liveRevision=-1;}
           const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
           if(response.status===404){liveMatchId=null;return;}
@@ -1037,6 +1058,7 @@
           const data=await response.json();if(!data.success)return;
           const homeId=String(data.match.home_team_id),awayId=String(data.match.away_team_id);
           players.forEach(p=>{p.visible=p.userData.teamId===homeId||p.userData.teamId===awayId;});
+          referee.visible=data.match.status!=="completed";
           const homeScore=(data.scores||[]).find(x=>String(x.team_id)===homeId)?.score||0;
           const awayScore=(data.scores||[]).find(x=>String(x.team_id)===awayId)?.score||0;
           const statusLabel={live:"زنده",paused:"متوقف",scheduled:"در انتظار شروع",completed:"پایان‌یافته"}[data.match.status]||data.match.status;
