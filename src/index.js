@@ -442,7 +442,6 @@ async function handleAdminUsers(request, env) {
       "SELECT id, username FROM admin_users WHERE username = ? COLLATE NOCASE LIMIT 1"
     ).bind(username).first();
     if (!target) return json({ success: false, message: "Administrator account not found." }, 404);
-    if (target.username === "ACAME_IX47") return json({ success: false, message: "Use the dedicated recovery process for the super administrator." }, 403);
     const saltBytes = new Uint8Array(16);
     crypto.getRandomValues(saltBytes);
     const salt = Array.from(saltBytes).map(byte => byte.toString(16).padStart(2, "0")).join("");
