@@ -594,6 +594,7 @@ async function handleAdminMatchLive(request, env, matchId) {
     if(!["super_admin","referee"].includes(admin.role))
       return json({success:false,message:"Only an official or the super administrator may use referee controls."},403);
     const command=String(body.command||"");
+    if(match.status==="completed")return json({success:false,message:"This match has already finished."},409);
     const state=await env.atramentum_db.prepare("SELECT started_at,elapsed_seconds,clock_running,snitch_caught_by FROM match_game_state WHERE match_id=?").bind(id).first();
     const elapsed=Number(state?.elapsed_seconds||0);
     if(command==="start"||command==="resume"){
@@ -613,13 +614,16 @@ async function handleAdminMatchLive(request, env, matchId) {
       if(state?.snitch_caught_by)return json({success:false,message:"The Golden Snitch has already been caught."},409);
       const teamId=String(body.teamId||"");
       if(![match.home_team_id,match.away_team_id].includes(teamId))return json({success:false,message:"Choose a participating team."},400);
-      const statements=[
+      await env.atramentum_db.batch([
         env.atramentum_db.prepare("INSERT INTO match_team_results(match_id,team_id,score) VALUES(?,?,150) ON CONFLICT(match_id,team_id) DO UPDATE SET score=score+150").bind(id,teamId),
         env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,snitch_caught_by,clock_running) VALUES(?,?,0) ON CONFLICT(match_id) DO UPDATE SET snitch_caught_by=excluded.snitch_caught_by,clock_running=0,updated_at=CURRENT_TIMESTAMP").bind(id,teamId),
-        env.atramentum_db.prepare("INSERT INTO match_events(match_id,team_id,event_type,points,description) VALUES(?,?,'snitch_caught',150,'داور شکار اسنیچ طلایی را تأیید کرد')").bind(id,teamId),
-        env.atramentum_db.prepare("UPDATE matches SET status='completed',winner_team_id=? WHERE id=?").bind(teamId,id)
-      ];
-      await env.atramentum_db.batch(statements);
+        env.atramentum_db.prepare("INSERT INTO match_events(match_id,team_id,event_type,points,description) VALUES(?,?,'snitch_caught',150,'داور شکار اسنیچ طلایی را تأیید کرد')").bind(id,teamId)
+      ]);
+      const finalScores=await env.atramentum_db.prepare("SELECT team_id,score FROM match_team_results WHERE match_id=?").bind(id).all();
+      const homeScore=Number((finalScores.results||[]).find(x=>x.team_id===match.home_team_id)?.score||0);
+      const awayScore=Number((finalScores.results||[]).find(x=>x.team_id===match.away_team_id)?.score||0);
+      const winner=homeScore===awayScore?null:(homeScore>awayScore?match.home_team_id:match.away_team_id);
+      await env.atramentum_db.prepare("UPDATE matches SET status='completed',winner_team_id=? WHERE id=?").bind(winner,id).run();
     }else if(command==="goal"){
       const teamId=String(body.teamId||"");
       if(![match.home_team_id,match.away_team_id].includes(teamId))return json({success:false,message:"Choose a participating team."},400);
