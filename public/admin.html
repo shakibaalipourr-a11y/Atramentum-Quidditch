@@ -41,6 +41,21 @@
         <button class="btn" id="loginButton">ورود امن به تالار</button>
       </form>
       <div class="message" id="loginMessage" role="status"></div>
+      <button class="btn secondary" type="button" id="showSuperLogin">ورود مدیر کل</button>
+    </section>
+
+    <section class="panel hidden" id="superLoginPanel">
+      <h1>ورود مدیر کل</h1>
+      <p class="lead">ورود اختصاصی مدیر کل آترامنتوم</p>
+      <form id="superLoginForm">
+        <label for="superUsername">نام کاربری</label>
+        <input id="superUsername" dir="ltr" autocomplete="username" maxlength="80" value="ACAME_IX47" required>
+        <label for="superPassword">رمز عبور</label>
+        <input id="superPassword" type="password" autocomplete="current-password" required>
+        <button class="btn" id="superLoginButton">ورود به تالار مدیر کل</button>
+      </form>
+      <div class="message" id="superLoginMessage" role="status"></div>
+      <button class="btn secondary" type="button" id="backToAdminLogin">بازگشت</button>
     </section>
 
     <section class="panel wide hidden" id="dashboard">
@@ -66,7 +81,7 @@
 
 <script>
   const $ = id => document.getElementById(id);
-  const authPanel = $("authPanel"), dashboard = $("dashboard");
+  const authPanel = $("authPanel"), superLoginPanel = $("superLoginPanel"), dashboard = $("dashboard");
   const roleNames = {super_admin:"مدیر کل",house_admin:"مدیر گروه",referee:"داور مسابقات"};
   const teamNames = {slytherin:"اسلیترین",gryffindor:"گریفیندور",hufflepuff:"هافلپاف",ravenclaw:"ریونکلا"};
   let currentAdmin = null;
@@ -77,7 +92,7 @@
     return fetch(path,{...options,headers,cache:"no-store"});
   };
   function message(id,text,type=""){ $(id).textContent=text; $(id).className="message "+type; }
-  function show(panel){[authPanel,dashboard].forEach(x=>x.classList.add("hidden"));panel.classList.remove("hidden");}
+  function show(panel){[authPanel,superLoginPanel,dashboard].forEach(x=>x.classList.add("hidden"));panel.classList.remove("hidden");}
   async function loadDashboard(){
     const response=await api("/api/admin/me");
     const data=await response.json();
@@ -105,16 +120,24 @@
       if(user.username!=="ACAME_IX47"){const option=document.createElement("option");option.value=user.username;option.textContent=user.username+" — "+role;$("targetUser").appendChild(option);}
     });
   }
-  $("loginForm").addEventListener("submit",async event=>{
-    event.preventDefault();$("loginButton").disabled=true;message("loginMessage","در حال بررسی اطلاعات...");
+  async function submitAdminLogin(usernameId,passwordId,buttonId,messageId){
+    $(buttonId).disabled=true;message(messageId,"در حال بررسی اطلاعات...");
     try{
-      const response=await fetch("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("username").value.trim(),password:$("loginPassword").value})});
+      const response=await fetch("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$(usernameId).value.trim(),password:$(passwordId).value})});
       const data=await response.json();
-      if(!response.ok||!data.success){message("loginMessage",data.message||"ورود ناموفق بود.","error");return;}
-      sessionStorage.setItem("atramentumAdminSession",data.token);$("loginPassword").value="";await loadDashboard();
-    }catch{message("loginMessage","ارتباط با سرور برقرار نشد.","error");}
-    finally{$("loginButton").disabled=false;}
+      if(!response.ok||!data.success){message(messageId,data.message||"ورود ناموفق بود.","error");return;}
+      sessionStorage.setItem("atramentumAdminSession",data.token);$(passwordId).value="";await loadDashboard();
+    }catch{message(messageId,"ارتباط با سرور برقرار نشد.","error");}
+    finally{$(buttonId).disabled=false;}
+  }
+  $("loginForm").addEventListener("submit",async event=>{
+    event.preventDefault();await submitAdminLogin("username","loginPassword","loginButton","loginMessage");
   });
+  $("superLoginForm").addEventListener("submit",async event=>{
+    event.preventDefault();await submitAdminLogin("superUsername","superPassword","superLoginButton","superLoginMessage");
+  });
+  $("showSuperLogin").addEventListener("click",()=>show(superLoginPanel));
+  $("backToAdminLogin").addEventListener("click",()=>show(authPanel));
   $("passwordForm").addEventListener("submit",async event=>{
     event.preventDefault();message("passwordMessage","در حال ثبت رمز...");
     try{
