@@ -523,7 +523,7 @@ async function handleAdminMatches(request, env) {
     const scheduledAt=body?.scheduledAt?String(body.scheduledAt):null;
     if (!homeTeamId || !awayTeamId || homeTeamId===awayTeamId)
       return json({success:false,message:"Choose two different participating teams."},400);
-    if (scheduledAt && (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}/.test(scheduledAt) || Number.isNaN(Date.parse(scheduledAt))))
+    if (scheduledAt && (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(scheduledAt) || Number.isNaN(Date.parse(scheduledAt))))
       return json({success:false,message:"Invalid scheduled date and time."},400);
     const teams=await env.atramentum_db.prepare("SELECT id FROM teams WHERE id IN (?,?)").bind(homeTeamId,awayTeamId).all();
     if ((teams.results||[]).length!==2) return json({success:false,message:"One or both teams do not exist."},400);
