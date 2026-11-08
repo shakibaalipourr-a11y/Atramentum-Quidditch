@@ -280,6 +280,172 @@ async function handleHealth(env) {
   });
 }
 
+
+const ADMIN_SESSION_DAYS = 1;
+const ADMIN_PASSWORD_ITERATIONS = 310000;
+
+function hexToBytes(hex) {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return bytes;
+}
+
+async function deriveAdminPassword(password, saltHex) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({
+    name: "PBKDF2", salt: hexToBytes(saltHex), iterations: ADMIN_PASSWORD_ITERATIONS, hash: "SHA-256"
+  }, key, 256);
+  return Array.from(new Uint8Array(bits)).map(byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function safeEqual(a, b) {
+  const left = new TextEncoder().encode(String(a));
+  const right = new TextEncoder().encode(String(b));
+  if (left.length !== right.length) return false;
+  let diff = 0;
+  for (let i = 0; i < left.length; i++) diff |= left[i] ^ right[i];
+  return diff === 0;
+}
+
+async function writeAdminAudit(env, adminId, action, targetUsername, details) {
+  await env.atramentum_db.prepare(`
+    INSERT INTO admin_audit_logs (admin_id, action, target_username, details)
+    VALUES (?, ?, ?, ?)
+  `).bind(adminId || null, action, targetUsername || null, details || null).run();
+}
+
+async function getAdmin(request, env) {
+  const token = getToken(request);
+  if (!token) return null;
+  const tokenHash = await sha256(token);
+  return await env.atramentum_db.prepare(`
+    SELECT a.id, a.username, a.display_name, a.role, a.team_id, a.active
+    FROM admin_sessions s
+    JOIN admin_users a ON a.id = s.admin_id
+    WHERE s.token_hash = ?
+      AND s.expires_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+      AND a.active = 1
+    LIMIT 1
+  `).bind(tokenHash).first();
+}
+
+async function handleAdminBootstrap(request, env) {
+  if (request.method !== "POST") return json({ success: false, message: "Method not allowed" }, 405);
+  if (!env.ADMIN_BOOTSTRAP_SECRET) return json({ success: false, message: "Admin bootstrap is not configured." }, 503);
+  let body;
+  try { body = await request.json(); } catch { return json({ success: false, message: "Invalid request body." }, 400); }
+  if (!safeEqual(body?.bootstrapSecret || "", env.ADMIN_BOOTSTRAP_SECRET)) {
+    return json({ success: false, message: "Invalid setup authorization." }, 403);
+  }
+  const password = String(body?.password || "");
+  if (password.length < 14 || password.length > 200) {
+    return json({ success: false, message: "Password must be between 14 and 200 characters." }, 400);
+  }
+  const admin = await env.atramentum_db.prepare(`
+    SELECT id, username, password_hash FROM admin_users
+    WHERE username = 'ACAME_IX47' AND role = 'super_admin' LIMIT 1
+  `).first();
+  if (!admin) return json({ success: false, message: "Initial administrator record is missing." }, 500);
+  if (admin.password_hash) return json({ success: false, message: "Initial administrator has already been configured." }, 409);
+  const saltBytes = new Uint8Array(16);
+  crypto.getRandomValues(saltBytes);
+  const salt = Array.from(saltBytes).map(byte => byte.toString(16).padStart(2, "0")).join("");
+  const passwordHash = await deriveAdminPassword(password, salt);
+  await env.atramentum_db.prepare(`
+    UPDATE admin_users SET password_hash = ?, password_salt = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND password_hash IS NULL
+  `).bind(passwordHash, salt, admin.id).run();
+  await writeAdminAudit(env, admin.id, "bootstrap_completed", admin.username, "Initial super administrator configured.");
+  return json({ success: true, message: "Initial administrator password configured. You can now sign in." });
+}
+
+async function handleAdminLogin(request, env) {
+  if (request.method !== "POST") return json({ success: false, message: "Method not allowed" }, 405);
+  let body;
+  try { body = await request.json(); } catch { return json({ success: false, message: "Invalid request body." }, 400); }
+  const username = String(body?.username || "").trim();
+  const password = String(body?.password || "");
+  if (!username || username.length > 80 || !password || password.length > 200) {
+    return json({ success: false, message: "نام کاربری یا رمز عبور معتبر نیست." }, 400);
+  }
+  const admin = await env.atramentum_db.prepare(`
+    SELECT id, username, display_name, role, team_id, password_hash, password_salt, active
+    FROM admin_users WHERE username = ? COLLATE NOCASE LIMIT 1
+  `).bind(username).first();
+  if (!admin || !admin.active || !admin.password_hash || !admin.password_salt) {
+    return json({ success: false, message: "نام کاربری یا رمز عبور نادرست است." }, 401);
+  }
+  const candidate = await deriveAdminPassword(password, admin.password_salt);
+  if (!safeEqual(candidate, admin.password_hash)) {
+    return json({ success: false, message: "نام کاربری یا رمز عبور نادرست است." }, 401);
+  }
+  const token = createToken();
+  const expiresAt = new Date(Date.now() + ADMIN_SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  await env.atramentum_db.prepare(`
+    INSERT INTO admin_sessions (admin_id, token_hash, expires_at) VALUES (?, ?, ?)
+  `).bind(admin.id, await sha256(token), expiresAt).run();
+  await writeAdminAudit(env, admin.id, "login", admin.username, "Administrator signed in.");
+  return json({ success: true, token, expiresAt, admin: {
+    id: admin.id, username: admin.username, displayName: admin.display_name, role: admin.role, teamId: admin.team_id
+  }});
+}
+
+async function handleAdminMe(request, env) {
+  if (request.method !== "GET") return json({ success: false, message: "Method not allowed" }, 405);
+  const admin = await getAdmin(request, env);
+  if (!admin) return json({ success: false, message: "Admin session expired or invalid." }, 401);
+  return json({ success: true, admin: {
+    id: admin.id, username: admin.username, displayName: admin.display_name, role: admin.role, teamId: admin.team_id
+  }});
+}
+
+async function handleAdminLogout(request, env) {
+  if (request.method !== "POST") return json({ success: false, message: "Method not allowed" }, 405);
+  const token = getToken(request);
+  if (token) await env.atramentum_db.prepare("DELETE FROM admin_sessions WHERE token_hash = ?").bind(await sha256(token)).run();
+  return json({ success: true, message: "Admin session closed." });
+}
+
+async function handleAdminUsers(request, env) {
+  const admin = await getAdmin(request, env);
+  if (!admin) return json({ success: false, message: "Admin session expired or invalid." }, 401);
+  if (admin.role !== "super_admin") return json({ success: false, message: "Insufficient permissions." }, 403);
+  if (request.method === "GET") {
+    const result = await env.atramentum_db.prepare(`
+      SELECT username, display_name, role, team_id, active,
+        CASE WHEN password_hash IS NULL THEN 0 ELSE 1 END AS password_configured
+      FROM admin_users
+      ORDER BY CASE role WHEN 'super_admin' THEN 0 WHEN 'house_admin' THEN 1 ELSE 2 END, username
+    `).all();
+    return json({ success: true, users: result.results || [] });
+  }
+  if (request.method === "POST") {
+    let body;
+    try { body = await request.json(); } catch { return json({ success: false, message: "Invalid request body." }, 400); }
+    const username = String(body?.username || "").trim();
+    const password = String(body?.password || "");
+    if (!username || password.length < 14 || password.length > 200) {
+      return json({ success: false, message: "Username is required and password must be at least 14 characters." }, 400);
+    }
+    const target = await env.atramentum_db.prepare(
+      "SELECT id, username FROM admin_users WHERE username = ? COLLATE NOCASE LIMIT 1"
+    ).bind(username).first();
+    if (!target) return json({ success: false, message: "Administrator account not found." }, 404);
+    if (target.username === "ACAME_IX47") return json({ success: false, message: "Use the dedicated recovery process for the super administrator." }, 403);
+    const saltBytes = new Uint8Array(16);
+    crypto.getRandomValues(saltBytes);
+    const salt = Array.from(saltBytes).map(byte => byte.toString(16).padStart(2, "0")).join("");
+    const passwordHash = await deriveAdminPassword(password, salt);
+    await env.atramentum_db.prepare(`
+      UPDATE admin_users SET password_hash = ?, password_salt = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+    `).bind(passwordHash, salt, target.id).run();
+    await env.atramentum_db.prepare("DELETE FROM admin_sessions WHERE admin_id = ?").bind(target.id).run();
+    await writeAdminAudit(env, admin.id, "set_admin_password", target.username, "Password provisioned by super administrator.");
+    return json({ success: true, message: "Password configured. The account can now sign in." });
+  }
+  return json({ success: false, message: "Method not allowed" }, 405);
+}
+
 // ==========================================
 // MAIN ROUTER
 // ==========================================
