@@ -523,6 +523,7 @@ export default {
         return await handleAdminBootstrap(request, env);
       }
 
+      // ATRAMENTUM_RECOVERY_ROUTE_BUILD_FIX_20261108
       if (path === "/api/admin/recover") {
         return await handleAdminRecovery(request, env);
       }
