@@ -74,6 +74,17 @@
     <section class="panel wide hidden" id="dashboard">
       <div class="topline"><div><h1 id="welcome">تالار مدیریت</h1><div class="role" id="roleLabel"></div></div><button class="logout" id="logoutButton">خروج امن</button></div>
       <p class="lead" id="roleDescription"></p>
+      <section class="match-tools hidden" id="fixtureTools">
+        <h2>ثبت مسابقهٔ جدید</h2>
+        <p class="hint">مسابقهٔ تازه را بین دو گروه ثبت کن. زمان مسابقه اختیاری است و می‌توانی بعداً آن را مدیریت کنی.</p>
+        <div class="match-form">
+          <div><label for="fixtureHome">گروه میزبان</label><select id="fixtureHome"><option value="gryffindor">گریفیندور</option><option value="slytherin">اسلیترین</option><option value="hufflepuff">هافلپاف</option><option value="ravenclaw">ریونکلا</option></select></div>
+          <div><label for="fixtureAway">گروه میهمان</label><select id="fixtureAway"><option value="slytherin">اسلیترین</option><option value="gryffindor">گریفیندور</option><option value="hufflepuff">هافلپاف</option><option value="ravenclaw">ریونکلا</option></select></div>
+          <div class="full"><label for="fixtureDate">زمان مسابقه (اختیاری)</label><input id="fixtureDate" type="datetime-local"></div>
+          <button type="button" class="btn full" id="createFixture">ایجاد مسابقه</button>
+        </div>
+        <div class="message" id="fixtureMessage" role="status"></div>
+      </section>
       <section class="match-tools" id="matchTools">
         <div class="topline"><h2>مرکز کنترل مسابقات زنده</h2><button type="button" id="refreshMatches" class="logout">به‌روزرسانی</button></div>
         <p class="hint">مسابقات، وضعیت بازی و نتیجه‌ها از سرور دریافت می‌شوند. هر تغییر با سطح دسترسی حساب شما بررسی و ثبت خواهد شد.</p>
@@ -139,11 +150,25 @@
     $("roleLabel").textContent=roleNames[currentAdmin.role]||currentAdmin.role;
     $("roleDescription").textContent=currentAdmin.role==="super_admin"?"دسترسی کامل مدیریتی و مدیریت حساب‌های رسمی.":currentAdmin.role==="house_admin"?"دسترسی مدیریتی محدود به گروه "+(teamNames[currentAdmin.teamId]||"اختصاص‌یافته")+".":"حساب رسمی داوری مسابقات آترامنتوم.";
     show(dashboard);
+    $("fixtureTools").classList.toggle("hidden",currentAdmin.role!=="super_admin");
     await loadMatches();
     if(currentAdmin.role==="super_admin"){ $("superTools").classList.remove("hidden"); await loadUsers(); }
-    else {$("superTools").classList.add("hidden");$("roleNote").textContent="حساب شما احراز هویت شده است. ابزارهای عملیاتی این نقش در مرحله بعد به پنل اضافه می‌شوند.";}
+    else {$("superTools").classList.add("hidden");$("roleNote").textContent="عملیات مسابقه بر اساس نقش و محدودهٔ گروه شما در سمت سرور کنترل می‌شود.";}
   }
 
+  $("createFixture").addEventListener("click",async()=>{
+    const homeTeamId=$("fixtureHome").value,awayTeamId=$("fixtureAway").value;
+    if(homeTeamId===awayTeamId)return message("fixtureMessage","دو گروه متفاوت انتخاب کن.","error");
+    const rawDate=$("fixtureDate").value;
+    const scheduledAt=rawDate?new Date(rawDate).toISOString():null;
+    message("fixtureMessage","در حال ایجاد مسابقه...");
+    try{
+      const response=await api("/api/admin/matches",{method:"POST",body:JSON.stringify({homeTeamId,awayTeamId,scheduledAt})});
+      const data=await response.json();
+      if(!response.ok||!data.success){message("fixtureMessage",data.message||"ایجاد مسابقه ناموفق بود.","error");return;}
+      message("fixtureMessage","مسابقه شماره "+data.matchId+" ایجاد شد.","success");await loadMatches();
+    }catch{message("fixtureMessage","ارتباط با سرور برقرار نشد.","error");}
+  });
   let selectedMatch=null;
   let matchList=[];
   const matchApi=(id,body)=>api("/api/admin/matches/"+id+"/live",body?{method:"POST",body:JSON.stringify(body)}:{});
