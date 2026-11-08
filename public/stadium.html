@@ -369,6 +369,50 @@
       z-index: 3;
     }
 
+    /* IMMERSIVE GAME MODE */
+    html,body{width:100%;height:100%;min-height:100%;overflow:hidden;background:#050807}
+    body{min-height:100svh}
+    .topbar{position:fixed;top:0;left:0;right:0;height:58px;padding:0 22px;background:linear-gradient(180deg,rgba(3,7,6,.9),rgba(3,7,6,.18));border:0;backdrop-filter:blur(12px);z-index:30}
+    .logo{font-size:15px;letter-spacing:2px}
+    .nav-links{gap:15px}.nav-links a{font-size:10px}
+    #stadiumContent{width:100%;max-width:none;height:100svh;margin:0;display:none}
+    .hero,.section-heading,.match-status,.houses-grid,.notice,footer{display:none!important}
+    .player-bar{position:fixed;z-index:32;top:68px;right:18px;width:auto;min-width:220px;padding:9px 13px;gap:10px;border-radius:12px;background:rgba(5,10,8,.78);backdrop-filter:blur(14px);border-color:rgba(201,169,110,.28)}
+    .player-avatar{width:34px;height:34px;font-size:18px;border-radius:9px}
+    .player-caption{font-size:8px}.player-name{font-size:12px}.player-house{font-size:9px}
+    .profile-link{font-size:9px;padding:7px 9px}
+    .section{padding:0;margin:0}
+    .arena-3d-shell{display:block;position:fixed;inset:0;width:100vw;height:100svh;min-height:100svh;max-height:none;padding:0;border:0;border-radius:0;background:radial-gradient(ellipse at 50% 58%,#1c3929 0%,#09120f 68%,#030605 100%);isolation:isolate}
+    #arena3d{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+    #arena3d canvas{width:100%;height:100%}
+    .arena-3d-overlay{top:17px;right:50%;transform:translateX(50%);white-space:nowrap;padding:9px 16px}
+    .arena-3d-label{bottom:82px}
+    .arena-3d-controls{bottom:18px;left:50%;transform:translateX(-50%);gap:7px}
+    .arena-3d-controls button{font-size:11px;padding:10px 15px}
+    .game-match-picker{position:fixed;z-index:33;top:68px;left:18px;display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid rgba(201,169,110,.28);border-radius:12px;background:rgba(5,10,8,.82);backdrop-filter:blur(14px);color:#ead5a6;font-size:10px}
+    .game-match-picker select{max-width:210px;border:0;outline:0;background:#111a15;color:#f1e4c7;padding:6px 8px;border-radius:7px;font:inherit}
+    .game-scoreboard{position:fixed;z-index:32;top:68px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;min-width:260px;justify-content:center;padding:10px 18px;border:1px solid rgba(201,169,110,.3);border-radius:14px;background:rgba(5,10,8,.82);backdrop-filter:blur(14px);text-align:center}
+    .game-team{font-size:11px;font-weight:800;white-space:nowrap}.game-score{font-size:23px;font-weight:900;color:#f5dfad;letter-spacing:2px;white-space:nowrap}.game-vs{font-size:9px;color:#a9a9a1}
+    .game-actions{position:fixed;z-index:34;left:18px;bottom:18px;display:flex;gap:7px}
+    .game-actions button,.game-actions a{border:1px solid rgba(201,169,110,.35);border-radius:9px;padding:9px 12px;color:#ead5a6;background:rgba(7,10,9,.82);font:inherit;font-size:10px;cursor:pointer;backdrop-filter:blur(10px)}
+    .game-actions button:hover,.game-actions a:hover{background:rgba(201,169,110,.18)}
+    .arena-3d-controls button.active{background:rgba(201,169,110,.28);border-color:#d7bd85}
+    @media(max-width:700px){
+      .topbar{height:48px;padding:0 12px}.nav-links{display:none}
+      .player-bar{top:57px;right:9px;min-width:0;padding:7px 9px}.player-details{gap:7px}.profile-link{display:none}
+      .game-match-picker{top:auto;bottom:72px;left:8px;right:8px;justify-content:space-between;padding:7px 9px;font-size:9px}
+      .game-match-picker select{max-width:65%;font-size:9px}
+      .game-scoreboard{top:57px;min-width:0;width:auto;gap:8px;padding:7px 10px}
+      .game-team{font-size:9px;max-width:72px;overflow:hidden;text-overflow:ellipsis}
+      .game-score{font-size:18px}
+      .arena-3d-overlay{top:112px;right:50%;font-size:9px;max-width:94%;white-space:normal;text-align:center}
+      .arena-3d-hint{display:none}.arena-3d-label{bottom:125px;font-size:7px}
+      .arena-3d-controls{bottom:18px;left:auto;right:8px;transform:none;gap:4px;max-width:calc(100% - 16px)}
+      .arena-3d-controls button{padding:8px 9px;font-size:8px}
+      .game-actions{left:8px;bottom:18px;gap:4px}.game-actions button,.game-actions a{padding:8px 9px;font-size:8px}
+    }
+    @media(max-width:390px){.game-team{max-width:55px}.game-scoreboard{gap:5px;padding:6px 7px}.game-actions a{display:none}}
+
     .arena-3d-shell{display:block;min-height:560px;height:min(68vw,650px);padding:0;background:radial-gradient(ellipse at 50% 58%,#1c3929 0%,#09120f 68%,#06090a 100%);isolation:isolate}
     #arena3d{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
     #arena3d canvas{display:block;width:100%;height:100%;outline:none}
@@ -731,12 +775,18 @@
 
       <div class="arena arena-3d-shell">
         <div id="arena3d" role="img" aria-label="نمای سه‌بعدی ورزشگاه کوییدیچ آترامنتوم"></div>
-        <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span id="arenaLiveLabel">نمای سه‌بعدی ورزشگاه · آمادهٔ مسابقه</span><span class="arena-3d-hint">برای چرخاندن، بکشید · برای زوم، دو انگشت</span></div>
+        <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span id="arenaLiveLabel">ورزشگاه آترامنتوم · آمادهٔ مسابقه</span><span class="arena-3d-hint">حرکت دوربین: لمس و کشیدن · زوم: دو انگشت</span></div>
+        <div class="game-scoreboard"><span class="game-team" id="homeTeamLabel">میزبان</span><span class="game-score" id="gameScore">0 : 0</span><span class="game-team" id="awayTeamLabel">میهمان</span></div>
+        <div class="game-match-picker"><label for="matchPicker">مسابقه</label><select id="matchPicker"><option value="">در حال دریافت مسابقات...</option></select></div>
         <div class="arena-3d-label">ATRAMENTUM GRAND QUIDDITCH ARENA</div>
         <div class="arena-3d-controls">
-          <button type="button" data-camera="overview">نمای کلی</button>
+          <button type="button" data-camera="overview" class="active">نمای کلی</button>
           <button type="button" data-camera="field">نمای زمین</button>
           <button type="button" data-camera="top">نمای بالا</button>
+        </div>
+        <div class="game-actions">
+          <button type="button" id="fullscreenButton">⛶ تمام‌صفحه</button>
+          <a href="index.html">خروج از ورزشگاه</a>
         </div>
       </div>
 
@@ -1049,8 +1099,16 @@
           if(!listResponse.ok)return;
           const list=await listResponse.json();
           const matches=list.matches||[];
-          const active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled");
-          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);referee.visible=false;liveLabel.textContent="نمای سه‌بعدی ورزشگاه · در انتظار مسابقه";return;}
+          const picker=document.getElementById("matchPicker");
+          const currentChoice=picker.value;
+          if(picker.options.length!==matches.length+1){
+            picker.innerHTML="";
+            matches.forEach(m=>{const option=document.createElement("option");option.value=String(m.id);option.textContent="#"+m.id+" · "+(m.home_name||m.home_team||m.home_team_id)+" × "+(m.away_name||m.away_team||m.away_team_id);picker.appendChild(option)});
+          }
+          let active=matches.find(m=>String(m.id)===currentChoice);
+          if(!active)active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled")||matches.find(m=>m.status==="completed");
+          if(active&&picker.value!==String(active.id))picker.value=String(active.id);
+          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);referee.visible=false;document.getElementById("homeTeamLabel").textContent="—";document.getElementById("awayTeamLabel").textContent="—";document.getElementById("gameScore").textContent="0 : 0";liveLabel.textContent="ورزشگاه آترامنتوم · در انتظار مسابقه";return;}
           if(String(liveMatchId)!==String(active.id)){liveMatchId=active.id;liveRevision=-1;}
           const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
           if(response.status===404){liveMatchId=null;return;}
@@ -1062,7 +1120,11 @@
           const homeScore=(data.scores||[]).find(x=>String(x.team_id)===homeId)?.score||0;
           const awayScore=(data.scores||[]).find(x=>String(x.team_id)===awayId)?.score||0;
           const statusLabel={live:"زنده",paused:"متوقف",scheduled:"در انتظار شروع",completed:"پایان‌یافته"}[data.match.status]||data.match.status;
-          liveLabel.textContent=(data.match.home_name||homeId)+" "+homeScore+" — "+awayScore+" "+(data.match.away_name||awayId)+" · "+statusLabel;
+          const homeName=data.match.home_name||homeId,awayName=data.match.away_name||awayId;
+          document.getElementById("homeTeamLabel").textContent=homeName;
+          document.getElementById("awayTeamLabel").textContent=awayName;
+          document.getElementById("gameScore").textContent=homeScore+" : "+awayScore;
+          liveLabel.textContent=homeName+" "+homeScore+" — "+awayScore+" "+awayName+" · "+statusLabel;
           if(data.revision===liveRevision)return;
           liveRevision=data.revision;
           (data.positions||[]).forEach((p,index)=>{
@@ -1077,6 +1139,12 @@
           });
         }catch(error){console.warn("Live match sync unavailable:",error)}
       }
+      document.getElementById("matchPicker").addEventListener("change",()=>{liveMatchId=null;liveRevision=-1;syncLiveMatch()});
+      document.getElementById("fullscreenButton").addEventListener("click",async()=>{
+        try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();}else{await document.exitFullscreen();}}
+        catch(error){console.warn("Fullscreen mode is unavailable:",error)}
+      });
+      document.querySelectorAll("[data-camera]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-camera]").forEach(x=>x.classList.remove("active"));btn.classList.add("active")}));
       syncLiveMatch();
       setInterval(syncLiveMatch,3000);
 
