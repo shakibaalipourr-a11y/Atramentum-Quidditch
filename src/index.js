@@ -469,6 +469,150 @@ async function handleAdminLogout(request, env) {
   return json({ success: true, message: "Admin session closed." });
 }
 
+
+async function getManagedMatch(env, matchId) {
+  return env.atramentum_db.prepare(`
+    SELECT m.id, m.home_team_id, m.away_team_id, m.scheduled_at, m.status,
+      m.winner_team_id, home.display_name AS home_name, home.emblem AS home_emblem,
+      away.display_name AS away_name, away.emblem AS away_emblem
+    FROM matches m
+    JOIN teams home ON home.id = m.home_team_id
+    JOIN teams away ON away.id = m.away_team_id
+    WHERE m.id = ? LIMIT 1
+  `).bind(matchId).first();
+}
+
+function canManageMatch(admin, match) {
+  if (admin.role === "super_admin" || admin.role === "referee") return true;
+  return admin.role === "house_admin" &&
+    (admin.team_id === match.home_team_id || admin.team_id === match.away_team_id);
+}
+
+async function handleAdminMatches(request, env) {
+  const admin = await getAdmin(request, env);
+  if (!admin) return json({ success:false, message:"Admin session expired or invalid." },401);
+  if (!["super_admin","house_admin","referee"].includes(admin.role))
+    return json({ success:false,message:"Insufficient permissions." },403);
+
+  if (request.method === "GET") {
+    const result = await env.atramentum_db.prepare(`
+      SELECT m.id, m.scheduled_at, m.status, m.winner_team_id,
+        m.home_team_id, m.away_team_id,
+        home.display_name AS home_name, home.emblem AS home_emblem,
+        away.display_name AS away_name, away.emblem AS away_emblem,
+        COALESCE(hr.score,0) AS home_score, COALESCE(ar.score,0) AS away_score,
+        COALESCE(ls.revision,0) AS live_revision, ls.updated_at AS live_updated_at
+      FROM matches m
+      JOIN teams home ON home.id=m.home_team_id
+      JOIN teams away ON away.id=m.away_team_id
+      LEFT JOIN match_team_results hr ON hr.match_id=m.id AND hr.team_id=m.home_team_id
+      LEFT JOIN match_team_results ar ON ar.match_id=m.id AND ar.team_id=m.away_team_id
+      LEFT JOIN match_live_state ls ON ls.match_id=m.id
+      ORDER BY CASE m.status WHEN 'live' THEN 0 WHEN 'paused' THEN 1 WHEN 'scheduled' THEN 2 ELSE 3 END,
+        m.scheduled_at DESC, m.id DESC
+    `).all();
+    return json({success:true,matches:result.results||[],admin:{role:admin.role,teamId:admin.team_id}});
+  }
+  return json({success:false,message:"Method not allowed."},405);
+}
+
+async function handleAdminMatchLive(request, env, matchId) {
+  const admin = await getAdmin(request, env);
+  if (!admin) return json({success:false,message:"Admin session expired or invalid."},401);
+  if (!["super_admin","house_admin","referee"].includes(admin.role))
+    return json({success:false,message:"Insufficient permissions."},403);
+  const id = Number(matchId);
+  if (!Number.isSafeInteger(id) || id < 1) return json({success:false,message:"Invalid match ID."},400);
+  const match = await getManagedMatch(env,id);
+  if (!match) return json({success:false,message:"Match not found."},404);
+  if (!canManageMatch(admin,match)) return json({success:false,message:"This match is outside your team scope."},403);
+
+  if (request.method === "GET") {
+    const [state, scores, events] = await Promise.all([
+      env.atramentum_db.prepare("SELECT positions_json, balls_json, revision, updated_at FROM match_live_state WHERE match_id=?").bind(id).first(),
+      env.atramentum_db.prepare("SELECT team_id,score,result FROM match_team_results WHERE match_id=?").bind(id).all(),
+      env.atramentum_db.prepare("SELECT id,player_id,team_id,event_type,points,description,event_time FROM match_events WHERE match_id=? ORDER BY id DESC LIMIT 40").bind(id).all()
+    ]);
+    let positions=[], balls=[];
+    try { positions=state?.positions_json?JSON.parse(state.positions_json):[]; } catch {}
+    try { balls=state?.balls_json?JSON.parse(state.balls_json):[]; } catch {}
+    return json({success:true,match,positions,balls,revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[]});
+  }
+
+  if (request.method !== "POST") return json({success:false,message:"Method not allowed."},405);
+  let body;
+  try { body=await request.json(); } catch { return json({success:false,message:"Invalid request body."},400); }
+  const action=String(body?.action||"");
+  const allowedStatus=["scheduled","live","paused","completed"];
+  if (action === "status") {
+    if (!allowedStatus.includes(body.status)) return json({success:false,message:"Invalid match status."},400);
+    if (admin.role==="house_admin" && !["live","paused"].includes(body.status))
+      return json({success:false,message:"House administrators may start or pause their team's match, but cannot schedule or finalize it."},403);
+    const winner=body.winnerTeamId==null?null:String(body.winnerTeamId);
+    if (winner && ![match.home_team_id,match.away_team_id].includes(winner))
+      return json({success:false,message:"Winner must be one of the participating teams."},400);
+    await env.atramentum_db.prepare("UPDATE matches SET status=?, winner_team_id=? WHERE id=?")
+      .bind(body.status,body.status==="completed"?winner:null,id).run();
+    await writeAdminAudit(env,admin.id,"match_status_changed",String(id),JSON.stringify({status:body.status,winnerTeamId:winner}));
+    return json({success:true,message:"Match status updated."});
+  }
+  if (action === "score") {
+    const teamId=String(body.teamId||"");
+    const score=Number(body.score);
+    if (![match.home_team_id,match.away_team_id].includes(teamId) || !Number.isSafeInteger(score) || score<0 || score>9999)
+      return json({success:false,message:"Invalid team or score."},400);
+    if (admin.role==="house_admin" && teamId!==admin.team_id)
+      return json({success:false,message:"You may only change your own team's score."},403);
+    await env.atramentum_db.prepare(`
+      INSERT INTO match_team_results(match_id,team_id,score)
+      VALUES(?,?,?)
+      ON CONFLICT(match_id,team_id) DO UPDATE SET score=excluded.score
+    `).bind(id,teamId,score).run();
+    await env.atramentum_db.prepare(`
+      INSERT INTO match_events(match_id,team_id,event_type,points,description)
+      VALUES(?,?, 'score_adjustment', ?, ?)
+    `).bind(id,teamId,score,"Score set by "+admin.username).run();
+    await writeAdminAudit(env,admin.id,"match_score_changed",String(id),JSON.stringify({teamId,score}));
+    return json({success:true,message:"Score updated."});
+  }
+  if (action === "event") {
+    const eventType=String(body.eventType||"").trim().slice(0,50);
+    const description=String(body.description||"").trim().slice(0,240);
+    const points=Number(body.points||0);
+    const teamId=body.teamId==null?null:String(body.teamId);
+    if (!eventType || !Number.isSafeInteger(points) || points < -999 || points > 999 ||
+        (teamId && ![match.home_team_id,match.away_team_id].includes(teamId)))
+      return json({success:false,message:"Invalid match event."},400);
+    if (admin.role==="house_admin" && teamId && teamId!==admin.team_id)
+      return json({success:false,message:"You may only record events for your own team."},403);
+    await env.atramentum_db.prepare(`
+      INSERT INTO match_events(match_id,team_id,event_type,points,description)
+      VALUES(?,?,?,?,?)
+    `).bind(id,teamId,eventType,points,description||null).run();
+    await writeAdminAudit(env,admin.id,"match_event_recorded",String(id),eventType);
+    return json({success:true,message:"Match event recorded."});
+  }
+  if (action === "positions") {
+    if (admin.role==="house_admin") return json({success:false,message:"Only referees and the super administrator may publish the live field state."},403);
+    const positions=body.positions, balls=body.balls;
+    const validPoint=p=>p&&typeof p==="object"&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.y))&&Number.isFinite(Number(p.z))&&Math.abs(Number(p.x))<=45&&Number(p.y)>=0&&Number(p.y)<=35&&Math.abs(Number(p.z))<=22;
+    if (!Array.isArray(positions)||positions.length>40||!positions.every(validPoint)||
+        !Array.isArray(balls)||balls.length>8||!balls.every(validPoint))
+      return json({success:false,message:"Invalid live field coordinates."},400);
+    const pjson=JSON.stringify(positions.map(p=>({playerId:p.playerId==null?null:Number(p.playerId),teamId:p.teamId==null?null:String(p.teamId),x:Number(p.x),y:Number(p.y),z:Number(p.z)})));
+    const bjson=JSON.stringify(balls.map(p=>({kind:String(p.kind||"ball").slice(0,24),x:Number(p.x),y:Number(p.y),z:Number(p.z)})));
+    await env.atramentum_db.prepare(`
+      INSERT INTO match_live_state(match_id,positions_json,balls_json,revision,updated_by,updated_at)
+      VALUES(?,?,?,1,?,CURRENT_TIMESTAMP)
+      ON CONFLICT(match_id) DO UPDATE SET positions_json=excluded.positions_json,
+        balls_json=excluded.balls_json,revision=match_live_state.revision+1,
+        updated_by=excluded.updated_by,updated_at=CURRENT_TIMESTAMP
+    `).bind(id,pjson,bjson,admin.id).run();
+    return json({success:true,message:"Live field state published."});
+  }
+  return json({success:false,message:"Unknown match action."},400);
+}
+
 async function handleAdminUsers(request, env) {
   const admin = await getAdmin(request, env);
   if (!admin) return json({ success: false, message: "Admin session expired or invalid." }, 401);
@@ -542,6 +686,15 @@ export default {
 
       if (path === "/api/admin/logout") {
         return await handleAdminLogout(request, env);
+      }
+
+      if (path === "/api/admin/matches") {
+        return await handleAdminMatches(request, env);
+      }
+
+      const adminLiveMatch = path.match(/^\/api\/admin\/matches\/(\d+)\/live$/);
+      if (adminLiveMatch) {
+        return await handleAdminMatchLive(request, env, adminLiveMatch[1]);
       }
 
       if (path === "/api/admin/users") {
