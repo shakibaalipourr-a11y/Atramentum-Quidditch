@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>قوانین کوییدیچ | Atramentum</title>
+    <meta name="theme-color" content="#080808">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
 
@@ -15,14 +19,9 @@
             padding: 0;
         }
 
-        body {
-            font-family: Tahoma, Arial, sans-serif;
-            background:
-                radial-gradient(circle at top, #202020 0%, #080808 45%, #030303 100%);
-            color: #f5f5f5;
-            min-height: 100vh;
-            line-height: 1.9;
-        }
+        body{min-height:100vh;background:radial-gradient(ellipse at 50% 0%,rgba(120,83,31,.16),transparent 42%),#080808;color:#eee9df;font-family:Vazirmatn,Tahoma,Arial,sans-serif;line-height:1.9}
+        body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.16;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 80%)}
+        body>*{position:relative;z-index:1}
 
         /* =========================
            HEADER
@@ -79,7 +78,7 @@
         .topbar nav a{color:#aaa398;text-decoration:none;transition:color .2s}
         .topbar nav a:hover,.topbar nav a.active{color:#e4c783}
         header.topbar{padding:0 5%;text-align:initial;background:rgba(8,8,8,.88);border-bottom:1px solid rgba(215,189,133,.18)}
-        @media(max-width:700px){.topbar{height:auto;min-height:70px;padding:14px 4%;align-items:flex-start;gap:12px;flex-direction:column}.topbar nav{width:100%;gap:18px;overflow-x:auto;white-space:nowrap;padding-bottom:3px}.topbar nav a{flex:none;font-size:12px}.atr-menu-button{top:12px!important;right:12px!important}.topbar{padding-right:78px!important}}
+        @media(max-width:700px){.topbar{height:auto;min-height:76px;padding:14px 4%;align-items:center;gap:14px;flex-direction:row;flex-wrap:wrap}.topbar nav{width:100%;gap:22px;overflow-x:auto;white-space:nowrap;padding:8px 2px 5px}.topbar nav a{flex:none;font-size:14px}.atr-menu-button{top:12px!important;right:12px!important}.topbar{padding-right:78px!important}}
         /* =========================
            MAIN
         ========================= */
@@ -458,7 +457,7 @@
     <a href="stadiums.html"><span class="atr-menu-icon">🏟️</span><span>ورزشگاه</span></a>
     <a href="waiting-room.html"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
     <a href="profile.html"><span class="atr-menu-icon">👤</span><span>پروفایل بازیکن</span></a>
-    <a href="leaderboard.html" class="current" aria-current="page"><span class="atr-menu-icon">🏆</span><span>جدول امتیازات</span></a>
+    <a href="leaderboard.html"><span class="atr-menu-icon">🏆</span><span>جدول امتیازات</span></a>
     <a href="rules.html" class="current" aria-current="page"><span class="atr-menu-icon">📜</span><span>قوانین</span></a>
     <a href="about.html"><span class="atr-menu-icon">✨</span><span>درباره آترامنتوم</span></a>
     <a href="admin.html"><span class="atr-menu-icon">♛</span><span>پنل مدیران و داوران</span></a>
