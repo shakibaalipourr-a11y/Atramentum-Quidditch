@@ -1264,7 +1264,7 @@
       }
 
       async function syncLiveMatch(){
-        const token=localStorage.getItem("atramentumSession");
+        const token=localStorage.getItem("atramentumSession")||adminToken();
         if(!token)return;
         try{
           const listResponse=await fetch("/api/matches",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
