@@ -1155,7 +1155,7 @@
       const stands=new THREE.Group();stands.scale.set(1.42,1,.92);scene.add(stands);
       [{t:48,b:57,h:7,y:7,c:0x25251e},{t:41,b:49,h:6,y:13,c:0x343026},{t:35,b:42,h:5,y:18,c:0x222a24}].forEach(v=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(v.t,v.b,v.h,112,1,true),new THREE.MeshStandardMaterial({color:v.c,roughness:.82,side:THREE.DoubleSide}));m.position.y=v.y;m.receiveShadow=true;stands.add(m)});
       [4,10,16,21].forEach((y,i)=>{const ring=new THREE.Mesh(new THREE.TorusGeometry(50-i*4.3,.32,8,128),new THREE.MeshStandardMaterial({color:0xc5a164,metalness:.72,roughness:.32,emissive:0x4a3210,emissiveIntensity:.18}));ring.rotation.x=Math.PI/2;ring.scale.set(1.42,.92,1);ring.position.y=y;scene.add(ring)});
-      const field=new THREE.Mesh(new THREE.PlaneGeometry(78,30),new THREE.MeshStandardMaterial({color:0x245337,roughness:.94,side:THREE.DoubleSide}));field.rotation.x=-Math.PI/2;field.position.y=.05;field.receiveShadow=true;scene.add(field);
+      const field=new THREE.Mesh(new THREE.PlaneGeometry(78,30),new THREE.MeshStandardMaterial({color:arena.grass,roughness:.94,side:THREE.DoubleSide}));field.rotation.x=-Math.PI/2;field.position.y=.05;field.receiveShadow=true;scene.add(field);
       const lineMat=new THREE.LineBasicMaterial({color:0xd7c18f,transparent:true,opacity:.8});
       function line(x,z,X,Z){scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,.12,z),new THREE.Vector3(X,.12,Z)]),lineMat))}
       line(-39,-15,39,-15);line(-39,15,39,15);line(-39,-15,-39,15);line(39,-15,39,15);line(0,-15,0,15);
