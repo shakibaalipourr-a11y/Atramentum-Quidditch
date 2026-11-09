@@ -116,9 +116,9 @@
   <nav class="atr-side-menu" id="atrSideMenu" aria-label="منوی اصلی آترامنتوم">
     <div class="atr-menu-heading">ATRAMENTUM</div>
     <a href="index.html"><span class="atr-menu-icon">🏠</span><span>صفحه اصلی</span></a>
-    <a href="index.html#houses"><span class="atr-menu-icon">🛡️</span><span>گروه‌ها</span></a>
+    <a href="houses.html"><span class="atr-menu-icon">🛡️</span><span>گروه‌ها</span></a>
     <a href="stadium.html"><span class="atr-menu-icon">🏟️</span><span>ورزشگاه</span></a>
-    <a href="index.html#quidditch"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
+    <a href="waiting-room.html"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
     <a href="profile.html"><span class="atr-menu-icon">👤</span><span>پروفایل بازیکن</span></a>
     <a href="leaderboard.html" class="current" aria-current="page"><span class="atr-menu-icon">🏆</span><span>جدول امتیازات</span></a>
     <a href="rules.html"><span class="atr-menu-icon">📜</span><span>قوانین</span></a>
@@ -264,5 +264,5 @@ button.addEventListener("click",()=>menu.classList.contains("open")?close():open
 })();
 </script>
 
-</body>
+<script>(()=>{const token=localStorage.getItem("atramentumSession");if(!token)return;const beat=()=>fetch("/api/presence",{method:"POST",headers:{Authorization:"Bearer "+token},cache:"no-store"}).catch(()=>{});beat();setInterval(beat,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()});})();</script></body>
 </html>
