@@ -1152,9 +1152,9 @@
       const moon=new THREE.DirectionalLight(0xffe2ad,2.6);moon.position.set(-35,65,25);moon.castShadow=true;moon.shadow.mapSize.set(1024,1024);scene.add(moon);
       const glow=new THREE.PointLight(0x3eaa76,65,100);glow.position.set(15,22,-20);scene.add(glow);
       const floor=new THREE.Mesh(new THREE.CircleGeometry(82,96),new THREE.MeshStandardMaterial({color:0x101c16,roughness:.95}));floor.rotation.x=-Math.PI/2;floor.position.y=-.7;floor.receiveShadow=true;scene.add(floor);
-      const stands=new THREE.Group();stands.scale.set(1.42,1,.92);scene.add(stands);
+      const stands=new THREE.Group();stands.scale.set(1.42,1,.92);stands.visible=arenaId==="grand";scene.add(stands);
       [{t:48,b:57,h:7,y:7,c:0x25251e},{t:41,b:49,h:6,y:13,c:0x343026},{t:35,b:42,h:5,y:18,c:0x222a24}].forEach(v=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(v.t,v.b,v.h,112,1,true),new THREE.MeshStandardMaterial({color:v.c,roughness:.82,side:THREE.DoubleSide}));m.position.y=v.y;m.receiveShadow=true;stands.add(m)});
-      [4,10,16,21].forEach((y,i)=>{const ring=new THREE.Mesh(new THREE.TorusGeometry(50-i*4.3,.32,8,128),new THREE.MeshStandardMaterial({color:0xc5a164,metalness:.72,roughness:.32,emissive:0x4a3210,emissiveIntensity:.18}));ring.rotation.x=Math.PI/2;ring.scale.set(1.42,.92,1);ring.position.y=y;scene.add(ring)});
+      const imperialRings=new THREE.Group();scene.add(imperialRings);[4,10,16,21].forEach((y,i)=>{const ring=new THREE.Mesh(new THREE.TorusGeometry(50-i*4.3,.32,8,128),new THREE.MeshStandardMaterial({color:0xc5a164,metalness:.72,roughness:.32,emissive:0x4a3210,emissiveIntensity:.18}));ring.rotation.x=Math.PI/2;ring.scale.set(1.42,.92,1);ring.position.y=y;imperialRings.add(ring)});imperialRings.visible=arenaId==="grand";
       const field=new THREE.Mesh(new THREE.PlaneGeometry(78,30),new THREE.MeshStandardMaterial({color:arena.grass,roughness:.94,side:THREE.DoubleSide}));field.rotation.x=-Math.PI/2;field.position.y=.05;field.receiveShadow=true;scene.add(field);
       const lineMat=new THREE.LineBasicMaterial({color:0xd7c18f,transparent:true,opacity:.8});
       function line(x,z,X,Z){scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,.12,z),new THREE.Vector3(X,.12,Z)]),lineMat))}
@@ -1226,6 +1226,39 @@
       // Distinct animated architecture for each arena variant.
       const arenaDecorations=[];
       function addArenaDecoration(mesh){scene.add(mesh);arenaDecorations.push(mesh);return mesh}
+      // Each arena now has its own structural silhouette; the playing pitch stays dimensionally identical for live coordinates.
+      if(arenaId==="obsidian"){
+        const basalt=new THREE.MeshStandardMaterial({color:0x202735,metalness:.72,roughness:.3});
+        for(let side=0;side<4;side++){
+          const arc=addArenaDecoration(new THREE.Mesh(new THREE.TorusGeometry(54,4.2,10,48,Math.PI/2-.13),basalt));
+          arc.rotation.x=Math.PI/2;arc.rotation.y=side*Math.PI/2;arc.scale.set(1.28,.9,1);arc.position.y=10+(side%2)*2;
+          const plinth=addArenaDecoration(new THREE.Mesh(new THREE.BoxGeometry(15,7,8),basalt));
+          const a=side*Math.PI/2;plinth.position.set(Math.cos(a)*62,4,Math.sin(a)*43);plinth.rotation.y=-a;
+        }
+      }else if(arenaId==="aurora"){
+        const ice=new THREE.MeshStandardMaterial({color:0x3a7880,metalness:.55,roughness:.24,transparent:true,opacity:.88});
+        const skyWalk=addArenaDecoration(new THREE.Mesh(new THREE.TorusGeometry(59,2.1,10,128),ice));
+        skyWalk.rotation.x=Math.PI/2;skyWalk.scale.set(1.3,.88,1);skyWalk.position.y=27;
+        for(let i=0;i<8;i++){
+          const a=i*Math.PI/4,x=Math.cos(a)*61,z=Math.sin(a)*43;
+          const support=addArenaDecoration(new THREE.Mesh(new THREE.CylinderGeometry(.55,.9,25,10),ice));
+          support.position.set(x,13,z);
+          const platform=addArenaDecoration(new THREE.Mesh(new THREE.CylinderGeometry(5,5,1.4,24),ice));
+          platform.position.set(x,26,z);
+        }
+      }else if(arenaId==="ember"){
+        const fortress=new THREE.MeshStandardMaterial({color:0x493027,metalness:.42,roughness:.7});
+        const crown=new THREE.MeshStandardMaterial({color:0xb46a3c,metalness:.68,roughness:.34,emissive:0x351307,emissiveIntensity:.22});
+        for(let i=0;i<8;i++){
+          const a=i*Math.PI/4,x=Math.cos(a)*67,z=Math.sin(a)*47;
+          const tower=addArenaDecoration(new THREE.Mesh(new THREE.CylinderGeometry(3.1,4.2,19,8),fortress));
+          tower.position.set(x,9.5,z);
+          const cap=addArenaDecoration(new THREE.Mesh(new THREE.ConeGeometry(4.1,6,8),crown));
+          cap.position.set(x,22,z);
+          const beacon=addArenaDecoration(new THREE.Mesh(new THREE.SphereGeometry(1.05,12,10),new THREE.MeshBasicMaterial({color:0xff9b4a})));
+          beacon.position.set(x,26,z);beacon.userData.flame=true;beacon.userData.floatPhase=i*.8;
+        }
+      }
       if(arenaId==="obsidian"){
         const crystalMat=new THREE.MeshStandardMaterial({color:0x647da8,metalness:.8,roughness:.22,emissive:0x172d58,emissiveIntensity:.8});
         for(let i=0;i<12;i++){const a=i*Math.PI/6,x=Math.cos(a)*59,z=Math.sin(a)*39;const crystal=addArenaDecoration(new THREE.Mesh(new THREE.ConeGeometry(2.1,12+(i%3)*3,5),crystalMat));crystal.position.set(x,7,z);crystal.rotation.z=.12*Math.sin(i);crystal.userData.floatPhase=i*.7}
