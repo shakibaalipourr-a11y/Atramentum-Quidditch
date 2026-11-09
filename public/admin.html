@@ -117,6 +117,18 @@
             <div class="full"><label for="matchEventText">شرح رویداد مسابقه</label><input id="matchEventText" maxlength="240" placeholder="مثلاً گل ثبت شد"></div>
             <button type="button" class="btn secondary full" id="saveMatchEvent">ثبت رویداد</button>
           </div>
+          <section class="provision" id="formationTools">
+            <h2>چیدمان زنده بازیکنان در زمین</h2>
+            <p class="hint">یکی از آرایش‌های آماده را انتخاب کن تا جای ۱۴ بازیکن دو گروه روی زمین منتشر شود. این بخش فقط برای داوران و مدیر کل فعال است.</p>
+            <label for="formationPreset">نوع آرایش زمین</label>
+            <select id="formationPreset">
+              <option value="balanced">آرایش متعادل</option>
+              <option value="attack">آرایش هجومی</option>
+              <option value="defense">آرایش دفاعی</option>
+            </select>
+            <button type="button" class="btn" id="publishFormation">انتشار چیدمان در ورزشگاه</button>
+            <div class="message" id="formationMessage" role="status"></div>
+          </section>
           <div class="message" id="matchMessage" role="status"></div>
           <div class="hint" id="matchRevision"></div>
         </div>
@@ -163,6 +175,7 @@
     $("roleDescription").textContent=currentAdmin.role==="super_admin"?"دسترسی کامل مدیریتی و مدیریت حساب‌های رسمی.":currentAdmin.role==="house_admin"?"دسترسی مدیریتی محدود به گروه "+(teamNames[currentAdmin.teamId]||"اختصاص‌یافته")+".":"حساب رسمی داوری مسابقات آترامنتوم.";
     show(dashboard);
     $("fixtureTools").classList.toggle("hidden",currentAdmin.role!=="super_admin");
+    $("formationTools").classList.toggle("hidden",!["super_admin","referee"].includes(currentAdmin.role));
     await loadMatches();
     if(currentAdmin.role==="super_admin"){ $("superTools").classList.remove("hidden"); await loadUsers(); }
     else {$("superTools").classList.add("hidden");$("roleNote").textContent="عملیات مسابقه بر اساس نقش و محدودهٔ گروه شما در سمت سرور کنترل می‌شود.";}
@@ -226,6 +239,32 @@
     catch{message("matchMessage","ارتباط با سرور برقرار نشد.","error");}
   }
   document.querySelectorAll("[data-match-status]").forEach(button=>button.addEventListener("click",()=>sendMatchAction({action:"status",status:button.dataset.matchStatus})));
+  $("publishFormation").addEventListener("click",async()=>{
+    if(!selectedMatch)return message("formationMessage","ابتدا یک مسابقه را انتخاب کن.","error");
+    if(!currentAdmin||!["super_admin","referee"].includes(currentAdmin.role))
+      return message("formationMessage","فقط داور و مدیر کل اجازه انتشار چیدمان را دارند.","error");
+    const layouts={
+      balanced:[[-12,8,-8],[-9,10,0],[-12,8,8],[-21,13,-9],[-21,13,9],[-34,5,0],[-2,17,0]],
+      attack:[[-4,10,-8],[-2,12,0],[-4,10,8],[-15,13,-9],[-15,13,9],[-34,5,0],[-1,20,0]],
+      defense:[[-18,8,-8],[-15,10,0],[-18,8,8],[-25,13,-9],[-25,13,9],[-34,5,0],[-8,16,0]]
+    };
+    const template=layouts[$("formationPreset").value]||layouts.balanced;
+    const positions=[];
+    for(const [teamId,side] of [[selectedMatch.home_team_id,-1],[selectedMatch.away_team_id,1]]){
+      template.forEach(([x,y,z])=>positions.push({teamId,x:Math.abs(x)*side,y,z}));
+    }
+    const balls=[{kind:"snitch",x:0,y:16,z:0}];
+    const button=$("publishFormation");button.disabled=true;
+    message("formationMessage","در حال انتشار چیدمان...");
+    try{
+      const response=await matchApi(selectedMatch.id,{action:"positions",positions,balls});
+      const data=await response.json();
+      if(!response.ok||!data.success){message("formationMessage",data.message||"انتشار چیدمان ناموفق بود.","error");return;}
+      message("formationMessage","چیدمان با موفقیت منتشر شد؛ ورزشگاه پس از همگام‌سازی آن را نمایش می‌دهد.","success");
+      $("matchRevision").textContent="چیدمان تازه برای مسابقه #"+selectedMatch.id+" منتشر شد.";
+    }catch{message("formationMessage","ارتباط با سرور برقرار نشد.","error");}
+    finally{button.disabled=false;}
+  });
   $("saveScores").addEventListener("click",async()=>{
     if(!selectedMatch)return;
     const scores=[];
