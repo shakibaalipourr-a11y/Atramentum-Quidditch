@@ -1043,9 +1043,10 @@
     }
 
     async function loadStadium() {
-      const token = localStorage.getItem("atramentumSession");
+      const playerToken = localStorage.getItem("atramentumSession");
+      const adminSession = sessionStorage.getItem("atramentumAdminSession");
 
-      if (!token) {
+      if (!playerToken && !adminSession) {
         window.location.replace("index.html");
         return;
       }
@@ -1055,36 +1056,49 @@
       stadiumContent.style.display = "none";
 
       try {
-        const response = await fetch("/api/profile", {
-          method: "GET",
-          headers: {
-            "Authorization": "Bearer " + token
-          },
-          cache: "no-store"
-        });
+        if (playerToken) {
+          const playerResponse = await fetch("/api/profile", {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + playerToken },
+            cache: "no-store"
+          });
 
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem("atramentumSession");
-          window.location.replace("index.html");
-          return;
+          if (playerResponse.ok) {
+            const playerData = await playerResponse.json();
+            if (playerData.success && playerData.playerId) {
+              renderPlayer(playerData);
+              stadiumContent.style.display = "block";
+              errorBox.style.display = "none";
+              hideLoading();
+              return;
+            }
+          } else if (playerResponse.status === 401 || playerResponse.status === 403) {
+            localStorage.removeItem("atramentumSession");
+          }
         }
 
-        if (!response.ok) {
-          throw new Error("دریافت اطلاعات بازیکن از سرور ناموفق بود.");
+        if (adminSession) {
+          const adminResponse = await fetch("/api/admin/me", {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + adminSession },
+            cache: "no-store"
+          });
+          if (adminResponse.ok) {
+            const adminData = await adminResponse.json();
+            if (adminData.success && adminData.admin) {
+              document.getElementById("currentHouseStatus").innerText =
+                "ورود رسمی: " + (adminData.admin.displayName || adminData.admin.username);
+              stadiumContent.style.display = "block";
+              errorBox.style.display = "none";
+              hideLoading();
+              return;
+            }
+          } else if (adminResponse.status === 401 || adminResponse.status === 403) {
+            sessionStorage.removeItem("atramentumAdminSession");
+          }
         }
 
-        const data = await response.json();
-
-        if (!data.success || !data.playerId) {
-          throw new Error("اطلاعات بازیکن معتبر نیست.");
-        }
-
-        renderPlayer(data);
-
-        stadiumContent.style.display = "block";
-        errorBox.style.display = "none";
-        hideLoading();
-
+        window.location.replace("index.html");
       } catch (error) {
         showError(error.message || "ارتباط با سرور برقرار نشد.");
       }
