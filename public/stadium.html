@@ -877,7 +877,7 @@ main.container>.section{padding-top:12px}
 
       <div class="arena arena-3d-shell">
         <div id="arena3d" role="img" aria-label="نمای سه‌بعدی ورزشگاه کوییدیچ آترامنتوم"></div>
-        <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span id="arenaLiveLabel">ورزشگاه آترامنتوم · آمادهٔ مسابقه</span><span class="arena-3d-hint">حرکت دوربین: لمس و کشیدن · زوم: دو انگشت</span></div>
+        <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span id="arenaLiveLabel">ورزشگاه آترامنتوم · آمادهٔ مسابقه</span><span class="arena-3d-hint">شمارهٔ بازیکن و نقش او روی نشان پیراهن · جای‌گیری با چیدمان زنده</span></div>
         <div class="game-scoreboard"><span class="game-team" id="homeTeamLabel">میزبان</span><span class="game-score" id="gameScore">0 : 0</span><span class="game-team" id="awayTeamLabel">میهمان</span><span class="game-clock" id="gameClock">00:00</span></div>
         <div class="game-event-feed" id="gameEventFeed"><span>رویدادهای مسابقه در اینجا نمایش داده می‌شوند</span></div>
         <div class="referee-panel" id="refereePanel" hidden>
@@ -1143,6 +1143,7 @@ main.container>.section{padding-top:12px}
     loadStadium();
   </script>
 
+  <script>if(!new URLSearchParams(location.search).get("arena"))location.replace("stadiums.html");</script>
   <script type="importmap">
     {
       "imports": {
@@ -1158,7 +1159,7 @@ main.container>.section{padding-top:12px}
       const THREE=await import("three");
       const {OrbitControls}=await import("three/addons/controls/OrbitControls.js");
 
-      const arenaId=new URLSearchParams(location.search).get("arena")||"grand";
+      const arenaId=new URLSearchParams(location.search).get("arena");
       const arenaThemes={
         grand:{title:"GRAND IMPERIAL ARENA",bg:0x07100d,fog:0x07100d,grass:0x173c2b},
         obsidian:{title:"OBSIDIAN NIGHT ARENA",bg:0x090a12,fog:0x090a12,grass:0x202b3d},
@@ -1295,7 +1296,7 @@ main.container>.section{padding-top:12px}
       }else if(arenaId==="ember"){
         for(let i=0;i<10;i++){const a=i*Math.PI/5,x=Math.cos(a)*57,z=Math.sin(a)*36;const pillar=addArenaDecoration(new THREE.Mesh(new THREE.CylinderGeometry(.65,1.1,13,8),new THREE.MeshStandardMaterial({color:0x533024,metalness:.45,roughness:.55})));pillar.position.set(x,6.5,z);const flame=addArenaDecoration(new THREE.Mesh(new THREE.SphereGeometry(1.35,12,10),new THREE.MeshBasicMaterial({color:0xff8b35,transparent:true,opacity:.8})));flame.position.set(x,14,z);flame.userData.flame=true;flame.userData.floatPhase=i}
       }
-      const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);if(document.hidden)return;const t=clock.getElapsedTime();players.forEach(p=>{if(p.userData.serverDriven&&p.userData.targetPosition){p.position.lerp(p.userData.targetPosition,.14)}else{p.position.y=p.userData.base+Math.sin(t*1.15+p.userData.phase)*.28}p.rotation.z=Math.sin(t*.45+p.userData.phase)*.025;p.rotation.x=Math.sin(t*.5+p.userData.phase)*.018});balls.forEach((b,i)=>{if(!b.userData.serverDriven){b.position.y=(i===2?16:10+i*3)+Math.sin(t*(1.0+i*.2)+i)*(i===2?1.2:.4);b.position.x=i===2?2+Math.sin(t*.7)*6:b.position.x}});wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*10+i*Math.PI)*.28});referee.rotation.y=Math.sin(t*.5)*.04;controls.update();renderer.render(scene,camera)}animate();
+      const clock=new THREE.Clock();let renderFrame=0;function animate(){requestAnimationFrame(animate);if(document.hidden)return;if(++renderFrame%2)return;const t=clock.getElapsedTime();players.forEach(p=>{if(p.userData.serverDriven&&p.userData.targetPosition){p.position.lerp(p.userData.targetPosition,.14)}else{p.position.y=p.userData.base+Math.sin(t*1.15+p.userData.phase)*.28}p.rotation.z=Math.sin(t*.45+p.userData.phase)*.025;p.rotation.x=Math.sin(t*.5+p.userData.phase)*.018});balls.forEach((b,i)=>{if(!b.userData.serverDriven){b.position.y=(i===2?16:10+i*3)+Math.sin(t*(1.0+i*.2)+i)*(i===2?1.2:.4);b.position.x=i===2?2+Math.sin(t*.7)*6:b.position.x}});wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*10+i*Math.PI)*.28});referee.rotation.y=Math.sin(t*.5)*.04;controls.update();renderer.render(scene,camera)}animate();
       const liveLabel=document.getElementById("arenaLiveLabel");
       let liveMatchId=null,liveRevision=-1,currentGameState={elapsed_seconds:0,clock_running:0},currentAdmin=null;
       const adminToken=()=>sessionStorage.getItem("atramentumAdminSession");
