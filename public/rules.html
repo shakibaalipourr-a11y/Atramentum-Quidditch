@@ -56,151 +56,30 @@
             font-size: 18px;
         }
 
-        /* =========================
-           MENU BUTTON
-        ========================= */
+/* Shared Atramentum navigation drawer — available on every page */
+.atr-menu-button{position:fixed!important;top:18px!important;right:18px!important;z-index:10004!important;width:52px!important;height:52px!important;display:grid!important;place-items:center!important;border:1px solid rgba(215,189,133,.58)!important;border-radius:14px!important;background:rgba(12,14,17,.94)!important;color:#e4c783!important;font-size:27px!important;line-height:1!important;cursor:pointer!important;box-shadow:0 8px 28px rgba(0,0,0,.38)!important;backdrop-filter:blur(14px)!important}
+.atr-menu-button:hover{background:rgba(39,34,24,.98)!important;border-color:#e4c783!important}
+.atr-menu-overlay{position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.62);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+.atr-menu-overlay.open{opacity:1;visibility:visible}
+.atr-side-menu{position:fixed;top:0;right:0;z-index:10003;width:min(330px,88vw);height:100vh;height:100dvh;overflow-y:auto;padding:92px 22px 28px;background:linear-gradient(165deg,rgba(18,20,22,.99),rgba(7,9,10,.99));border-left:1px solid rgba(215,189,133,.3);box-shadow:-18px 0 55px rgba(0,0,0,.5);transform:translateX(105%);transition:transform .3s ease;direction:rtl}
+.atr-side-menu.open{transform:translateX(0)}
+/* Prevent the page-wide nav flex rule from turning the drawer into a horizontal row */
+.atr-side-menu{display:block!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;color:#d2d0c9!important}
+.atr-menu-heading{padding:0 12px 20px;margin-bottom:15px;border-bottom:1px solid rgba(215,189,133,.22);color:#e4c783;font:800 18px Georgia,serif;letter-spacing:2px}
+.atr-side-menu a{display:flex;align-items:center;gap:12px;min-height:48px;margin:5px 0;padding:11px 14px;border:1px solid transparent;border-radius:11px;color:#d2d0c9;text-decoration:none;font-size:14px;line-height:1.7;transition:background .2s,border-color .2s,color .2s}
+.atr-side-menu a:hover,.atr-side-menu a.current{background:rgba(215,189,133,.12);border-color:rgba(215,189,133,.25);color:#f0d79d}
+.atr-menu-icon{width:25px;text-align:center;font-size:18px}
+.navbar,.topbar{padding-right:88px!important}.navbar .menu-toggle{display:none!important}
+@media(max-width:700px){.atr-menu-button{top:12px!important;right:12px!important;width:50px!important;height:50px!important}.atr-side-menu{padding-top:82px}.navbar{padding-right:78px!important}.navbar .menu-toggle{display:none!important}.topbar{padding-right:78px!important}}
 
-        .menu-btn {
-            position: fixed;
-            top: 22px;
-            right: 22px;
-            z-index: 1001;
 
-            width: 54px;
-            height: 54px;
-
-            border: 1px solid #555;
-            border-radius: 14px;
-
-            background: rgba(12,12,12,0.92);
-            color: white;
-
-            font-size: 28px;
-            cursor: pointer;
-
-            box-shadow: 0 0 25px rgba(255,255,255,0.08);
-
-            transition: 0.25s;
-        }
-
-        .menu-btn:hover {
-            transform: scale(1.05);
-            background: #181818;
-        }
-
-        /* =========================
-           SIDE MENU
-        ========================= */
-
-        .side-menu {
-            position: fixed;
-
-            top: 0;
-            right: -350px;
-
-            width: 330px;
-            height: 100vh;
-
-            z-index: 1000;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #111,
-                    #070707
-                );
-
-            border-left: 1px solid #444;
-
-            box-shadow:
-                -15px 0 50px rgba(0,0,0,0.7);
-
-            transition: right 0.35s ease;
-
-            padding: 25px;
-
-            overflow-y: auto;
-        }
-
-        .side-menu.open {
-            right: 0;
-        }
-
-        .menu-header {
-            display: flex;
-            align-items: center;
-
-            padding-bottom: 20px;
-
-            border-bottom: 1px solid #333;
-        }
-
-        .menu-header span {
-            font-size: 30px;
-            margin-left: 10px;
-        }
-
-        .menu-header h2 {
-            font-size: 19px;
-            letter-spacing: 2px;
-        }
-
-        .close-btn {
-            margin-right: auto;
-
-            background: none;
-            border: none;
-
-            color: #aaa;
-
-            font-size: 32px;
-
-            cursor: pointer;
-        }
-
-        .menu-items {
-            display: flex;
-            flex-direction: column;
-
-            gap: 10px;
-
-            margin-top: 30px;
-        }
-
-        .menu-items a {
-            display: flex;
-            align-items: center;
-
-            gap: 18px;
-
-            padding: 17px 16px;
-
-            color: #eee;
-
-            text-decoration: none;
-
-            font-size: 19px;
-            font-weight: 600;
-
-            border-radius: 14px;
-
-            background: rgba(255,255,255,0.04);
-
-            transition: 0.25s;
-        }
-
-        .menu-items a:hover {
-            background: rgba(255,255,255,0.1);
-
-            transform: translateX(-6px);
-        }
-
-        .menu-items a span:first-child {
-            font-size: 26px;
-          width: 34px;
-            text-align: center;
-        }
-
+        .topbar{height:76px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(215,189,133,.18);background:rgba(8,8,8,.88);backdrop-filter:blur(18px);position:sticky;top:0;z-index:100}
+        .topbar .logo{font-family:Georgia,serif;font-size:19px;font-weight:800;letter-spacing:3px;color:#e4c783;text-decoration:none}
+        .topbar nav{display:flex;align-items:center;gap:25px;color:#aaa398;font-size:12px}
+        .topbar nav a{color:#aaa398;text-decoration:none;transition:color .2s}
+        .topbar nav a:hover,.topbar nav a.active{color:#e4c783}
+        header.topbar{padding:0 5%;text-align:initial;background:rgba(8,8,8,.88);border-bottom:1px solid rgba(215,189,133,.18)}
+        @media(max-width:700px){.topbar{height:auto;min-height:70px;padding:14px 4%;align-items:flex-start;gap:12px;flex-direction:column}.topbar nav{width:100%;gap:18px;overflow-x:auto;white-space:nowrap;padding-bottom:3px}.topbar nav a{flex:none;font-size:12px}.atr-menu-button{top:12px!important;right:12px!important}.topbar{padding-right:78px!important}}
         /* =========================
            MAIN
         ========================= */
@@ -570,77 +449,33 @@
 
 <body>
 
-    <!-- =========================
-         MENU
-    ========================= -->
+<button class="atr-menu-button" id="atrMenuButton" type="button" aria-label="باز کردن منوی سایت" aria-controls="atrSideMenu" aria-expanded="false">☰</button>
+  <div class="atr-menu-overlay" id="atrMenuOverlay"></div>
+  <nav class="atr-side-menu" id="atrSideMenu" aria-label="منوی اصلی آترامنتوم">
+    <div class="atr-menu-heading">ATRAMENTUM</div>
+    <a href="index.html"><span class="atr-menu-icon">🏠</span><span>صفحه اصلی</span></a>
+    <a href="houses.html"><span class="atr-menu-icon">🛡️</span><span>گروه‌ها</span></a>
+    <a href="stadiums.html"><span class="atr-menu-icon">🏟️</span><span>ورزشگاه</span></a>
+    <a href="waiting-room.html"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
+    <a href="profile.html"><span class="atr-menu-icon">👤</span><span>پروفایل بازیکن</span></a>
+    <a href="leaderboard.html" class="current" aria-current="page"><span class="atr-menu-icon">🏆</span><span>جدول امتیازات</span></a>
+    <a href="rules.html" class="current" aria-current="page"><span class="atr-menu-icon">📜</span><span>قوانین</span></a>
+    <a href="about.html"><span class="atr-menu-icon">✨</span><span>درباره آترامنتوم</span></a>
+    <a href="admin.html"><span class="atr-menu-icon">♛</span><span>پنل مدیران و داوران</span></a>
+  </nav>
 
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <header class="topbar">
+    <a class="logo" href="index.html">ATRAMENTUM</a>
+    <nav aria-label="ناوبری اصلی">
+      <a href="stadiums.html">ورزشگاه</a>
+      <a href="leaderboard.html">جدول امتیازات</a>
+      <a href="rules.html" class="active" aria-current="page">قوانین</a>
+      <a href="about.html">درباره ما</a>
+      <a href="profile.html">پروفایل</a>
+    </nav>
+  </header>
 
-    <div class="side-menu" id="sideMenu">
-
-        <div class="menu-header">
-
-            <span>⚡️</span>
-
-            <h2>ATRAMENTUM</h2>
-
-            <button
-                class="close-btn"
-                onclick="toggleMenu()">
-                ×
-            </button>
-
-        </div>
-
-        <div class="menu-items">
-
-            <a href="index.html">
-                <span>🏠</span>
-                <span>خانه</span>
-            </a>
-
-            <a href="stadiums.html">
-                <span>🏟</span>
-                <span>میدان کوییدیچ</span>
-            </a>
-
-            <a href="houses.html">
-                <span>🛡</span>
-                <span>تیم‌ها</span>
-            </a>
-
-            <a href="profile.html">
-                <span>👤</span>
-                <span>پروفایل</span>
-            </a>
-
-            <a href="leaderboard.html">
-                <span>🏆</span>
-                <span>رده‌بندی</span>
-            </a>
-
-            <a href="waiting-room.html">
-                <span>⚔️</span>
-                <span>کوییدیچ و مسابقات</span>
-            </a>
-
-            <a href="rules.html" class="current" aria-current="page">
-                <span>📜</span>
-                <span>قوانین</span>
-            </a>
-
-            <a href="about.html">
-                <span>✨</span>
-                <span>درباره آترامنتوم</span>
-            </a>
-
-            <a href="admin.html"><span>♛</span><span>پنل مدیران و داوران</span></a>
-
-        </div>
-
-    </div>
-
-    <!-- =========================
+      <!-- =========================
          HEADER
     ========================= -->
   <header>
@@ -1015,16 +850,13 @@
          JAVASCRIPT
     ========================= -->
 
-    <script>
-
-        function toggleMenu() {
-
-            const menu =
-                document.getElementById("sideMenu");
-          menu.classList.toggle("open");
-
-        }
-        </script>
+<script>
+(()=>{const button=document.getElementById("atrMenuButton"),menu=document.getElementById("atrSideMenu"),overlay=document.getElementById("atrMenuOverlay");if(!button||!menu||!overlay)return;
+const close=()=>{menu.classList.remove("open");overlay.classList.remove("open");button.setAttribute("aria-expanded","false");button.setAttribute("aria-label","باز کردن منوی سایت");button.textContent="☰";};
+const open=()=>{menu.classList.add("open");overlay.classList.add("open");button.setAttribute("aria-expanded","true");button.setAttribute("aria-label","بستن منوی سایت");button.textContent="×";};
+button.addEventListener("click",()=>menu.classList.contains("open")?close():open());overlay.addEventListener("click",close);menu.querySelectorAll("a").forEach(a=>a.addEventListener("click",close));document.addEventListener("keydown",e=>{if(e.key==="Escape")close();});
+})();
+</script>
 
 <script>(()=>{const token=localStorage.getItem("atramentumSession");if(!token)return;const beat=()=>fetch("/api/presence",{method:"POST",headers:{Authorization:"Bearer "+token},cache:"no-store"}).catch(()=>{});beat();setInterval(beat,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()});})();</script></body>
 
