@@ -1194,51 +1194,40 @@ main.container>.section{padding-top:12px}
       const players=[];
       const teamIds=["gryffindor","slytherin","hufflepuff","ravenclaw"];
       const roleNames=["C","C","C","B","B","K","S"];
-      const badgeTextures=roleNames.map((role,j)=>{
-        const canvas=document.createElement("canvas");canvas.width=canvas.height=128;
-        const ctx=canvas.getContext("2d");ctx.beginPath();ctx.arc(64,64,58,0,Math.PI*2);
-        ctx.fillStyle="#f4e7c5";ctx.fill();ctx.lineWidth=8;ctx.strokeStyle="#241b12";ctx.stroke();
-        ctx.fillStyle="#17130d";ctx.textAlign="center";ctx.textBaseline="middle";
-        ctx.font="900 58px Arial";ctx.fillText(String(j+1),64,51);
-        ctx.font="700 25px Arial";ctx.fillText(role,64,99);
-        return new THREE.CanvasTexture(canvas);
+      const roleFullNames=["Chaser","Chaser","Chaser","Beater","Beater","Keeper","Seeker"];
+      const badgeTextures=teamIds.map((teamId,team)=>{
+        return roleNames.map((role,j)=>{
+          const canvas=document.createElement("canvas");canvas.width=canvas.height=128;
+          const ctx=canvas.getContext("2d");
+          ctx.beginPath();ctx.arc(64,64,58,0,Math.PI*2);
+          ctx.fillStyle="#"+colors[team].toString(16).padStart(6,"0");ctx.fill();
+          ctx.lineWidth=8;ctx.strokeStyle="#ead5a6";ctx.stroke();
+          ctx.fillStyle="#ffffff";ctx.textAlign="center";ctx.textBaseline="middle";
+          ctx.font="900 57px Arial";ctx.fillText(String(j+1),64,51);
+          ctx.font="700 24px Arial";ctx.fillText(role,64,99);
+          return new THREE.CanvasTexture(canvas);
+        });
       });
-      const broomMat=new THREE.MeshStandardMaterial({color:0x9b7542,roughness:.62});
       for(let team=0;team<4;team++)for(let j=0;j<7;j++){
-        const q=(team*7+j)/28*Math.PI*2,g=new THREE.Group();
-        const robe=new THREE.Mesh(new THREE.CylinderGeometry(.42,.62,1.35,10),new THREE.MeshStandardMaterial({color:colors[team],roughness:.5,emissive:colors[team],emissiveIntensity:.08}));robe.position.y=.05;g.add(robe);
-        const head=new THREE.Mesh(new THREE.SphereGeometry(.29,14,12),new THREE.MeshStandardMaterial({color:0xc28e70,roughness:.8}));head.position.y=.98;g.add(head);
-        const hood=new THREE.Mesh(new THREE.SphereGeometry(.31,14,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0x171b19,roughness:.8}));hood.position.y=1.05;g.add(hood);
-        const armMat=new THREE.MeshStandardMaterial({color:colors[team],roughness:.65});
-        for(const side of [-1,1]){const arm=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,.72,8),armMat);arm.position.set(side*.48,.25,.05);arm.rotation.z=side*.35;g.add(arm)}
-        const broom=new THREE.Mesh(new THREE.CylinderGeometry(.055,.035,4.2,6),broomMat);broom.rotation.z=Math.PI/2;broom.position.set(0,-.55,0);g.add(broom);
-        const numberBadge=new THREE.Sprite(new THREE.SpriteMaterial({map:badgeTextures[j],transparent:true,depthTest:false}));numberBadge.position.set(0,.34,.72);numberBadge.scale.set(.34,.34,1);g.add(numberBadge);
-        const tail=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,8),broomMat);tail.rotation.z=-Math.PI/2;tail.position.set(-2.1,-.55,0);g.add(tail);
-        g.position.set(Math.cos(q)*(10+(j%4)*6),7+(j%3)*2.5,Math.sin(q)*(8+(j%4)*4));g.scale.setScalar(2.8);g.userData={base:g.position.y,phase:team*1.7+j,teamId:teamIds[team],role:["Chaser","Chaser","Chaser","Beater","Beater","Keeper","Seeker"][j]};g.visible=false;scene.add(g);players.push(g)
+        const q=(team*7+j)/28*Math.PI*2;
+        const marker=new THREE.Sprite(new THREE.SpriteMaterial({map:badgeTextures[team][j],transparent:true,depthTest:false,depthWrite:false}));
+        marker.position.set(Math.cos(q)*(10+(j%4)*6),7+(j%3)*2.5,Math.sin(q)*(8+(j%4)*4));
+        marker.scale.set(2.15,2.15,1);
+        marker.userData={base:marker.position.y,phase:team*1.7+j,teamId:teamIds[team],role:roleFullNames[j],number:j+1};
+        marker.visible=false;scene.add(marker);players.push(marker);
       }
       // Crowd figures were removed to keep the live arena lightweight.
       const spectatorGroups=[];
-      // Referee: a distinct black-and-gold official standing at midfield.
-      const referee=new THREE.Group();
-      const refBlack=new THREE.MeshStandardMaterial({color:0x151719,roughness:.72});
-      const refGold=new THREE.MeshStandardMaterial({color:0xc8a45e,metalness:.65,roughness:.3});
-      const refSkin=new THREE.MeshStandardMaterial({color:0xb98568,roughness:.85});
-      const robe=new THREE.Mesh(new THREE.CylinderGeometry(.48,.78,1.45,16),refBlack);
-      robe.position.y=.92;referee.add(robe);
-      const robeTrim=new THREE.Mesh(new THREE.TorusGeometry(.72,.055,8,32),refGold);
-      robeTrim.rotation.x=Math.PI/2;robeTrim.position.y=.27;referee.add(robeTrim);
-      const head=new THREE.Mesh(new THREE.SphereGeometry(.31,16,12),refSkin);
-      head.position.y=1.92;referee.add(head);
-      const cap=new THREE.Mesh(new THREE.CylinderGeometry(.34,.34,.12,16),refBlack);
-      cap.position.y=2.2;referee.add(cap);
-      function refLimb(a,b,r,material){const start=new THREE.Vector3(...a),end=new THREE.Vector3(...b),delta=end.clone().sub(start);const limb=new THREE.Mesh(new THREE.CylinderGeometry(r*.78,r,delta.length(),10),material);limb.position.copy(start.add(end).multiplyScalar(.5));limb.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());referee.add(limb)}
-      refLimb([-.36,1.42,0],[-.62,.72,.02],.14,refBlack);
-      refLimb([.36,1.42,0],[.62,.72,.02],.14,refBlack);
-      refLimb([-.23,.3,0],[-.25,.08,0],.17,refBlack);
-      refLimb([.23,.3,0],[.25,.08,0],.17,refBlack);
-      const whistle=new THREE.Mesh(new THREE.CylinderGeometry(.055,.055,.16,10),refGold);
-      whistle.position.set(0,1.58,.34);referee.add(whistle);
-      referee.position.set(0,.12,0);referee.visible=false;scene.add(referee);
+      // Lightweight referee marker replaces the detailed 3D human model.
+      const refereeCanvas=document.createElement("canvas");refereeCanvas.width=refereeCanvas.height=128;
+      const refereeCtx=refereeCanvas.getContext("2d");
+      refereeCtx.beginPath();refereeCtx.arc(64,64,57,0,Math.PI*2);
+      refereeCtx.fillStyle="#c9a96e";refereeCtx.fill();
+      refereeCtx.lineWidth=8;refereeCtx.strokeStyle="#fff0c8";refereeCtx.stroke();
+      refereeCtx.fillStyle="#17130d";refereeCtx.font="900 58px Arial";
+      refereeCtx.textAlign="center";refereeCtx.textBaseline="middle";refereeCtx.fillText("د",64,65);
+      const referee=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(refereeCanvas),transparent:true,depthTest:false,depthWrite:false}));
+      referee.position.set(0,2.2,0);referee.scale.set(2.6,2.6,1);referee.visible=false;scene.add(referee);
       const balls=[[-5,10,1,0xc84a32,1.05],[9,13,-5,0x24272b,.78]].map(v=>{const m=new THREE.Mesh(new THREE.SphereGeometry(v[4],24,18),new THREE.MeshStandardMaterial({color:v[3],metalness:.25,roughness:.32,emissive:v[3],emissiveIntensity:.18}));m.position.set(v[0],v[1],v[2]);scene.add(m);return m});
       // Golden Snitch with independently animated wings.
       const snitch=new THREE.Group(),snitchGold=new THREE.MeshStandardMaterial({color:0xf5cf58,metalness:.8,roughness:.2,emissive:0xdcae26,emissiveIntensity:.65});
