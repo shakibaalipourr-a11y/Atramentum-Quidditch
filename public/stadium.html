@@ -811,7 +811,9 @@ main.container>.section{padding-top:12px}
 .topbar{height:58px;backdrop-filter:none}
 @media(max-width:700px){#arena3d{height:58vh!important;min-height:340px!important}.arena-3d-shell{border-radius:12px}}
 </style>
-</head>
+<style>
+.player-key{position:relative;z-index:5;display:flex;justify-content:center;flex-wrap:wrap;gap:7px 14px;padding:7px 12px;color:#d8cfbd;background:#080a0dcc;border-top:1px solid #c8a45e33;font-size:10px;line-height:1.7}
+</style>\n</head>
 
 <body>
 
@@ -879,7 +881,7 @@ main.container>.section{padding-top:12px}
         <div id="arena3d" role="img" aria-label="نمای سه‌بعدی ورزشگاه کوییدیچ آترامنتوم"></div>
         <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span id="arenaLiveLabel">ورزشگاه آترامنتوم · آمادهٔ مسابقه</span><span class="arena-3d-hint">شمارهٔ بازیکن و نقش او روی نشان پیراهن · جای‌گیری با چیدمان زنده</span></div>
         <div class="game-scoreboard"><span class="game-team" id="homeTeamLabel">میزبان</span><span class="game-score" id="gameScore">0 : 0</span><span class="game-team" id="awayTeamLabel">میهمان</span><span class="game-clock" id="gameClock">00:00</span></div>
-        <div class="game-event-feed" id="gameEventFeed"><span>رویدادهای مسابقه در اینجا نمایش داده می‌شوند</span></div>
+        <div class="game-event-feed" id="gameEventFeed"><span>رویدادهای مسابقه در اینجا نمایش داده می‌شوند</span></div><div class="player-key">۱ تا ۳: تعقیب‌کننده · ۴ و ۵: ضربه‌زن · ۶: دروازه‌بان · ۷: جستجوگر</div>
         <div class="referee-panel" id="refereePanel" hidden>
           <div class="referee-panel-title">⚖️ پنل داوری رسمی</div>
           <select id="refereeTeam"><option value="">انتخاب گروه</option></select>
@@ -1171,7 +1173,7 @@ main.container>.section{padding-top:12px}
       const arenaTitle=document.getElementById("arenaTitle");if(arenaTitle)arenaTitle.textContent=arena.title;
       const scene=new THREE.Scene();scene.background=new THREE.Color(arena.bg);scene.fog=new THREE.Fog(arena.fog,95,190);
       const camera=new THREE.PerspectiveCamera(43,1,.1,260);camera.position.set(60,48,66);
-      const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
+      const renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,powerPreference:"high-performance"});
       renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.15));renderer.shadowMap.enabled=false;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
       const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.055;controls.minDistance=42;controls.maxDistance=145;controls.maxPolarAngle=Math.PI*.48;controls.target.set(0,5,0);
       scene.add(new THREE.HemisphereLight(0xc7e6d3,0x10150f,2));
