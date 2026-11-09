@@ -604,7 +604,7 @@
                 <span>میدان کوییدیچ</span>
             </a>
 
-            <a href="index.html#houses">
+            <a href="houses.html">
                 <span>🛡</span>
                 <span>تیم‌ها</span>
             </a>
@@ -619,7 +619,7 @@
                 <span>رده‌بندی</span>
             </a>
 
-            <a href="index.html#quidditch">
+            <a href="waiting-room.html">
                 <span>⚔️</span>
                 <span>کوییدیچ و مسابقات</span>
             </a>
@@ -1026,6 +1026,6 @@
         }
         </script>
 
-</body>
+<script>(()=>{const token=localStorage.getItem("atramentumSession");if(!token)return;const beat=()=>fetch("/api/presence",{method:"POST",headers:{Authorization:"Bearer "+token},cache:"no-store"}).catch(()=>{});beat();setInterval(beat,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()});})();</script></body>
 
 </html>
