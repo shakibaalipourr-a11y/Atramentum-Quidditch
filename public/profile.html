@@ -562,6 +562,20 @@
         padding: 25px 18px;
       }
     }
+  
+/* Larger, aligned mobile profile layout */
+@media(max-width:850px){.container{width:96%}.profile-hero{grid-template-columns:1fr;gap:18px}.info-grid,.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){
+ .topbar{min-height:76px;height:auto;padding:12px 3%;gap:12px;align-items:center}.logo{font-size:17px;letter-spacing:2px;white-space:nowrap}
+ .header-links{flex:1;min-width:0;overflow-x:auto;white-space:nowrap;gap:16px;padding:7px 2px;scrollbar-width:thin}.header-links a,.header-links a:not(.active){display:inline-flex;font-size:13px;flex:none}.logout-button{font-size:12px;padding:10px 12px;white-space:nowrap}
+ .page-heading{padding:42px 0 24px}.page-heading h1{font-size:32px}.page-heading p{font-size:14px;line-height:2}
+ .identity-card{padding:28px 22px}.identity-top{gap:17px}.avatar{width:82px;height:82px;font-size:38px}.player-name{font-size:28px}.player-label{font-size:11px}.player-code{font-size:12px}.status-pill{font-size:12px;padding:9px 12px}
+ .info-grid,.stats-grid{gap:12px}.info-card{padding:20px 15px}.stat-card{padding:23px 13px}.info-card h3,.stat-card .label{font-size:13px}.info-card p,.stat-card .value{font-size:19px}
+ .history-panel{padding:27px 20px}.history-panel h2{font-size:22px}.history-panel p{font-size:14px;line-height:2.1}
+ button,.retry-button{min-height:46px;font-size:14px}
+}
+@media(max-width:380px){.topbar{flex-wrap:wrap}.header-links{order:3;flex-basis:100%}.container{width:95%}.info-grid,.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
   </style>
 </head>
 
