@@ -98,6 +98,8 @@
 .atr-menu-overlay.open{opacity:1;visibility:visible}
 .atr-side-menu{position:fixed;top:0;right:0;z-index:10003;width:min(330px,88vw);height:100vh;height:100dvh;overflow-y:auto;padding:92px 22px 28px;background:linear-gradient(165deg,rgba(18,20,22,.99),rgba(7,9,10,.99));border-left:1px solid rgba(215,189,133,.3);box-shadow:-18px 0 55px rgba(0,0,0,.5);transform:translateX(105%);transition:transform .3s ease;direction:rtl}
 .atr-side-menu.open{transform:translateX(0)}
+/* Prevent the page-wide nav flex rule from turning the drawer into a horizontal row */
+.atr-side-menu{display:block!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;color:#d2d0c9!important}
 .atr-menu-heading{padding:0 12px 20px;margin-bottom:15px;border-bottom:1px solid rgba(215,189,133,.22);color:#e4c783;font:800 18px Georgia,serif;letter-spacing:2px}
 .atr-side-menu a{display:flex;align-items:center;gap:12px;min-height:48px;margin:5px 0;padding:11px 14px;border:1px solid transparent;border-radius:11px;color:#d2d0c9;text-decoration:none;font-size:14px;line-height:1.7;transition:background .2s,border-color .2s,color .2s}
 .atr-side-menu a:hover,.atr-side-menu a.current{background:rgba(215,189,133,.12);border-color:rgba(215,189,133,.25);color:#f0d79d}
