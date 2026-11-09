@@ -1016,9 +1016,9 @@
   <nav class="atr-side-menu" id="atrSideMenu" aria-label="منوی اصلی آترامنتوم">
     <div class="atr-menu-heading">ATRAMENTUM</div>
     <a href="index.html" class="current" aria-current="page"><span class="atr-menu-icon">🏠</span><span>صفحه اصلی</span></a>
-    <a href="index.html#houses"><span class="atr-menu-icon">🛡️</span><span>گروه‌ها</span></a>
+    <a href="houses.html"><span class="atr-menu-icon">🛡️</span><span>گروه‌ها</span></a>
     <a href="stadium.html"><span class="atr-menu-icon">🏟️</span><span>ورزشگاه</span></a>
-    <a href="index.html#quidditch"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
+    <a href="waiting-room.html"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
     <a href="profile.html"><span class="atr-menu-icon">👤</span><span>پروفایل بازیکن</span></a>
     <a href="leaderboard.html"><span class="atr-menu-icon">🏆</span><span>جدول امتیازات</span></a>
     <a href="rules.html"><span class="atr-menu-icon">📜</span><span>قوانین</span></a>
@@ -1151,91 +1151,6 @@
       </div>
     </section>
 
-    <!-- HOUSES -->
-
-    <section class="section houses" id="houses">
-      <div class="section-heading reveal">
-        <div class="small-title">FOUR HOUSES · ONE LEGACY</div>
-        <h2>چهار گروه؛ چهار هویت</h2>
-        <p>
-          چهار مسیر متفاوت، چهار فلسفه مستقل و یک آکادمی.
-          تو به کدام میراث تعلق داری؟
-        </p>
-      </div>
-
-      <div class="house-grid">
-
-        <article class="house-card slytherin reveal">
-          <div class="house-symbol">🐍</div>
-          <h3>SLYTHERIN</h3>
-          <div class="house-persian">اسلیترین</div>
-          <p>
-            جاه‌طلبی، زیرکی، اراده و قدرت.
-            میراث کسانی که برای رسیدن به قله، مسیر خود را می‌سازند.
-          </p>
-        </article>
-
-        <article class="house-card gryffindor reveal">
-          <div class="house-symbol">🦁</div>
-          <h3>GRYFFINDOR</h3>
-          <div class="house-persian">گریفیندور</div>
-          <p>
-            شجاعت، جسارت، افتخار و وفاداری.
-            میراث کسانی که در سخت‌ترین لحظات عقب نمی‌نشینند.
-          </p>
-        </article>
-
-        <article class="house-card hufflepuff reveal">
-          <div class="house-symbol">🦡</div>
-          <h3>HUFFLEPUFF</h3>
-          <div class="house-persian">هافلپاف</div>
-          <p>
-            پشتکار، عدالت، صبوری و دوستی.
-            میراث کسانی که ارزش واقعی را در تلاش می‌یابند.
-          </p>
-        </article>
-
-        <article class="house-card ravenclaw reveal">
-          <div class="house-symbol">🦅</div>
-          <h3>RAVENCLAW</h3>
-          <div class="house-persian">ریونکلا</div>
-          <p>
-            خرد، دانش، خلاقیت و کنجکاوی.
-            میراث کسانی که مرزهای دانستن را گسترش می‌دهند.
-          </p>
-        </article>
-
-      </div>
-    </section>
-
-    <!-- QUIDDITCH -->
-
-    <section class="section quidditch" id="quidditch">
-      <div class="section-heading reveal">
-        <div class="small-title">THE GREAT COMPETITION</div>
-        <h2>میدان بزرگ کوییدیچ</h2>
-        <p>
-          رقابتی میان گروه‌ها؛ جایی که تلاش، هماهنگی و مهارت اهمیت پیدا می‌کنند.
-        </p>
-      </div>
-
-      <div class="quidditch-box reveal">
-        <div class="quidditch-symbol">⚡</div>
-        <h2>THE QUIDDITCH LEGACY</h2>
-
-        <p>
-          وارد میدان شو، برای گروهت رقابت کن،
-          عملکرد خود را ثبت کن و در مسیر قهرمانی قدم بردار.
-          هر مسابقه بخشی از تاریخ آترامنتوم است.
-        </p>
-
-        <div class="quidditch-actions">
-          <a href="#login" class="btn btn-primary">ورود به میدان رقابت</a>
-          <a href="stadium.html" class="btn btn-outline">مشاهده ورزشگاه</a>
-        </div>
-      </div>
-    </section>
-
     <!-- LOGIN -->
 
     <section class="section login-section" id="login">
@@ -1283,7 +1198,7 @@
 
         <div class="continue-box" id="continueBox">
           <p>یک نشست ورود قبلی در این مرورگر پیدا شد.</p>
-          <a href="profile.html">ادامه به پرونده بازیکن ←</a>
+          <a href="academy.html">ورود به آکادمی ←</a>
         </div>
       </div>
     </section>
@@ -1432,7 +1347,7 @@
         );
 
         setTimeout(() => {
-          window.location.href = "profile.html";
+          window.location.href = "academy.html";
         }, 700);
 
       } catch (error) {
@@ -1459,5 +1374,8 @@ button.addEventListener("click",()=>menu.classList.contains("open")?close():open
 })();
 </script>
 
+<script>
+(()=>{const token=localStorage.getItem("atramentumSession");if(!token)return;const beat=()=>fetch("/api/presence",{method:"POST",headers:{Authorization:"Bearer "+token},cache:"no-store"}).catch(()=>{});beat();setInterval(beat,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()});})();
+</script>
 </body>
 </html>
