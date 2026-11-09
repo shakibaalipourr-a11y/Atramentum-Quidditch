@@ -191,6 +191,8 @@ async function handleLogout(request, env) {
   const token = getToken(request);
 
   if (token) {
+    const session = await env.atramentum_db.prepare("SELECT player_id FROM sessions WHERE token = ?").bind(token).first();
+    if (session) await env.atramentum_db.prepare("DELETE FROM player_presence WHERE player_id = ?").bind(session.player_id).run();
     await env.atramentum_db.prepare(`
       DELETE FROM sessions WHERE token = ?
     `).bind(token).run();
@@ -200,6 +202,41 @@ async function handleLogout(request, env) {
     success: true,
     message: "Logged out successfully."
   });
+}
+
+
+async function handlePresence(request, env) {
+  const player = await getPlayer(request, env);
+  if (!player) return json({ success: false, message: "Player session expired or invalid." }, 401);
+
+  if (request.method === "POST") {
+    await env.atramentum_db.prepare(`
+      INSERT INTO player_presence(player_id, last_seen)
+      VALUES(?, CURRENT_TIMESTAMP)
+      ON CONFLICT(player_id) DO UPDATE SET last_seen = CURRENT_TIMESTAMP
+    `).bind(player.id).run();
+    return json({ success: true, lastSeen: new Date().toISOString() });
+  }
+
+  if (request.method === "GET") {
+    const result = await env.atramentum_db.prepare(`
+      SELECT p.id AS player_id, p.name, p.player_number, p.position,
+        t.id AS team_id, t.display_name AS team_name, t.emblem AS team_emblem,
+        pp.last_seen
+      FROM player_presence pp
+      JOIN players p ON p.id = pp.player_id
+      JOIN teams t ON t.id = p.team_id
+      JOIN sessions s ON s.player_id = p.id
+      WHERE p.active = 1
+        AND pp.last_seen >= datetime('now', '-90 seconds')
+        AND s.expires_at > strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+      GROUP BY p.id
+      ORDER BY t.id, p.name COLLATE NOCASE
+    `).all();
+    return json({ success: true, onlinePlayers: result.results || [] });
+  }
+
+  return json({ success: false, message: "Method not allowed." }, 405);
 }
 
 async function handleTeams(request, env) {
@@ -852,6 +889,10 @@ export default {
 
       if (path === "/api/logout") {
         return await handleLogout(request, env);
+      }
+
+      if (path === "/api/presence") {
+        return await handlePresence(request, env);
       }
 
       if (path === "/api/teams") {
