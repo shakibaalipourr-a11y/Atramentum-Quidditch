@@ -1222,7 +1222,21 @@
       new ResizeObserver(resize).observe(mount);resize();
       const views={overview:[[60,48,66],[0,5,0]],field:[[43,25,36],[0,5,0]],top:[[0,96,.1],[0,0,0]]};
       document.querySelectorAll("[data-camera]").forEach(btn=>btn.addEventListener("click",()=>{const v=views[btn.dataset.camera];if(v){camera.position.set(...v[0]);controls.target.set(...v[1]);controls.update()}}));
-      const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{if(!p.userData.serverDriven)p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08;p.rotation.x=Math.sin(t*.8+p.userData.phase)*.035});spectatorGroups.forEach(s=>{s.rotation.z=Math.sin(t*3+s.userData.phase)*.08});balls.forEach((b,i)=>{if(!b.userData.serverDriven){b.position.y=(i===2?16:10+i*3)+Math.sin(t*(1.2+i*.25)+i)*(i===2?2:.65);b.position.x=i===2?2+Math.sin(t*.9)*8:b.position.x}b.rotation.y+=.004+i*.001});wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*16+i*Math.PI)*.45});referee.rotation.y=Math.sin(t*.8)*.08;controls.update();renderer.render(scene,camera)}animate();
+
+      // Distinct animated architecture for each arena variant.
+      const arenaDecorations=[];
+      function addArenaDecoration(mesh){scene.add(mesh);arenaDecorations.push(mesh);return mesh}
+      if(arenaId==="obsidian"){
+        const crystalMat=new THREE.MeshStandardMaterial({color:0x647da8,metalness:.8,roughness:.22,emissive:0x172d58,emissiveIntensity:.8});
+        for(let i=0;i<12;i++){const a=i*Math.PI/6,x=Math.cos(a)*59,z=Math.sin(a)*39;const crystal=addArenaDecoration(new THREE.Mesh(new THREE.ConeGeometry(2.1,12+(i%3)*3,5),crystalMat));crystal.position.set(x,7,z);crystal.rotation.z=.12*Math.sin(i);crystal.userData.floatPhase=i*.7}
+      }else if(arenaId==="aurora"){
+        for(let i=0;i<3;i++){const arc=addArenaDecoration(new THREE.Mesh(new THREE.TorusGeometry(65+i*5,.22,8,160),new THREE.MeshBasicMaterial({color:[0x5ce4d0,0x7ba8ff,0xb17cff][i],transparent:true,opacity:.48})));arc.rotation.x=Math.PI/2;arc.rotation.y=.18+i*.22;arc.position.y=39+i*5;arc.userData.spin=.0015*(i+1)}
+        const auroraMat=new THREE.MeshBasicMaterial({color:0x8fffe9,transparent:true,opacity:.75});
+        for(let i=0;i<34;i++){const mote=addArenaDecoration(new THREE.Mesh(new THREE.SphereGeometry(.22+(i%3)*.08,8,8),auroraMat));mote.position.set(Math.sin(i*8.2)*65,18+(i%9)*4,Math.cos(i*3.1)*43);mote.userData.floatPhase=i*.6}
+      }else if(arenaId==="ember"){
+        for(let i=0;i<10;i++){const a=i*Math.PI/5,x=Math.cos(a)*57,z=Math.sin(a)*36;const pillar=addArenaDecoration(new THREE.Mesh(new THREE.CylinderGeometry(.65,1.1,13,8),new THREE.MeshStandardMaterial({color:0x533024,metalness:.45,roughness:.55})));pillar.position.set(x,6.5,z);const flame=addArenaDecoration(new THREE.Mesh(new THREE.SphereGeometry(1.35,12,10),new THREE.MeshBasicMaterial({color:0xff8b35,transparent:true,opacity:.8})));flame.position.set(x,14,z);flame.userData.flame=true;flame.userData.floatPhase=i}
+      }
+      const clock=new THREE.Clock();function animate(){requestAnimationFrame(animate);const t=clock.getElapsedTime();players.forEach(p=>{if(!p.userData.serverDriven)p.position.y=p.userData.base+Math.sin(t*1.35+p.userData.phase)*.65;p.rotation.z=Math.sin(t*.7+p.userData.phase)*.08;p.rotation.x=Math.sin(t*.8+p.userData.phase)*.035});spectatorGroups.forEach(s=>{s.rotation.z=Math.sin(t*3+s.userData.phase)*.08});balls.forEach((b,i)=>{if(!b.userData.serverDriven){b.position.y=(i===2?16:10+i*3)+Math.sin(t*(1.2+i*.25)+i)*(i===2?2:.65);b.position.x=i===2?2+Math.sin(t*.9)*8:b.position.x}b.rotation.y+=.004+i*.001});wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*16+i*Math.PI)*.45});arenaDecorations.forEach((o,i)=>{if(o.userData.spin)o.rotation.z+=o.userData.spin;if(o.userData.floatPhase!==undefined)o.position.y+=(Math.sin(t*1.3+o.userData.floatPhase)*.012);if(o.userData.flame){o.scale.setScalar(.8+Math.sin(t*8+o.userData.floatPhase)*.22);o.material.opacity=.55+Math.sin(t*9+o.userData.floatPhase)*.2}});referee.rotation.y=Math.sin(t*.8)*.08;controls.update();renderer.render(scene,camera)}animate();
       const liveLabel=document.getElementById("arenaLiveLabel");
       let liveMatchId=null,liveRevision=-1,currentGameState={elapsed_seconds:0,clock_running:0},currentAdmin=null;
       const adminToken=()=>sessionStorage.getItem("atramentumAdminSession");
