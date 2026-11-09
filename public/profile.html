@@ -968,5 +968,8 @@ button.addEventListener("click",()=>menu.classList.contains("open")?close():open
 })();
 </script>
 
+<script>
+(()=>{const token=localStorage.getItem("atramentumSession");if(!token)return;const beat=()=>fetch("/api/presence",{method:"POST",headers:{Authorization:"Bearer "+token},cache:"no-store"}).catch(()=>{});beat();setInterval(beat,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()});})();
+</script>
 </body>
 </html>
