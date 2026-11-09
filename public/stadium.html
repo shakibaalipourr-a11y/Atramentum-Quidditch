@@ -1216,6 +1216,20 @@ main.container>.section{padding-top:12px}
         marker.userData={base:marker.position.y,phase:team*1.7+j,teamId:teamIds[team],role:roleFullNames[j],number:j+1};
         marker.visible=false;scene.add(marker);players.push(marker);
       }
+      function applyDefaultFormation(teamId,side){
+        const formation=[
+          [side*12,8,-8],[side*9,10,0],[side*12,8,8],
+          [side*22,13,-10],[side*22,13,10],
+          [side*35,5,0],[side*3,18,0]
+        ];
+        const teamPlayers=players.filter(player=>player.userData.teamId===String(teamId));
+        formation.forEach(([x,y,z],index)=>{
+          const player=teamPlayers[index];if(!player)return;
+          player.userData.targetPosition ||= new THREE.Vector3();
+          player.userData.targetPosition.set(x,y,z);
+          player.userData.serverDriven=true;
+        });
+      }
       // Crowd figures were removed to keep the live arena lightweight.
       const spectatorGroups=[];
       // Lightweight referee marker replaces the detailed 3D human model.
@@ -1333,12 +1347,14 @@ main.container>.section{padding-top:12px}
           if(!active)active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled")||matches.find(m=>m.status==="completed");
           if(active&&picker.value!==String(active.id))picker.value=String(active.id);
           if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);referee.visible=false;snitch.visible=false;document.getElementById("homeTeamLabel").textContent="—";document.getElementById("awayTeamLabel").textContent="—";document.getElementById("gameScore").textContent="0 : 0";document.getElementById("gameClock").textContent="00:00";liveLabel.textContent="ورزشگاه آترامنتوم · در انتظار مسابقه";return;}
-          if(String(liveMatchId)!==String(active.id)){liveMatchId=active.id;liveRevision=-1;}
+          const matchChanged=String(liveMatchId)!==String(active.id);
+          if(matchChanged){liveMatchId=active.id;liveRevision=-1;}
           const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
           if(response.status===404){liveMatchId=null;return;}
           if(!response.ok)return;
           const data=await response.json();if(!data.success)return;
           const homeId=String(data.match.home_team_id),awayId=String(data.match.away_team_id);
+          if(matchChanged){applyDefaultFormation(homeId,-1);applyDefaultFormation(awayId,1);}
           players.forEach(p=>{p.visible=p.userData.teamId===homeId||p.userData.teamId===awayId;});
           referee.visible=data.match.status!=="completed";
           const homeScore=(data.scores||[]).find(x=>String(x.team_id)===homeId)?.score||0;
