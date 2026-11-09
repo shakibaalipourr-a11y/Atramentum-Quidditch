@@ -823,6 +823,77 @@ async function handleAdminMatchLive(request, env, matchId) {
   return json({success:false,message:"Unknown match action."},400);
 }
 
+
+
+async function handleAdminHouseScoreReset(request, env) {
+  const admin = await getAdmin(request, env);
+  if (!admin) return json({ success: false, message: "Admin session expired or invalid." }, 401);
+  if (admin.role !== "super_admin") return json({ success: false, message: "Only the super administrator may reset historical house scores." }, 403);
+  if (request.method !== "POST") return json({ success: false, message: "Method not allowed." }, 405);
+
+  let body;
+  try { body = await request.json(); } catch { return json({ success: false, message: "Invalid request body." }, 400); }
+  if (body?.confirmation !== "RESET_SLYTHERIN_GRYFFINDOR_SCORES") {
+    return json({ success: false, message: "Explicit reset confirmation is required." }, 400);
+  }
+
+  const counts = await env.atramentum_db.prepare(`
+    SELECT
+      COUNT(*) AS score_rows,
+      COUNT(DISTINCT match_id) AS matches_with_scores
+    FROM match_team_results
+    WHERE team_id IN ('slytherin', 'gryffindor')
+  `).first();
+
+  const affectedMatches = await env.atramentum_db.prepare(`
+    SELECT COUNT(*) AS total
+    FROM matches
+    WHERE home_team_id IN ('slytherin', 'gryffindor')
+       OR away_team_id IN ('slytherin', 'gryffindor')
+  `).first();
+
+  await env.atramentum_db.batch([
+    env.atramentum_db.prepare(`
+      UPDATE match_team_results
+      SET score = 0
+      WHERE team_id IN ('slytherin', 'gryffindor')
+    `),
+    env.atramentum_db.prepare(`
+      UPDATE matches
+      SET winner_team_id = CASE
+        WHEN COALESCE((SELECT score FROM match_team_results WHERE match_id = matches.id AND team_id = matches.home_team_id), 0)
+           = COALESCE((SELECT score FROM match_team_results WHERE match_id = matches.id AND team_id = matches.away_team_id), 0)
+          THEN NULL
+        WHEN COALESCE((SELECT score FROM match_team_results WHERE match_id = matches.id AND team_id = matches.home_team_id), 0)
+           > COALESCE((SELECT score FROM match_team_results WHERE match_id = matches.id AND team_id = matches.away_team_id), 0)
+          THEN home_team_id
+        ELSE away_team_id
+      END
+      WHERE status = 'completed'
+        AND (home_team_id IN ('slytherin', 'gryffindor')
+          OR away_team_id IN ('slytherin', 'gryffindor'))
+    `),
+    env.atramentum_db.prepare(`
+      INSERT INTO admin_audit_logs (admin_id, action, target_username, details)
+      VALUES (?, 'historical_house_scores_reset', 'slytherin,gryffindor', ?)
+    `).bind(admin.id, JSON.stringify({
+      teams: ["slytherin", "gryffindor"],
+      scoreRows: Number(counts?.score_rows || 0),
+      matchesWithScores: Number(counts?.matches_with_scores || 0),
+      matchesInvolvingTeams: Number(affectedMatches?.total || 0),
+      eventHistoryPreserved: true
+    }))
+  ]);
+
+  return json({
+    success: true,
+    resetRows: Number(counts?.score_rows || 0),
+    matchesWithScores: Number(counts?.matches_with_scores || 0),
+    matchesInvolvingTeams: Number(affectedMatches?.total || 0),
+    message: "Historical Slytherin and Gryffindor score totals were reset. Match event history was preserved."
+  });
+}
+
 async function handleAdminUsers(request, env) {
   const admin = await getAdmin(request, env);
   if (!admin) return json({ success: false, message: "Admin session expired or invalid." }, 401);
@@ -905,6 +976,10 @@ export default {
       const adminLiveMatch = path.match(/^\/api\/admin\/matches\/(\d+)\/live$/);
       if (adminLiveMatch) {
         return await handleAdminMatchLive(request, env, adminLiveMatch[1]);
+      }
+
+      if (path === "/api/admin/reset-house-scores") {
+        return await handleAdminHouseScoreReset(request, env);
       }
 
       if (path === "/api/admin/users") {
