@@ -205,13 +205,18 @@ async function handleLogout(request, env) {
 async function handleTeams(request, env) {
   const result = await env.atramentum_db.prepare(`
     SELECT
-      id,
-      name,
-      display_name,
-      emblem,
-      points
-    FROM teams
-    ORDER BY points DESC, name ASC
+      t.id,
+      t.name,
+      t.display_name,
+      t.emblem,
+      COALESCE(mp.points, 0) AS points
+    FROM teams t
+    LEFT JOIN (
+      SELECT team_id, SUM(score) AS points
+      FROM match_team_results
+      GROUP BY team_id
+    ) mp ON mp.team_id = t.id
+    ORDER BY points DESC, t.name ASC
   `).all();
 
   return json({
@@ -227,14 +232,21 @@ async function handleLeaderboard(request, env) {
       t.name,
       t.display_name,
       t.emblem,
-      t.points,
-      COUNT(p.id) AS player_count
+      COALESCE(mp.points, 0) AS points,
+      COALESCE(ap.player_count, 0) AS player_count
     FROM teams t
-    LEFT JOIN players p
-      ON p.team_id = t.id
-      AND p.active = 1
-    GROUP BY t.id
-    ORDER BY t.points DESC, t.name ASC
+    LEFT JOIN (
+      SELECT team_id, SUM(score) AS points
+      FROM match_team_results
+      GROUP BY team_id
+    ) mp ON mp.team_id = t.id
+    LEFT JOIN (
+      SELECT team_id, COUNT(*) AS player_count
+      FROM players
+      WHERE active = 1
+      GROUP BY team_id
+    ) ap ON ap.team_id = t.id
+    ORDER BY points DESC, t.name ASC
   `).all();
 
   return json({
