@@ -845,6 +845,12 @@ async function handleAdminHouseScoreReset(request, env) {
     WHERE team_id IN ('slytherin', 'gryffindor')
   `).first();
 
+  const eventCounts = await env.atramentum_db.prepare(`
+    SELECT COUNT(*) AS event_rows
+    FROM match_events
+    WHERE team_id IN ('slytherin', 'gryffindor') AND points != 0
+  `).first();
+
   const affectedMatches = await env.atramentum_db.prepare(`
     SELECT COUNT(*) AS total
     FROM matches
@@ -857,6 +863,11 @@ async function handleAdminHouseScoreReset(request, env) {
       UPDATE match_team_results
       SET score = 0
       WHERE team_id IN ('slytherin', 'gryffindor')
+    `),
+    env.atramentum_db.prepare(`
+      UPDATE match_events
+      SET points = 0
+      WHERE team_id IN ('slytherin', 'gryffindor') AND points != 0
     `),
     env.atramentum_db.prepare(`
       UPDATE matches
@@ -881,7 +892,8 @@ async function handleAdminHouseScoreReset(request, env) {
       scoreRows: Number(counts?.score_rows || 0),
       matchesWithScores: Number(counts?.matches_with_scores || 0),
       matchesInvolvingTeams: Number(affectedMatches?.total || 0),
-      eventHistoryPreserved: true
+      eventPointRows: Number(eventCounts?.event_rows || 0),
+      eventDescriptionsPreserved: true
     }))
   ]);
 
@@ -890,7 +902,8 @@ async function handleAdminHouseScoreReset(request, env) {
     resetRows: Number(counts?.score_rows || 0),
     matchesWithScores: Number(counts?.matches_with_scores || 0),
     matchesInvolvingTeams: Number(affectedMatches?.total || 0),
-    message: "Historical Slytherin and Gryffindor score totals were reset. Match event history was preserved."
+    resetEventRows: Number(eventCounts?.event_rows || 0),
+    message: "Historical Slytherin and Gryffindor scores and event point values were reset. Event descriptions were preserved."
   });
 }
 
