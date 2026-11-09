@@ -37,6 +37,18 @@
     @media(max-width:650px){.match-grid,.match-form{grid-template-columns:1fr}.match-form .full{grid-column:auto}}
     .note{padding:14px;border:1px solid rgba(201,164,92,.16);border-radius:10px;color:var(--muted);font-size:11px;line-height:2;margin-top:20px}
     @media(max-width:600px){.shell{width:94%;padding-top:18px}.panel{padding:22px 17px}.brand{font-size:21px}.topline{align-items:flex-start}}
+  
+/* Touch-first mobile administration chamber */
+@media(max-width:700px){
+ body{font-size:16px}.shell{width:96%;padding:26px 0 42px}header{padding:12px 4px 24px}header .crest{font-size:43px}.brand{font-size:26px;letter-spacing:2px}.subtitle{font-size:11px;letter-spacing:2px}
+ .panel{padding:27px 21px;border-radius:17px}.panel h1{font-size:25px;line-height:1.6}.panel h2{font-size:21px}.lead,.hint,.note{font-size:14px;line-height:2.1}
+ label{font-size:14px;margin-top:17px}input,select,textarea{width:100%;min-height:54px;padding:13px 14px;font-size:16px;border-radius:10px}
+ .btn,.logout,.match-actions button,.match-card button{min-height:48px;padding:12px 15px;font-size:14px;border-radius:10px}
+ .topline{gap:14px;align-items:center;flex-wrap:wrap}.match-tools{margin-top:30px;padding-top:26px}.match-grid{grid-template-columns:1fr;gap:15px}.match-card{padding:20px;border-radius:14px}.match-card strong{font-size:16px}.match-card small{font-size:12px}.match-actions{gap:9px}.score-line{font-size:15px;margin-top:13px}
+ .match-form{grid-template-columns:1fr;gap:14px}.match-form .full{grid-column:auto}.table-wrap{overflow-x:auto}table{min-width:570px}th,td{padding:13px;font-size:13px}
+}
+@media(min-width:480px) and (max-width:700px){.match-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.match-form{grid-template-columns:repeat(2,minmax(0,1fr))}.match-form .full{grid-column:1/-1}}
+
   </style>
 </head>
 <body>
