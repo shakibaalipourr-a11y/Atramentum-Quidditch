@@ -12,11 +12,12 @@ const moduleUrl = "data:text/javascript;base64," + Buffer.from(workerSource).toS
 const { default: worker } = await import(moduleUrl);
 
 function createEnv({ loginPlayer = null, sessionPlayer = null } = {}) {
-  const state = { insertedSession: null, deletedToken: null, prepareCalls: 0 };
+  const state = { insertedSession: null, deletedToken: null, prepareCalls: 0, queries: [] };
 
   const db = {
     prepare(sql) {
       state.prepareCalls += 1;
+      state.queries.push(sql);
       return {
         bind(...values) {
           return {
@@ -146,4 +147,22 @@ test("logout revokes the presented session token", async () => {
   assert.equal(response.status, 200);
   assert.equal(data.success, true);
   assert.equal(env.state.deletedToken, "session-to-revoke");
+});
+
+
+test("leaderboard ranks houses by cumulative Quidditch match points", async () => {
+  const env = createEnv();
+  const response = await worker.fetch(
+    new Request("https://atramentum.test/api/leaderboard"),
+    env
+  );
+
+  const data = await response.json();
+  const query = env.state.queries.join("\\n");
+  assert.equal(response.status, 200);
+  assert.equal(data.success, true);
+  assert.ok(query.includes("SUM(score) AS points"));
+  assert.ok(query.includes("FROM match_team_results"));
+  assert.ok(query.includes("ORDER BY points DESC"));
+  assert.ok(query.includes("COUNT(*) AS player_count"));
 });
