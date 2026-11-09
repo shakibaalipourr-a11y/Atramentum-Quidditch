@@ -796,7 +796,10 @@
 .navbar,.topbar{padding-right:88px!important}.navbar .menu-toggle{display:none!important}
 @media(max-width:700px){.atr-menu-button{top:12px!important;right:12px!important;width:50px!important;height:50px!important}.atr-side-menu{padding-top:82px}.navbar{padding-right:78px!important}.navbar .menu-toggle{display:none!important}.topbar{padding-right:78px!important}}
 
-</style>
+
+    body[data-arena="obsidian"]{--gold:#aebbd2;--gold-light:#e1e9fa;--green:#8da7cf}body[data-arena="aurora"]{--gold:#78d7cb;--gold-light:#c2fff4;--green:#5de0bd}body[data-arena="ember"]{--gold:#d88a54;--gold-light:#ffd0a3;--green:#d99a65}
+    body[data-arena] .arena-3d-label{letter-spacing:3px;text-shadow:0 0 22px var(--gold)}
+  </style>
 </head>
 
 <body>
@@ -806,9 +809,9 @@
   <nav class="atr-side-menu" id="atrSideMenu" aria-label="منوی اصلی آترامنتوم">
     <div class="atr-menu-heading">ATRAMENTUM</div>
     <a href="index.html"><span class="atr-menu-icon">🏠</span><span>صفحه اصلی</span></a>
-    <a href="index.html#houses"><span class="atr-menu-icon">🛡️</span><span>گروه‌ها</span></a>
-    <a href="stadium.html" class="current" aria-current="page"><span class="atr-menu-icon">🏟️</span><span>ورزشگاه</span></a>
-    <a href="index.html#quidditch"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
+    <a href="houses.html"><span class="atr-menu-icon">🛡️</span><span>گروه‌ها</span></a>
+    <a href="stadiums.html" class="current" aria-current="page"><span class="atr-menu-icon">🏟️</span><span>ورزشگاه</span></a>
+    <a href="waiting-room.html"><span class="atr-menu-icon">⚔️</span><span>کوییدیچ و مسابقات</span></a>
     <a href="profile.html"><span class="atr-menu-icon">👤</span><span>پروفایل بازیکن</span></a>
     <a href="leaderboard.html"><span class="atr-menu-icon">🏆</span><span>جدول امتیازات</span></a>
     <a href="rules.html"><span class="atr-menu-icon">📜</span><span>قوانین</span></a>
@@ -877,7 +880,7 @@
           <span id="refereeFeedback">فقط داور و مدیر ارشد می‌توانند تصمیم رسمی ثبت کنند.</span>
         </div>
         <div class="game-match-picker"><label for="matchPicker">مسابقه</label><select id="matchPicker"><option value="">در حال دریافت مسابقات...</option></select></div>
-        <div class="arena-3d-label">ATRAMENTUM GRAND QUIDDITCH ARENA</div>
+        <div class="arena-3d-label" id="arenaTitle">ATRAMENTUM GRAND QUIDDITCH ARENA</div>
         <div class="arena-3d-controls">
           <button type="button" data-camera="overview" class="active">نمای کلی</button>
           <button type="button" data-camera="field">نمای زمین</button>
@@ -1129,7 +1132,18 @@
     if(mount)try{
       const THREE=await import("three");
       const {OrbitControls}=await import("three/addons/controls/OrbitControls.js");
-      const scene=new THREE.Scene();scene.background=new THREE.Color(0x07100d);scene.fog=new THREE.Fog(0x07100d,95,190);
+
+      const arenaId=new URLSearchParams(location.search).get("arena")||"grand";
+      const arenaThemes={
+        grand:{title:"GRAND IMPERIAL ARENA",bg:0x07100d,fog:0x07100d,grass:0x173c2b},
+        obsidian:{title:"OBSIDIAN NIGHT ARENA",bg:0x090a12,fog:0x090a12,grass:0x202b3d},
+        aurora:{title:"AURORA SKY ARENA",bg:0x07131a,fog:0x07131a,grass:0x17444a},
+        ember:{title:"EMBER CROWN ARENA",bg:0x170b09,fog:0x170b09,grass:0x49301e}
+      };
+      const arena=arenaThemes[arenaId]||arenaThemes.grand;
+      document.body.dataset.arena=arenaId;
+      const arenaTitle=document.getElementById("arenaTitle");if(arenaTitle)arenaTitle.textContent=arena.title;
+      const scene=new THREE.Scene();scene.background=new THREE.Color(arena.bg);scene.fog=new THREE.Fog(arena.fog,95,190);
       const camera=new THREE.PerspectiveCamera(43,1,.1,260);camera.position.set(60,48,66);
       const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,powerPreference:"high-performance"});
       renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));renderer.shadowMap.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;mount.appendChild(renderer.domElement);
@@ -1331,5 +1345,8 @@ button.addEventListener("click",()=>menu.classList.contains("open")?close():open
 })();
 </script>
 
+<script>
+(()=>{const token=localStorage.getItem("atramentumSession");if(!token)return;const beat=()=>fetch("/api/presence",{method:"POST",headers:{Authorization:"Bearer "+token},cache:"no-store"}).catch(()=>{});beat();setInterval(beat,30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()});})();
+</script>
 </body>
 </html>
