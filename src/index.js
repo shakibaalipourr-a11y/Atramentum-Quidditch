@@ -656,9 +656,6 @@ async function handleAdminMatchLive(request, env, matchId) {
       await env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,elapsed_seconds,clock_running) VALUES(?,?,0) ON CONFLICT(match_id) DO UPDATE SET elapsed_seconds=?,clock_running=0,updated_at=CURRENT_TIMESTAMP").bind(id,nextElapsed,nextElapsed).run();
       await env.atramentum_db.prepare("UPDATE matches SET status='paused' WHERE id=?").bind(id).run();
       await env.atramentum_db.prepare("INSERT INTO match_events(match_id,event_type,description) VALUES(?,'clock_paused','داور مسابقه را متوقف کرد')").bind(id).run();
-    }else if(command==="foul"){
-      const description=String(body.description||"خطای ثبت‌شده توسط داور").trim().slice(0,220);
-      await env.atramentum_db.prepare("INSERT INTO match_events(match_id,event_type,description) VALUES(?,'foul',?)").bind(id,description).run();
     }else if(command==="snitch"){
       if(state?.snitch_caught_by)return json({success:false,message:"The Golden Snitch has already been caught."},409);
       const teamId=String(body.teamId||"");
