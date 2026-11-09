@@ -94,6 +94,8 @@
           <div><label for="fixtureAway">گروه میهمان</label><select id="fixtureAway"><option value="slytherin">اسلیترین</option><option value="gryffindor">گریفیندور</option><option value="hufflepuff">هافلپاف</option><option value="ravenclaw">ریونکلا</option></select></div>
           <div class="full"><label for="fixtureDate">زمان مسابقه (اختیاری)</label><input id="fixtureDate" type="datetime-local"></div>
           <button type="button" class="btn full" id="createFixture">ایجاد مسابقه</button>
+          <button type="button" class="btn secondary full" id="createRoundRobin">ساخت برنامه کامل لیگ (۶ مسابقه)</button>
+          <div class="message full" id="roundRobinMessage" role="status"></div>
         </div>
         <div class="message" id="fixtureMessage" role="status"></div>
       </section>
@@ -196,6 +198,32 @@
   });
   let selectedMatch=null;
   let matchList=[];
+  $("createRoundRobin").addEventListener("click",async()=>{
+    if(!currentAdmin||currentAdmin.role!=="super_admin")
+      return message("roundRobinMessage","فقط مدیر کل می‌تواند برنامه کامل لیگ را ایجاد کند.","error");
+    const teams=["gryffindor","slytherin","hufflepuff","ravenclaw"];
+    const pairs=[];
+    for(let i=0;i<teams.length;i++)for(let j=i+1;j<teams.length;j++)pairs.push([teams[i],teams[j]]);
+    const existing=new Set(matchList.map(m=>[m.home_team_id,m.away_team_id].sort().join("|")));
+    const missing=pairs.filter(pair=>!existing.has([...pair].sort().join("|")));
+    if(!missing.length)return message("roundRobinMessage","هر ۶ مسابقه قبلاً ثبت شده‌اند.","success");
+    const button=$("createRoundRobin");button.disabled=true;
+    let created=0;
+    message("roundRobinMessage","در حال ساخت مسابقات باقی‌مانده...");
+    try{
+      for(const [homeTeamId,awayTeamId] of missing){
+        const response=await api("/api/admin/matches",{method:"POST",body:JSON.stringify({homeTeamId,awayTeamId,scheduledAt:null})});
+        const data=await response.json();
+        if(!response.ok||!data.success)throw new Error(data.message||"ساخت یکی از مسابقات ناموفق بود.");
+        created++;
+      }
+      message("roundRobinMessage",created+" مسابقه جدید ثبت شد؛ برنامه کامل لیگ آماده است.","success");
+      await loadMatches();
+    }catch(error){
+      message("roundRobinMessage",created+" مسابقه ثبت شد؛ ادامه برنامه ناموفق بود: "+error.message,"error");
+      await loadMatches();
+    }finally{button.disabled=false;}
+  });
   const matchApi=(id,body)=>api("/api/admin/matches/"+id+"/live",body?{method:"POST",body:JSON.stringify(body)}:{});
   function matchStatusLabel(status){return ({scheduled:"برنامه‌ریزی‌شده",live:"در حال برگزاری",paused:"متوقف موقت",completed:"پایان‌یافته"})[status]||status;}
   async function loadMatches(){
