@@ -689,12 +689,44 @@ async function handleAdminMatchLive(request, env, matchId) {
     if (!allowedStatus.includes(body.status)) return json({success:false,message:"Invalid match status."},400);
     if (admin.role==="house_admin" && !["live","paused"].includes(body.status))
       return json({success:false,message:"House administrators may start or pause their team's match, but cannot schedule or finalize it."},403);
-    const winner=body.winnerTeamId==null?null:String(body.winnerTeamId);
+    let winner=body.winnerTeamId==null?null:String(body.winnerTeamId);
     if (winner && ![match.home_team_id,match.away_team_id].includes(winner))
       return json({success:false,message:"Winner must be one of the participating teams."},400);
+
+    const clockState=await env.atramentum_db.prepare(
+      "SELECT started_at,elapsed_seconds,clock_running FROM match_game_state WHERE match_id=?"
+    ).bind(id).first();
+    let elapsed=Number(clockState?.elapsed_seconds||0);
+    if(body.status==="live"){
+      await env.atramentum_db.prepare(`
+        INSERT INTO match_game_state(match_id,started_at,elapsed_seconds,clock_running)
+        VALUES(?,CURRENT_TIMESTAMP,?,1)
+        ON CONFLICT(match_id) DO UPDATE SET
+          started_at=CASE WHEN match_game_state.clock_running=0 THEN CURRENT_TIMESTAMP ELSE match_game_state.started_at END,
+          clock_running=1,updated_at=CURRENT_TIMESTAMP
+      `).bind(id,elapsed).run();
+    }else if(body.status==="paused"||body.status==="completed"||body.status==="scheduled"){
+      if(clockState?.clock_running){
+        const started=clockState.started_at?Date.parse(clockState.started_at.replace(" ","T")+"Z"):Date.now();
+        elapsed+=Math.max(0,Math.floor((Date.now()-started)/1000));
+      }
+      await env.atramentum_db.prepare(`
+        INSERT INTO match_game_state(match_id,elapsed_seconds,clock_running)
+        VALUES(?,?,0)
+        ON CONFLICT(match_id) DO UPDATE SET elapsed_seconds=?,clock_running=0,updated_at=CURRENT_TIMESTAMP
+      `).bind(id,elapsed,elapsed).run();
+    }
+    if(body.status==="completed"&&!winner){
+      const results=await env.atramentum_db.prepare(
+        "SELECT team_id,score FROM match_team_results WHERE match_id=?"
+      ).bind(id).all();
+      const homeScore=Number((results.results||[]).find(x=>x.team_id===match.home_team_id)?.score||0);
+      const awayScore=Number((results.results||[]).find(x=>x.team_id===match.away_team_id)?.score||0);
+      winner=homeScore===awayScore?null:(homeScore>awayScore?match.home_team_id:match.away_team_id);
+    }
     await env.atramentum_db.prepare("UPDATE matches SET status=?, winner_team_id=? WHERE id=?")
       .bind(body.status,body.status==="completed"?winner:null,id).run();
-    await writeAdminAudit(env,admin.id,"match_status_changed",String(id),JSON.stringify({status:body.status,winnerTeamId:winner}));
+    await writeAdminAudit(env,admin.id,"match_status_changed",String(id),JSON.stringify({status:body.status,winnerTeamId:winner,elapsedSeconds:elapsed}));
     return json({success:true,message:"Match status updated."});
   }
   if (action === "scores") {
