@@ -1189,7 +1189,7 @@ main.container>.section{padding-top:12px}
       const center=new THREE.Mesh(new THREE.TorusGeometry(7,.12,8,64),lineMat);center.rotation.x=Math.PI/2;center.position.y=.16;scene.add(center);
       function goals(x,d){[-5,0,5].forEach(z=>{const pole=new THREE.Mesh(new THREE.CylinderGeometry(.16,.22,8,12),new THREE.MeshStandardMaterial({color:0xc8a45e,metalness:.65,roughness:.35}));pole.position.set(x,4,z);scene.add(pole);const hoop=new THREE.Mesh(new THREE.TorusGeometry(2.1,.14,10,32),new THREE.MeshStandardMaterial({color:0xe4c783,metalness:.72,roughness:.28}));hoop.position.set(x+d*1.7,8,z);hoop.rotation.y=Math.PI/2;scene.add(hoop)})}
       goals(-39,-1);goals(39,1);
-      const colors=[0xb84a42,0x42a879,0xd2ad4e,0x668fc1];
+      const colors=[0xc62835,0x16834a,0xd6a52b,0x3d73b9];
       for(let i=0;i<16;i++){const q=i/16*Math.PI*2;const crest=new THREE.Mesh(new THREE.BoxGeometry(1.05,1.5,.35),new THREE.MeshStandardMaterial({color:colors[i%4]}));crest.position.set(Math.cos(q)*68,23,Math.sin(q)*44);crest.lookAt(0,23,0);scene.add(crest)}
       const players=[];
       const teamIds=["gryffindor","slytherin","hufflepuff","ravenclaw"];
@@ -1242,14 +1242,14 @@ main.container>.section{padding-top:12px}
       refereeCtx.textAlign="center";refereeCtx.textBaseline="middle";refereeCtx.fillText("د",64,65);
       const referee=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(refereeCanvas),transparent:true,depthTest:false,depthWrite:false}));
       referee.position.set(0,2.2,0);referee.scale.set(2.6,2.6,1);referee.visible=false;scene.add(referee);
-      const balls=[[-5,10,1,0xc84a32,1.05],[9,13,-5,0x24272b,.78]].map(v=>{const m=new THREE.Mesh(new THREE.SphereGeometry(v[4],24,18),new THREE.MeshStandardMaterial({color:v[3],metalness:.25,roughness:.32,emissive:v[3],emissiveIntensity:.18}));m.position.set(v[0],v[1],v[2]);scene.add(m);return m});
+      const balls=[[0,10,-7,0xe05a35,1.05],[0,10,7,0x20242a,.78]].map(v=>{const m=new THREE.Mesh(new THREE.SphereGeometry(v[4],24,18),new THREE.MeshStandardMaterial({color:v[3],metalness:.25,roughness:.32,emissive:v[3],emissiveIntensity:.18}));m.position.set(v[0],v[1],v[2]);scene.add(m);return m});
       // Golden Snitch with independently animated wings.
       const snitch=new THREE.Group(),snitchGold=new THREE.MeshStandardMaterial({color:0xf5cf58,metalness:.8,roughness:.2,emissive:0xdcae26,emissiveIntensity:.65});
       const snitchBody=new THREE.Mesh(new THREE.SphereGeometry(.43,20,16),snitchGold);snitch.add(snitchBody);
       const wingMat=new THREE.MeshStandardMaterial({color:0xffedb0,metalness:.35,roughness:.28,side:THREE.DoubleSide,emissive:0x9e7b35,emissiveIntensity:.22});
       const wings=[];
       for(const side of [-1,1]){const wing=new THREE.Mesh(new THREE.SphereGeometry(.68,14,10),wingMat);wing.scale.set(1,.16,.48);wing.position.x=side*.72;snitch.add(wing);wings.push(wing)}
-      snitch.position.set(2,16,7);scene.add(snitch);balls.push(snitch);
+      snitch.position.set(0,10,0);scene.add(snitch);balls.push(snitch);
       function resize(){const w=mount.clientWidth||1,h=mount.clientHeight||1;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
       new ResizeObserver(resize).observe(mount);resize();
       const views={overview:[[60,48,66],[0,5,0]],field:[[43,25,36],[0,5,0]],top:[[0,96,.1],[0,0,0]]};
@@ -1301,7 +1301,7 @@ main.container>.section{padding-top:12px}
       }else if(arenaId==="ember"){
         for(let i=0;i<10;i++){const a=i*Math.PI/5,x=Math.cos(a)*57,z=Math.sin(a)*36;const pillar=addArenaDecoration(new THREE.Mesh(new THREE.CylinderGeometry(.65,1.1,13,8),new THREE.MeshStandardMaterial({color:0x533024,metalness:.45,roughness:.55})));pillar.position.set(x,6.5,z);const flame=addArenaDecoration(new THREE.Mesh(new THREE.SphereGeometry(1.35,12,10),new THREE.MeshBasicMaterial({color:0xff8b35,transparent:true,opacity:.8})));flame.position.set(x,14,z);flame.userData.flame=true;flame.userData.floatPhase=i}
       }
-      const clock=new THREE.Clock();let renderFrame=0;function animate(){requestAnimationFrame(animate);if(document.hidden)return;if(++renderFrame%2)return;const t=clock.getElapsedTime();players.forEach(p=>{if(p.userData.serverDriven&&p.userData.targetPosition){p.position.lerp(p.userData.targetPosition,.14)}else{p.position.y=p.userData.base+Math.sin(t*1.15+p.userData.phase)*.28}p.rotation.z=Math.sin(t*.45+p.userData.phase)*.025;p.rotation.x=Math.sin(t*.5+p.userData.phase)*.018});balls.forEach((b,i)=>{if(!b.userData.serverDriven){b.position.y=(i===2?16:10+i*3)+Math.sin(t*(1.0+i*.2)+i)*(i===2?1.2:.4);b.position.x=i===2?2+Math.sin(t*.7)*6:b.position.x}});wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*10+i*Math.PI)*.28});referee.rotation.y=Math.sin(t*.5)*.04;controls.update();renderer.render(scene,camera)}animate();
+      const clock=new THREE.Clock();let renderFrame=0;function animate(){requestAnimationFrame(animate);if(document.hidden)return;if(++renderFrame%2)return;const t=clock.getElapsedTime();players.forEach(p=>{if(p.userData.serverDriven&&p.userData.targetPosition){p.position.lerp(p.userData.targetPosition,.14)}else{p.position.y=p.userData.base+Math.sin(t*1.15+p.userData.phase)*.28}p.rotation.z=Math.sin(t*.45+p.userData.phase)*.025;p.rotation.x=Math.sin(t*.5+p.userData.phase)*.018});/* Ball starting positions remain aligned on the midfield line; referee-published coordinates can still move them. */wings.forEach((w,i)=>{w.rotation.z=Math.sin(t*10+i*Math.PI)*.28});referee.rotation.y=Math.sin(t*.5)*.04;controls.update();renderer.render(scene,camera)}animate();
       const liveLabel=document.getElementById("arenaLiveLabel");
       let liveMatchId=null,liveRevision=-1,currentGameState={elapsed_seconds:0,clock_running:0},currentAdmin=null;
       const adminToken=()=>sessionStorage.getItem("atramentumAdminSession");
