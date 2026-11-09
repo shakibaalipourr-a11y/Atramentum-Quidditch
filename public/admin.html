@@ -167,6 +167,12 @@
         </div>
       </section>
       <div id="superTools" class="hidden">
+        <section class="provision">
+          <h2>بازنشانی امتیازات تاریخی گروه‌ها</h2>
+          <p class="hint">امتیازهای ثبت‌شدهٔ اسلیترین و گریفیندور در تمام مسابقات صفر می‌شود و برندهٔ مسابقات پایان‌یافته بر اساس امتیازهای جدید دوباره محاسبه خواهد شد. تاریخچهٔ رویدادها، مسابقات، بازیکنان و امتیازات هافلپاف و ریونکلا دست‌نخورده می‌ماند.</p>
+          <button type="button" class="btn" id="resetHouseScores" style="border-color:#b96c6c;background:linear-gradient(135deg,#b96c6c,#783e3e);color:#fff">ریست امتیازات اسلیترین و گریفیندور</button>
+          <div class="message" id="resetHouseScoresMessage" role="status"></div>
+        </section>
         <h2>حساب‌های رسمی آترامنتوم</h2>
         <div class="table-wrap"><table><thead><tr><th>نام کاربری</th><th>عنوان</th><th>گروه / نقش</th><th>وضعیت رمز</th></tr></thead><tbody id="usersBody"></tbody></table></div>
         <div class="provision">
@@ -214,6 +220,32 @@
     if(currentAdmin.role==="super_admin"){ $("superTools").classList.remove("hidden"); await loadUsers(); }
     else {$("superTools").classList.add("hidden");$("roleNote").textContent="عملیات مسابقه بر اساس نقش و محدودهٔ گروه شما در سمت سرور کنترل می‌شود.";}
   }
+
+  $("resetHouseScores").addEventListener("click",async()=>{
+    if(!currentAdmin||currentAdmin.role!=="super_admin")
+      return message("resetHouseScoresMessage","فقط مدیر کل اجازهٔ این عملیات را دارد.","error");
+    const approved=confirm("هشدار: امتیازهای تاریخی اسلیترین و گریفیندور در تمام مسابقات صفر می‌شود. تاریخچهٔ رویدادها باقی می‌ماند و برندهٔ مسابقات پایان‌یافته دوباره محاسبه می‌شود. آیا ادامه می‌دهی؟");
+    if(!approved)return;
+    const button=$("resetHouseScores");button.disabled=true;
+    message("resetHouseScoresMessage","در حال بازنشانی امتیازات تاریخی...");
+    try{
+      const response=await api("/api/admin/reset-house-scores",{
+        method:"POST",
+        body:JSON.stringify({confirmation:"RESET_SLYTHERIN_GRYFFINDOR_SCORES"})
+      });
+      const data=await response.json();
+      if(!response.ok||!data.success){
+        message("resetHouseScoresMessage",data.message||"بازنشانی امتیازات ناموفق بود.","error");
+        return;
+      }
+      message("resetHouseScoresMessage",
+        "بازنشانی انجام شد: "+data.resetRows+" رکورد امتیاز در "+data.matchesWithScores+
+        " مسابقه صفر شد. تاریخچهٔ رویدادها حفظ شده است. جدول امتیازات را تازه‌سازی کن.",
+        "success");
+    }catch{
+      message("resetHouseScoresMessage","ارتباط با سرور برقرار نشد؛ وضعیت عملیات را از جدول امتیازات بررسی کن.","error");
+    }finally{button.disabled=false;}
+  });
 
   $("createFixture").addEventListener("click",async()=>{
     const homeTeamId=$("fixtureHome").value,awayTeamId=$("fixtureAway").value;
