@@ -976,6 +976,21 @@
         transition-duration: .01ms !important;
       }
     }
+  
+/* Mobile readability and desktop-like proportions */
+@media (max-width:700px){
+  html{font-size:16px} .navbar{height:76px;padding:0 4%}.brand-symbol{width:40px;height:40px;font-size:23px}.brand-name{font-size:15px;letter-spacing:2px}
+  .nav-links{top:76px;padding:28px 22px;gap:24px}.nav-links a{font-size:16px}.menu-toggle{font-size:31px;padding:8px}
+  .hero{min-height:790px;padding:125px 22px 90px}.hero-content{width:100%}.hero-emblem{font-size:62px}.eyebrow{font-size:12px;letter-spacing:3px}.hero h1{font-size:clamp(42px,11vw,68px);line-height:1.2}.hero h2{font-size:23px}.hero-description{font-size:15px;line-height:2.15;max-width:620px}
+  .hero-actions,.quidditch-actions{gap:13px}.btn{min-height:56px;padding:15px 20px;font-size:15px}
+  .section{padding:76px 4.5%}.section-heading{margin-bottom:42px}.section-heading .small-title{font-size:12px}.section-heading h2{font-size:30px}.section-heading p,.intro-text{font-size:15px;line-height:2.2}
+  .features-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.feature-card{padding:27px 16px}.feature-icon{font-size:39px}.feature-card h3{font-size:17px}.feature-card p{font-size:14px;line-height:2.1}
+  .house-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.house-card{min-height:300px;padding:28px 15px}.house-symbol{font-size:49px}.house-card h3{font-size:21px}.house-card .house-persian{font-size:15px}.house-card p{font-size:13px;line-height:2.1}
+  .quidditch-box{padding:48px 22px}.quidditch-symbol{font-size:58px}.quidditch-box h2{font-size:31px}.quidditch-box p{font-size:15px;line-height:2.2}
+  .login-wrapper{padding:38px 24px}.login-wrapper input,.login-wrapper select{min-height:54px;font-size:16px}.login-wrapper label{font-size:14px}
+}
+@media(max-width:420px){.features-grid{grid-template-columns:1fr}.house-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.house-card{min-height:285px;padding:24px 11px}.hero h1{font-size:42px}.section{padding-left:4%;padding-right:4%}}
+
   </style>
 </head>
 
