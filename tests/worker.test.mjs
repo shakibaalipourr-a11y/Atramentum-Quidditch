@@ -35,6 +35,9 @@ function createEnv({ loginPlayer = null, sessionPlayer = null } = {}) {
               return { results: [] };
             }
           };
+        },
+        async all() {
+          return { results: [] };
         }
       };
     }
