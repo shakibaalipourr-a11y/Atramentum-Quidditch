@@ -763,6 +763,24 @@
     }
     @media(max-width:390px){.game-team{max-width:55px}.game-scoreboard{gap:5px;padding:6px 7px}.game-actions a{display:none}}
 
+  
+/* Mobile stadium HUD: larger scoreboard and comfortable touch targets */
+@media(max-width:700px){
+ .topbar{height:54px;padding:0 15px}.logo{font-size:16px;letter-spacing:2px}
+ .game-scoreboard{top:64px;min-width:0;width:auto;max-width:calc(100vw - 22px);gap:13px;padding:12px 16px;border-radius:14px}
+ .game-team{font-size:12px;max-width:105px}.game-score{font-size:25px;letter-spacing:1px}
+ .game-match-picker{bottom:82px;left:10px;right:10px;padding:11px 13px;font-size:12px;border-radius:12px;gap:10px}
+ .game-match-picker select{max-width:68%;font-size:13px;padding:8px 10px}
+ .arena-3d-overlay{top:132px;right:50%;left:auto;transform:translateX(50%);width:max-content;max-width:calc(100vw - 24px);font-size:11px;padding:10px 14px;line-height:1.7}
+ .arena-3d-label{bottom:145px;font-size:9px;letter-spacing:2px}
+ .arena-3d-controls{bottom:18px;left:auto;right:10px;transform:none;gap:7px;max-width:calc(100vw - 20px)}
+ .arena-3d-controls button{min-height:44px;padding:11px 13px;font-size:11px;border-radius:10px}
+ .game-actions{left:10px;bottom:18px;gap:7px}.game-actions button,.game-actions a{min-height:44px;padding:11px 13px;font-size:11px;border-radius:10px}
+ .game-event-feed{right:10px;bottom:145px;max-width:54vw;font-size:10px;padding:10px 12px;line-height:1.7}
+ .referee-panel{top:145px;left:10px;width:min(310px,calc(100vw - 20px));max-height:48svh;padding:14px;font-size:12px}
+}
+@media(max-width:390px){.game-scoreboard{gap:9px;padding:10px 12px}.game-team{font-size:11px;max-width:82px}.game-score{font-size:22px}.game-match-picker{bottom:80px}.arena-3d-controls button,.game-actions button,.game-actions a{padding:10px 10px;font-size:10px}}
+
   </style>
 </head>
 
