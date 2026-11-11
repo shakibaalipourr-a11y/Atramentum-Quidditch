@@ -1236,7 +1236,7 @@ main.container>.section{padding-top:12px}
       const controls=new OrbitControls(camera,renderer.domElement);
       controls.enableDamping=true;controls.dampingFactor=.075;controls.enablePan=false;
       controls.minDistance=isPhone?48:42;controls.maxDistance=isPhone?118:125;
-      controls.minPolarAngle=.38;controls.maxPolarAngle=isPhone?1.28:1.38;
+      controls.minPolarAngle=.15;controls.maxPolarAngle=isPhone?1.28:1.38;
       controls.minAzimuthAngle=isPhone?.55:-Math.PI*.78;controls.maxAzimuthAngle=isPhone?2.6:Math.PI*.78;
       controls.target.set(0,5,0);controls.update();
       scene.add(new THREE.HemisphereLight(0xe5f5e9,0x273b2e,2.7));
