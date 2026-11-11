@@ -263,3 +263,13 @@ test("bulk finalization updates the central database for every role scope", asyn
   assert.ok(env.state.queries.some(sql => sql.includes("status IN ('live','paused')")));
 });
 
+test("public match feed excludes completed fixtures", async () => {
+  const env = createEnv();
+  const response = await worker.fetch(new Request("https://atramentum.test/api/matches"), env);
+  const data = await response.json();
+  const query = env.state.queries.join("\\n");
+  assert.equal(response.status, 200);
+  assert.equal(data.success, true);
+  assert.ok(query.includes("WHERE m.status IN ('scheduled','live','paused')"));
+});
+
