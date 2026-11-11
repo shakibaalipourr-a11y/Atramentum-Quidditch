@@ -333,3 +333,13 @@ test("stadium includes an actual 2D canvas view connected to the 3D match scene"
   assert.match(html, /function setViewMode\(/);
 });
 
+test("stadium provides a central-database finish action for house admins and referees", async () => {
+  const html = await readFile(new URL("../public/stadium.html", import.meta.url), "utf8");
+  const worker = await readFile(new URL("../src/index.js", import.meta.url), "utf8");
+  assert.match(html, /id="finishLiveMatch"/);
+  assert.match(html, /\["referee","super_admin","house_admin"\]/);
+  assert.match(html, /action:"status",status:"completed"/);
+  assert.match(worker, /if \(!canManageMatch\(admin,match\)\)/);
+  assert.match(worker, /if \(action === "status"\)/);
+});
+
