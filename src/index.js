@@ -157,6 +157,50 @@ async function handleProfile(request, env) {
     }, 401);
   }
 
+  const [statsRow, historyResult] = await Promise.all([
+    env.atramentum_db.prepare(`
+      SELECT
+        COUNT(DISTINCT m.id) AS matches_played,
+        COUNT(DISTINCT CASE WHEN m.winner_team_id = p.team_id THEN m.id END) AS matches_won,
+        COALESCE(SUM(pms.points), 0) AS total_points,
+        COALESCE(SUM(pms.assists + pms.saves + pms.catches), 0) AS special_actions,
+        COALESCE(SUM(pms.goals), 0) AS goals,
+        COALESCE(SUM(pms.assists), 0) AS assists,
+        COALESCE(SUM(pms.saves), 0) AS saves,
+        COALESCE(SUM(pms.catches), 0) AS catches
+      FROM players p
+      LEFT JOIN player_match_stats pms ON pms.player_id = p.id
+      LEFT JOIN matches m ON m.id = pms.match_id AND m.status = 'completed'
+      WHERE p.id = ?
+    `).bind(player.id).first(),
+    env.atramentum_db.prepare(`
+      SELECT
+        m.id AS match_id,
+        m.status,
+        m.winner_team_id,
+        m.created_at,
+        home.display_name AS home_team_name,
+        away.display_name AS away_team_name,
+        COALESCE(home_score.score, 0) AS home_score,
+        COALESCE(away_score.score, 0) AS away_score,
+        pms.goals,
+        pms.assists,
+        pms.saves,
+        pms.catches,
+        pms.points
+      FROM player_match_stats pms
+      JOIN matches m ON m.id = pms.match_id
+      JOIN players p ON p.id = pms.player_id
+      JOIN teams home ON home.id = m.home_team_id
+      JOIN teams away ON away.id = m.away_team_id
+      LEFT JOIN match_team_results home_score ON home_score.match_id = m.id AND home_score.team_id = m.home_team_id
+      LEFT JOIN match_team_results away_score ON away_score.match_id = m.id AND away_score.team_id = m.away_team_id
+      WHERE p.id = ? AND m.status = 'completed'
+      ORDER BY m.id DESC
+      LIMIT 10
+    `).bind(player.id).all()
+  ]);
+
   const playerData = {
     id: player.id,
     name: player.name,
@@ -167,10 +211,22 @@ async function handleProfile(request, env) {
     position: player.position,
     active: player.active
   };
+  const stats = {
+    matchesPlayed: Number(statsRow?.matches_played || 0),
+    matchesWon: Number(statsRow?.matches_won || 0),
+    totalPoints: Number(statsRow?.total_points || 0),
+    specialActions: Number(statsRow?.special_actions || 0),
+    goals: Number(statsRow?.goals || 0),
+    assists: Number(statsRow?.assists || 0),
+    saves: Number(statsRow?.saves || 0),
+    catches: Number(statsRow?.catches || 0)
+  };
 
   return json({
     success: true,
     player: playerData,
+    stats,
+    history: historyResult.results || [],
 
     // Flat fields for compatibility with the website
     playerId: player.id,
