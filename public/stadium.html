@@ -1299,7 +1299,6 @@ main.container>.section{padding-top:12px}
         arenaShell.classList.toggle("mode-2d",activeViewMode==="2d");
         mapCanvas.hidden=activeViewMode!=="2d";
         document.querySelectorAll("[data-view-mode]").forEach(btn=>btn.classList.toggle("active",btn.dataset.viewMode===activeViewMode));
-        document.querySelectorAll("[data-camera]").forEach(btn=>btn.classList.toggle("active",btn.dataset.camera==="overview"&&activeViewMode==="3d"));
         if(activeViewMode==="2d")drawTacticalMap();
         else resize();
       }
