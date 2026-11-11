@@ -1007,8 +1007,6 @@
 @media(max-width:700px){.atr-menu-button{top:12px!important;right:12px!important;width:50px!important;height:50px!important}.atr-side-menu{padding-top:82px}.navbar{padding-right:78px!important}.navbar .menu-toggle{display:none!important}.topbar{padding-right:78px!important}}
 
 </style>
-
-
 </head>
 
 <body>
@@ -1348,13 +1346,9 @@
           "success"
         );
 
-        const requested = new URLSearchParams(window.location.search).get("next");
-        const safeNext = requested && requested.startsWith("/") && !requested.startsWith("//") &&
-          !requested.includes("\\") && !/^\/(?:index|admin|recover-admin)\.html(?:[?#]|$)/.test(requested)
-          ? requested : "academy.html";
         setTimeout(() => {
-          window.location.href = safeNext;
-        }, 500);
+          window.location.href = "academy.html";
+        }, 700);
 
       } catch (error) {
         console.error("Login error:", error);
