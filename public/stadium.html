@@ -722,6 +722,7 @@
     .referee-panel[hidden]{display:none}
     .referee-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
     .referee-panel-title{font-weight:900;margin:0}
+    .referee-finish{grid-column:1/-1!important;border-color:rgba(210,105,92,.55)!important;color:#f0b2a7!important;background:rgba(105,30,25,.22)!important}
     #refereeClose{width:32px;height:32px;border:1px solid rgba(201,169,110,.35);border-radius:8px;background:#111a15;color:#ead5a6;font-size:22px;cursor:pointer}
     .referee-panel select{width:100%;padding:7px;margin-bottom:8px;border:1px solid rgba(201,169,110,.25);border-radius:7px;background:#111a15;color:#f1e4c7}
     .referee-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -896,9 +897,9 @@ main.container>.section{padding-top:12px}
           <div class="referee-buttons">
             <button data-ref-command="start">شروع / ادامه</button><button data-ref-command="pause">توقف</button>
             <button data-ref-command="goal">ثبت گل +۱۰</button>
-            <button data-ref-command="snitch">تأیید شکار اسنیچ +۱۵۰</button>
+            <button data-ref-command="snitch">تأیید شکار اسنیچ +۱۵۰</button><button type="button" id="finishLiveMatch" class="referee-finish">پایان مسابقه</button>
           </div>
-          <span id="refereeFeedback">فقط داور و مدیر ارشد می‌توانند تصمیم رسمی ثبت کنند.</span>
+          <span id="refereeFeedback">مدیر گروهِ حاضر در مسابقه، داور و مدیر کل می‌توانند عملیات مجاز را ثبت کنند.</span>
         </div>
         <div class="game-match-picker"><label for="matchPicker">مسابقه</label><select id="matchPicker"><option value="">در حال دریافت مسابقات...</option></select></div>
         <div class="arena-3d-label" id="arenaTitle">ATRAMENTUM GRAND QUIDDITCH ARENA</div>
@@ -1362,7 +1363,7 @@ main.container>.section{padding-top:12px}
         const token=adminToken();if(!token)return;
         try{const r=await fetch("/api/admin/me",{headers:{Authorization:"Bearer "+token},cache:"no-store"});if(!r.ok)return;
           const d=await r.json();currentAdmin=d.admin||null;
-          const allowed=!!currentAdmin&&["referee","super_admin"].includes(currentAdmin.role);
+          const allowed=!!currentAdmin&&["referee","super_admin","house_admin"].includes(currentAdmin.role);
           const toggle=document.getElementById("refereeToggle"),panel=document.getElementById("refereePanel");
           toggle.hidden=!allowed;panel.hidden=true;
           toggle.addEventListener("click",()=>{panel.hidden=!panel.hidden;toggle.setAttribute("aria-expanded",String(!panel.hidden));});
@@ -1394,7 +1395,7 @@ main.container>.section{padding-top:12px}
           if(!listResponse.ok)return;
           const list=await listResponse.json();
           const matches=list.matches||[];
-          const activeMatches=matches.filter(m=>m.status==="live"||m.status==="paused");
+          const activeMatches=matches.filter(m=>(m.status==="live"||m.status==="paused")&&(currentAdmin?.role!=="house_admin"||m.home_team_id===currentAdmin.teamId||m.away_team_id===currentAdmin.teamId));
           const picker=document.getElementById("matchPicker");
           const currentChoice=picker.value;
           const signature=activeMatches.map(m=>String(m.id)+":"+m.status).join("|");
@@ -1451,6 +1452,20 @@ main.container>.section{padding-top:12px}
           });
         }catch(error){console.warn("Live match sync unavailable:",error)}
       }
+      document.getElementById("finishLiveMatch").addEventListener("click",async()=>{
+        const token=adminToken();
+        if(!token||!currentAdmin||!["super_admin","house_admin","referee"].includes(currentAdmin.role)){document.getElementById("refereeFeedback").textContent="ورود معتبر مدیر یا داور لازم است.";return}
+        if(!liveMatchId){document.getElementById("refereeFeedback").textContent="ابتدا یک مسابقهٔ فعال انتخاب کنید.";return}
+        if(!confirm("مسابقه پایان یابد؟ این تصمیم در دیتابیس مرکزی ثبت می‌شود و برای همه کاربران اعمال خواهد شد."))return;
+        const button=document.getElementById("finishLiveMatch");button.disabled=true;
+        try{
+          const response=await fetch("/api/admin/matches/"+liveMatchId+"/live",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({action:"status",status:"completed"})});
+          const result=await response.json();
+          document.getElementById("refereeFeedback").textContent=result.message||"پاسخ نامشخص";
+          if(response.ok&&result.success){liveRevision=-1;await syncLiveMatch();}
+        }catch(error){document.getElementById("refereeFeedback").textContent="ثبت پایان مسابقه ناموفق بود؛ اتصال را بررسی کنید."}
+        finally{button.disabled=false}
+      });
       document.getElementById("matchPicker").addEventListener("change",()=>{liveMatchId=null;liveRevision=-1;syncLiveMatch()});
       setInterval(drawTacticalMap,250);window.addEventListener("resize",drawTacticalMap);
       document.querySelectorAll("[data-ref-command]").forEach(button=>button.addEventListener("click",async()=>{
