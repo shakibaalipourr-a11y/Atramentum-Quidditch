@@ -310,6 +310,7 @@ async function handleMatches(request, env) {
     FROM matches m
     JOIN teams home ON home.id = m.home_team_id
     JOIN teams away ON away.id = m.away_team_id
+    WHERE m.status IN ('scheduled','live','paused')
     ORDER BY
       CASE WHEN m.status = 'scheduled' THEN 0 ELSE 1 END,
       m.scheduled_at DESC
