@@ -273,3 +273,63 @@ test("public match feed excludes completed fixtures", async () => {
   assert.ok(query.includes("WHERE m.status IN ('scheduled','live','paused')"));
 });
 
+test("profile returns completed-match statistics and history from the database", async () => {
+  const queries = [];
+  const db = {
+    prepare(sql) {
+      queries.push(sql);
+      return {
+        bind(...values) {
+          return {
+            async first() {
+              if (sql.includes("FROM sessions")) return {
+                id: 1, name: "Enzo", team_id: "slytherin", player_number: 1,
+                position: "Chaser", active: 1, team_name: "اسلیترین",
+                team_emblem: "🐍", token: "valid-player-token"
+              };
+              if (sql.includes("COUNT(DISTINCT m.id)")) return {
+                matches_played: 3, matches_won: 2, total_points: 40,
+                special_actions: 5, goals: 4, assists: 2, saves: 1, catches: 2
+              };
+              return null;
+            },
+            async all() {
+              if (sql.includes("FROM player_match_stats pms") && sql.includes("home_team_name")) {
+                return { results: [{
+                  match_id: 9, home_team_name: "اسلیترین", away_team_name: "گریفیندور",
+                  home_score: 40, away_score: 20, goals: 2, assists: 1,
+                  saves: 0, catches: 1, points: 20
+                }] };
+              }
+              return { results: [] };
+            },
+            async run() { return { success: true }; }
+          };
+        }
+      };
+    }
+  };
+  const env = { atramentum_db: db, ASSETS: { fetch: async () => new Response("asset") } };
+  const response = await worker.fetch(new Request("https://atramentum.test/api/profile", {
+    headers: { Authorization: "Bearer valid-player-token" }
+  }), env);
+  const data = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(data.stats.matchesPlayed, 3);
+  assert.equal(data.stats.matchesWon, 2);
+  assert.equal(data.stats.totalPoints, 40);
+  assert.equal(data.stats.specialActions, 5);
+  assert.equal(data.history.length, 1);
+  assert.ok(queries.some(sql => sql.includes("m.status = 'completed'")));
+});
+
+test("stadium includes an actual 2D canvas view connected to the 3D match scene", async () => {
+  const html = await readFile(new URL("../public/stadium.html", import.meta.url), "utf8");
+  assert.match(html, /<canvas id="arena2d"/);
+  assert.match(html, /data-view-mode="2d"/);
+  assert.match(html, /data-view-mode="3d"/);
+  assert.match(html, /function drawTacticalMap\(/);
+  assert.match(html, /players\.filter\(p=>p\.visible\)/);
+  assert.match(html, /function setViewMode\(/);
+});
+
