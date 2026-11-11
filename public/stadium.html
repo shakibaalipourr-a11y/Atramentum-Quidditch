@@ -1347,14 +1347,14 @@ main.container>.section{padding-top:12px}
           if(!listResponse.ok)return;
           const list=await listResponse.json();
           const matches=list.matches||[];
-          const activeMatches=matches.filter(m=>["live","paused","scheduled"].includes(m.status));
+          const activeMatches=matches.filter(m=>m.status==="live"||m.status==="paused");
           const picker=document.getElementById("matchPicker");
           const currentChoice=picker.value;
           const signature=activeMatches.map(m=>String(m.id)+":"+m.status).join("|");
           if(picker.dataset.signature!==signature){
             picker.innerHTML="";
-            if(!activeMatches.length){const option=document.createElement("option");option.value="";option.textContent="مسابقهٔ فعالی وجود ندارد";picker.appendChild(option);}
-            activeMatches.forEach(m=>{const option=document.createElement("option");option.value=String(m.id);option.textContent="#"+m.id+" · "+(m.home_name||m.home_team||m.home_team_id)+" × "+(m.away_name||m.away_team||m.away_team_id);picker.appendChild(option)});
+            if(!activeMatches.length){const option=document.createElement("option");option.value="";option.textContent="در حال حاضر مسابقهٔ زنده یا متوقف‌شده‌ای وجود ندارد";picker.appendChild(option);}
+            activeMatches.forEach(m=>{const option=document.createElement("option");option.value=String(m.id);option.textContent="#"+m.id+" · "+(m.home_name||m.home_team||m.home_team_id)+" × "+(m.away_name||m.away_team||m.away_team_id)+(m.status==="paused"?" · متوقف موقت":" · زنده");picker.appendChild(option)});
             picker.dataset.signature=signature;
           }
           let active=activeMatches.find(m=>String(m.id)===currentChoice);
