@@ -131,7 +131,7 @@
         <div class="message" id="fixtureMessage" role="status"></div>
       </section>
       <section class="match-tools" id="matchTools">
-        <div class="topline"><h2>مرکز کنترل مسابقات زنده</h2><div class="match-actions"><button type="button" id="finishActiveMatches" class="logout hidden">پایان همه مسابقات فعال</button><button type="button" id="refreshMatches" class="logout">به‌روزرسانی</button></div></div>
+        <div class="topline"><h2>مرکز کنترل مسابقات زنده</h2><div class="match-actions"><button type="button" id="finishActiveMatches" class="logout">پایان همه مسابقات فعال</button><button type="button" id="refreshMatches" class="logout">به‌روزرسانی</button></div></div>
         <p class="hint">مسابقات پایان‌یافته از این فهرست حذف می‌شوند؛ مسابقات برنامه‌ریزی‌شده و فعال همچنان نمایش داده می‌شوند.</p>
         <div class="match-grid" id="matchList"></div><div class="message" id="bulkFinishMessage" role="status"></div>
         <div class="match-card hidden" id="selectedMatchPanel">
@@ -209,7 +209,6 @@
     show(dashboard);
     $("fixtureTools").classList.toggle("hidden",currentAdmin.role!=="super_admin");
     $("formationTools").classList.toggle("hidden",!["super_admin","referee"].includes(currentAdmin.role));
-    $("finishActiveMatches").classList.toggle("hidden",currentAdmin.role!=="super_admin");
     await loadMatches();
     if(currentAdmin.role==="super_admin"){ $("superTools").classList.remove("hidden"); await loadUsers(); }
     else {$("superTools").classList.add("hidden");$("roleNote").textContent="عملیات مسابقه بر اساس نقش و محدودهٔ گروه شما در سمت سرور کنترل می‌شود.";}
@@ -350,25 +349,22 @@
   });
   $("refreshMatches").addEventListener("click",loadMatches);
   $("finishActiveMatches").addEventListener("click",async()=>{
-    if(!currentAdmin||currentAdmin.role!=="super_admin")return;
+    if(!currentAdmin)return;
     const active=matchList.filter(m=>m.status==="live"||m.status==="paused");
-    if(!active.length)return message("bulkFinishMessage","هیچ مسابقهٔ در حال برگزاری یا متوقف موقتی برای پایان دادن وجود ندارد.","");
-    if(!confirm("آیا مطمئنی می‌خواهی "+active.length+" مسابقهٔ فعال را پایان‌یافته کنی؟ ساعت همه متوقف و برنده بر اساس امتیاز فعلی ثبت می‌شود."))return;
+    if(!active.length)return message("bulkFinishMessage","هیچ مسابقهٔ فعالی در محدودهٔ دسترسی شما وجود ندارد.","");
+    const scope=currentAdmin.role==="house_admin"?"مسابقات گروه شما":"همه مسابقات فعال";
+    if(!confirm("آیا مطمئنی می‌خواهی "+active.length+" مورد از "+scope+" را پایان‌یافته کنی؟ این تغییر در دیتابیس مشترک ثبت می‌شود و برای همه کاربران اعمال خواهد شد؛ ساعت‌ها متوقف و برنده بر اساس امتیاز فعلی تعیین می‌شود."))return;
     const button=$("finishActiveMatches");button.disabled=true;
-    message("bulkFinishMessage","در حال پایان دادن به مسابقات فعال...");
-    let completed=0;const failures=[];
-    for(const match of active){
-      try{
-        const response=await matchApi(match.id,{action:"status",status:"completed"});
-        const data=await response.json();
-        if(!response.ok||!data.success)throw new Error(data.message||"ثبت پایان مسابقه ناموفق بود.");
-        completed++;
-      }catch(error){failures.push("مسابقه #"+match.id+": "+error.message);}
-    }
-    await loadMatches();
-    if(failures.length)message("bulkFinishMessage",completed+" مسابقه پایان یافت؛ "+failures.length+" مورد ناموفق بود: "+failures.join(" | "),"error");
-    else message("bulkFinishMessage",completed+" مسابقه با موفقیت پایان یافت و از مرکز کنترل مسابقات زنده حذف شد.","success");
-    button.disabled=false;
+    message("bulkFinishMessage","در حال ثبت پایان مسابقات در سامانه مرکزی...");
+    try{
+      const response=await api("/api/admin/matches/finish-active",{method:"POST",body:JSON.stringify({})});
+      const data=await response.json();
+      if(!response.ok||!data.success)throw new Error(data.message||"پایان مسابقات ناموفق بود.");
+      await loadMatches();
+      message("bulkFinishMessage",data.completedCount+" مسابقه در دیتابیس مرکزی پایان یافت؛ وضعیت برای همه کاربران یکسان شد.","success");
+    }catch(error){
+      message("bulkFinishMessage",error.message||"ارتباط با سرور برقرار نشد.","error");
+    }finally{button.disabled=false;}
   });
   async function loadUsers(){
     const response=await api("/api/admin/users");const data=await response.json();
