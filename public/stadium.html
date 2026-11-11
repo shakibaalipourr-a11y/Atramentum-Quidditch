@@ -383,7 +383,7 @@
     .profile-link{font-size:9px;padding:7px 9px}
     .section{padding:0;margin:0}
     .arena-3d-shell{display:block;position:fixed;inset:0;width:100vw;height:100svh;min-height:100svh;max-height:none;padding:0;border:0;border-radius:0;background:radial-gradient(ellipse at 50% 58%,#1c3929 0%,#09120f 68%,#030605 100%);isolation:isolate}
-    .arena-2d-canvas{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;touch-action:pan-y}.arena-2d-canvas[hidden]{display:none!important}.arena-3d-shell.mode-2d #arena3d{visibility:hidden}.arena-3d-shell.mode-2d .arena-3d-controls [data-camera]{display:none}.arena-3d-shell.mode-2d .arena-3d-controls [data-view-mode]{display:inline-flex}
+
     #arena3d{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
     #arena3d canvas{width:100%;height:100%}
     .arena-3d-overlay{top:17px;right:50%;transform:translateX(50%);white-space:nowrap;padding:9px 16px}
@@ -415,7 +415,7 @@
     @media(max-width:390px){.game-team{max-width:55px}.game-scoreboard{gap:5px;padding:6px 7px}.game-actions a{display:none}}
 
     .arena-3d-shell{display:block;min-height:560px;height:min(68vw,650px);padding:0;background:radial-gradient(ellipse at 50% 58%,#1c3929 0%,#09120f 68%,#06090a 100%);isolation:isolate}
-    .arena-2d-canvas{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;touch-action:pan-y}.arena-2d-canvas[hidden]{display:none!important}.arena-3d-shell.mode-2d #arena3d{visibility:hidden}.arena-3d-shell.mode-2d .arena-3d-controls [data-camera]{display:none}.arena-3d-shell.mode-2d .arena-3d-controls [data-view-mode]{display:inline-flex}
+
     #arena3d{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y}
     #arena3d canvas{display:block;width:100%;height:100%;outline:none}
     .arena-3d-overlay{position:absolute;top:18px;right:20px;z-index:4;display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#f1e4c7;font-size:11px;padding:10px 14px;border:1px solid rgba(201,169,110,.25);border-radius:30px;background:rgba(5,9,8,.66);backdrop-filter:blur(12px);pointer-events:none}
@@ -817,7 +817,7 @@ main.container>.section{padding-top:12px}
 #arena3d{height:clamp(390px,66vh,720px)!important}
 .game-event-feed{max-height:72px;overflow:auto}
 .topbar{height:58px;backdrop-filter:none}
-@media(max-width:700px){#arena3d{height:58vh!important;min-height:340px!important}.arena-3d-shell{border-radius:12px}}
+
 </style>
 <style>
 .player-key{position:relative;z-index:5;display:flex;justify-content:center;flex-wrap:wrap;gap:7px 14px;padding:7px 12px;color:#d8cfbd;background:#080a0dcc;border-top:1px solid #c8a45e33;font-size:10px;line-height:1.7}
@@ -826,10 +826,10 @@ main.container>.section{padding-top:12px}
   html,body{width:100%;height:100%;min-height:100%;overflow:hidden}
   #stadiumContent{height:100dvh!important;min-height:100dvh!important}
   .arena-3d-shell{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;padding:0!important;border:0!important;border-radius:0!important;overflow:hidden!important;background:radial-gradient(ellipse at 50% 48%,#244d36 0%,#10291e 64%,#07120d 100%)!important}
-  #arena3d{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;touch-action:pan-y!important}
+  #arena3d{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;touch-action:none!important}
   #arena3d canvas{display:block;width:100%!important;height:100%!important}
   .arena-3d-shell::before,.arena-3d-shell::after{display:none!important}
-  .player-key,.arena-3d-hint,.game-event-feed{display:none!important}
+  .player-key,.arena-3d-hint,.game-event-feed,.arena-3d-overlay,.arena-3d-label{display:none!important}
   .arena-3d-overlay{top:128px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;max-width:calc(100vw - 110px)!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;padding:5px 10px!important;font-size:10px!important;background:rgba(4,13,9,.58)!important;border-radius:20px}
   .arena-3d-label{bottom:116px!important;font-size:9px!important;letter-spacing:3px!important}
   .game-scoreboard{top:64px!important;left:50%!important;transform:translateX(-50%)!important;width:min(310px,calc(100vw - 104px))!important;min-width:0!important;gap:8px!important;padding:8px 10px!important;z-index:42!important}
