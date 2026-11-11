@@ -153,6 +153,20 @@ test("logout revokes the presented session token", async () => {
 });
 
 
+test("leaderboard data is unavailable without a valid session", async () => {
+  const env = createEnv();
+  const response = await worker.fetch(new Request("https://atramentum.test/api/leaderboard"), env);
+  assert.equal(response.status, 401);
+});
+
+test("player HttpOnly cookie authenticates data API requests", async () => {
+  const env = createEnv({ sessionPlayer: { id: 1, name: "Test Player", team_id: "slytherin", token: "cookie-session" } });
+  const response = await worker.fetch(new Request("https://atramentum.test/api/matches", {
+    headers: { Cookie: "atr_player_session=cookie-session" }
+  }), env);
+  assert.equal(response.status, 200);
+});
+
 test("leaderboard ranks houses by cumulative Quidditch match points", async () => {
   const env = createEnv({ sessionPlayer: { id: 1, name: "Test Player", team_id: "slytherin", token: "test-session" } });
   const response = await worker.fetch(
