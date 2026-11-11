@@ -169,3 +169,97 @@ test("leaderboard ranks houses by cumulative Quidditch match points", async () =
   assert.ok(query.includes("ORDER BY points DESC"));
   assert.ok(query.includes("COUNT(*) AS player_count"));
 });
+
+function createAdminMatchEnv({ admin, match = null, activeCount = 0 } = {}) {
+  const state = { updatedMatch: null, batches: [], queries: [] };
+  const db = {
+    prepare(sql) {
+      state.queries.push(sql);
+      return {
+        bind(...values) {
+          return {
+            async first() {
+              if (sql.includes("FROM admin_sessions")) return admin || null;
+              if (sql.includes("COUNT(*) AS total") && sql.includes("FROM matches")) return { total: activeCount };
+              if (sql.includes("FROM matches m") && sql.includes("WHERE m.id = ?")) return match;
+              if (sql.includes("SELECT started_at,elapsed_seconds,clock_running FROM match_game_state")) return null;
+              return null;
+            },
+            async all() {
+              if (sql.includes("SELECT team_id,score FROM match_team_results")) return { results: [] };
+              return { results: [] };
+            },
+            async run() {
+              if (sql.includes("UPDATE matches SET status=?")) state.updatedMatch = values;
+              return { success: true, meta: { changes: 1 } };
+            }
+          };
+        }
+      };
+    },
+    async batch(statements) {
+      state.batches.push(statements);
+      return [];
+    }
+  };
+  return { atramentum_db: db, state };
+}
+
+test("house administrator can finalize a match involving their own house", async () => {
+  const env = createAdminMatchEnv({
+    admin: { id: 7, username: "serpentis", role: "house_admin", team_id: "slytherin" },
+    match: { id: 12, home_team_id: "slytherin", away_team_id: "gryffindor", status: "live" }
+  });
+  const response = await worker.fetch(
+    new Request("https://atramentum.test/api/admin/matches/12/live", {
+      method: "POST",
+      headers: { Authorization: "Bearer valid-admin", "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "status", status: "completed" })
+    }),
+    env
+  );
+  const data = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(data.success, true);
+  assert.equal(env.state.updatedMatch[0], "completed");
+  assert.equal(env.state.updatedMatch[2], 12);
+});
+
+test("house administrator cannot finalize a match outside their house scope", async () => {
+  const env = createAdminMatchEnv({
+    admin: { id: 7, username: "serpentis", role: "house_admin", team_id: "slytherin" },
+    match: { id: 13, home_team_id: "hufflepuff", away_team_id: "ravenclaw", status: "live" }
+  });
+  const response = await worker.fetch(
+    new Request("https://atramentum.test/api/admin/matches/13/live", {
+      method: "POST",
+      headers: { Authorization: "Bearer valid-admin", "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "status", status: "completed" })
+    }),
+    env
+  );
+  assert.equal(response.status, 403);
+  assert.equal(env.state.updatedMatch, null);
+});
+
+test("bulk finalization updates the central database for every role scope", async () => {
+  const env = createAdminMatchEnv({
+    admin: { id: 1, username: "ACAME_IX47", role: "super_admin", team_id: null },
+    activeCount: 4
+  });
+  const response = await worker.fetch(
+    new Request("https://atramentum.test/api/admin/matches/finish-active", {
+      method: "POST",
+      headers: { Authorization: "Bearer valid-admin", "Content-Type": "application/json" },
+      body: "{}"
+    }),
+    env
+  );
+  const data = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(data.completedCount, 4);
+  assert.equal(env.state.batches.length, 1);
+  assert.equal(env.state.batches[0].length, 3);
+  assert.ok(env.state.queries.some(sql => sql.includes("status IN ('live','paused')")));
+});
+
