@@ -47,9 +47,8 @@ export async function onRequest({ request, env, next }) {
   const destination = path + url.search;
   const loginUrl = new URL("/index.html", url);
   loginUrl.searchParams.set("next", destination);
-  const response = Response.redirect(loginUrl.toString(), 302);
-  response.headers.append("Set-Cookie", "atr_player_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax");
-  response.headers.append("Set-Cookie", "atr_admin_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax");
-  response.headers.set("Cache-Control", "no-store");
-  return response;
+  const headers = new Headers({ Location: loginUrl.toString(), "Cache-Control": "no-store" });
+  headers.append("Set-Cookie", "atr_player_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax");
+  headers.append("Set-Cookie", "atr_admin_session=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax");
+  return new Response(null, { status: 302, headers });
 }
