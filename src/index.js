@@ -611,6 +611,53 @@ async function handleAdminMatches(request, env) {
   return json({success:false,message:"Method not allowed."},405);
 }
 
+async function handleFinishActiveMatches(request, env) {
+  if (request.method !== "POST") return json({success:false,message:"Method not allowed."},405);
+  const admin=await getAdmin(request,env);
+  if (!admin) return json({success:false,message:"Admin session expired or invalid."},401);
+  if (!["super_admin","house_admin","referee"].includes(admin.role))
+    return json({success:false,message:"Insufficient permissions."},403);
+
+  const scopeSql="(? != 'house_admin' OR home_team_id = ? OR away_team_id = ?)";
+  const scope=[admin.role,admin.team_id||"",admin.team_id||""];
+  const count=await env.atramentum_db.prepare(
+    "SELECT COUNT(*) AS total FROM matches WHERE status IN ('live','paused') AND "+scopeSql
+  ).bind(...scope).first();
+  const total=Number(count?.total||0);
+  if (!total) return json({success:true,completedCount:0,message:"No active matches were available to finish."});
+
+  await env.atramentum_db.batch([
+    env.atramentum_db.prepare(`
+      UPDATE match_game_state
+      SET elapsed_seconds=elapsed_seconds+CASE
+        WHEN clock_running=1 AND started_at IS NOT NULL
+          THEN MAX(0,CAST((julianday('now')-julianday(started_at))*86400 AS INTEGER))
+        ELSE 0 END,
+        clock_running=0,updated_at=CURRENT_TIMESTAMP
+      WHERE match_id IN (
+        SELECT id FROM matches WHERE status IN ('live','paused') AND ${scopeSql}
+      )
+    `).bind(...scope),
+    env.atramentum_db.prepare(`
+      UPDATE matches
+      SET status='completed',
+          winner_team_id=CASE
+            WHEN COALESCE((SELECT score FROM match_team_results WHERE match_id=matches.id AND team_id=matches.home_team_id),0)
+               = COALESCE((SELECT score FROM match_team_results WHERE match_id=matches.id AND team_id=matches.away_team_id),0) THEN NULL
+            WHEN COALESCE((SELECT score FROM match_team_results WHERE match_id=matches.id AND team_id=matches.home_team_id),0)
+               > COALESCE((SELECT score FROM match_team_results WHERE match_id=matches.id AND team_id=matches.away_team_id),0) THEN home_team_id
+            ELSE away_team_id
+          END
+      WHERE status IN ('live','paused') AND ${scopeSql}
+    `).bind(...scope),
+    env.atramentum_db.prepare(`
+      INSERT INTO admin_audit_logs(admin_id,action,target_username,details)
+      VALUES(?,'active_matches_bulk_finished',?,?)
+    `).bind(admin.id,admin.username,JSON.stringify({completedCount:total,scope:admin.role==="house_admin"?admin.team_id:"all"}))
+  ]);
+  return json({success:true,completedCount:total,message:total+" active matches were finalized for all users."});
+}
+
 async function handleAdminMatchLive(request, env, matchId) {
   const admin = await getAdmin(request, env);
   if (!admin) return json({success:false,message:"Admin session expired or invalid."},401);
@@ -660,9 +707,11 @@ async function handleAdminMatchLive(request, env, matchId) {
       if(state?.snitch_caught_by)return json({success:false,message:"The Golden Snitch has already been caught."},409);
       const teamId=String(body.teamId||"");
       if(![match.home_team_id,match.away_team_id].includes(teamId))return json({success:false,message:"Choose a participating team."},400);
+      const started=state?.started_at?Date.parse(state.started_at.replace(" ","T")+"Z"):Date.now();
+      const finalElapsed=elapsed+(state?.clock_running?Math.max(0,Math.floor((Date.now()-started)/1000)):0);
       await env.atramentum_db.batch([
         env.atramentum_db.prepare("INSERT INTO match_team_results(match_id,team_id,score) VALUES(?,?,150) ON CONFLICT(match_id,team_id) DO UPDATE SET score=score+150").bind(id,teamId),
-        env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,snitch_caught_by,clock_running) VALUES(?,?,0) ON CONFLICT(match_id) DO UPDATE SET snitch_caught_by=excluded.snitch_caught_by,clock_running=0,updated_at=CURRENT_TIMESTAMP").bind(id,teamId),
+        env.atramentum_db.prepare("INSERT INTO match_game_state(match_id,snitch_caught_by,elapsed_seconds,clock_running) VALUES(?,?,?,0) ON CONFLICT(match_id) DO UPDATE SET snitch_caught_by=excluded.snitch_caught_by,elapsed_seconds=excluded.elapsed_seconds,clock_running=0,updated_at=CURRENT_TIMESTAMP").bind(id,teamId,finalElapsed),
         env.atramentum_db.prepare("INSERT INTO match_events(match_id,team_id,event_type,points,description) VALUES(?,?,'snitch_caught',150,'داور شکار اسنیچ طلایی را تأیید کرد')").bind(id,teamId)
       ]);
       const finalScores=await env.atramentum_db.prepare("SELECT team_id,score FROM match_team_results WHERE match_id=?").bind(id).all();
@@ -684,8 +733,8 @@ async function handleAdminMatchLive(request, env, matchId) {
   const allowedStatus=["scheduled","live","paused","completed"];
   if (action === "status") {
     if (!allowedStatus.includes(body.status)) return json({success:false,message:"Invalid match status."},400);
-    if (admin.role==="house_admin" && !["live","paused"].includes(body.status))
-      return json({success:false,message:"House administrators may start or pause their team's match, but cannot schedule or finalize it."},403);
+    if (admin.role==="house_admin" && body.status==="scheduled")
+      return json({success:false,message:"House administrators cannot reschedule matches."},403);
     let winner=body.winnerTeamId==null?null:String(body.winnerTeamId);
     if (winner && ![match.home_team_id,match.away_team_id].includes(winner))
       return json({success:false,message:"Winner must be one of the participating teams."},400);
@@ -977,6 +1026,10 @@ export default {
 
       if (path === "/api/admin/logout") {
         return await handleAdminLogout(request, env);
+      }
+
+      if (path === "/api/admin/matches/finish-active") {
+        return await handleFinishActiveMatches(request, env);
       }
 
       if (path === "/api/admin/matches") {
