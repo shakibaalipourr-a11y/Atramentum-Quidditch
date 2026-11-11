@@ -328,8 +328,9 @@ test("stadium is 3D-only with mobile viewport and bounded camera controls", asyn
   assert.doesNotMatch(html, /arena2d|data-view-mode|نمای 2D|drawTacticalMap|mode-2d/);
   assert.match(html, /id="arena3d"/);
   assert.match(html, /controls\.enablePan=false/);
-  assert.match(html, /controls\.minAzimuthAngle/);
-  assert.match(html, /controls\.maxAzimuthAngle/);
+  assert.match(html, /controls\.minAzimuthAngle=-Infinity/);
+  assert.match(html, /controls\.maxAzimuthAngle=Infinity/);
+  assert.match(html, /controls\.enableRotate=true/);
   assert.match(html, /height:100dvh!important/);
   assert.match(html, /#arena3d\{[^}]*height:100%!important/);
   assert.match(html, /\.referee-panel\{position:fixed!important;top:auto!important/);
