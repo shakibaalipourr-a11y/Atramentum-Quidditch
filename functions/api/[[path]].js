@@ -24,7 +24,7 @@ export async function onRequest({ request, env }) {
       const data = await response.clone().json();
       if (data?.success) {
         if (path === "/api/login" && data.session) {
-          cookie = "atr_player_session=" + encodeURIComponent(data.session) + "; Path=/; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax";
+          cookie = "atr_player_session=" + encodeURIComponent(data.session) + "; Path=/; Max-Age=604800; HttpOnly; Secure; SameSite=Lax";
         } else if (path === "/api/admin/login" && data.token) {
           cookie = "atr_admin_session=" + encodeURIComponent(data.token) + "; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Lax";
         }
