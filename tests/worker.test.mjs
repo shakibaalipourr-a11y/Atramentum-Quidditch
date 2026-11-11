@@ -323,14 +323,17 @@ test("profile returns completed-match statistics and history from the database",
   assert.ok(queries.some(sql => sql.includes("m.status = 'completed'")));
 });
 
-test("stadium includes an actual 2D canvas view connected to the 3D match scene", async () => {
+test("stadium is 3D-only with mobile viewport and bounded camera controls", async () => {
   const html = await readFile(new URL("../public/stadium.html", import.meta.url), "utf8");
-  assert.match(html, /<canvas id="arena2d"/);
-  assert.match(html, /data-view-mode="2d"/);
-  assert.match(html, /data-view-mode="3d"/);
-  assert.match(html, /function drawTacticalMap\(/);
-  assert.match(html, /players\.filter\(p=>p\.visible\)/);
-  assert.match(html, /function setViewMode\(/);
+  assert.doesNotMatch(html, /arena2d|data-view-mode|نمای 2D|drawTacticalMap|mode-2d/);
+  assert.match(html, /id="arena3d"/);
+  assert.match(html, /controls\.enablePan=false/);
+  assert.match(html, /controls\.minAzimuthAngle/);
+  assert.match(html, /controls\.maxAzimuthAngle/);
+  assert.match(html, /height:100dvh!important/);
+  assert.match(html, /#arena3d\{[^}]*height:100%!important/);
+  assert.match(html, /\.referee-panel\{position:fixed!important;top:auto!important/);
+  assert.doesNotMatch(html, /#arena3d\{height:58vh/);
 });
 
 test("stadium provides a central-database finish action for house admins and referees", async () => {
