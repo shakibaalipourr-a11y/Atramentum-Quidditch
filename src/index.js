@@ -39,18 +39,20 @@ function createToken() {
     .join("");
 }
 
-function getToken(request) {
+function getToken(request, kind = "player") {
   const authorization = request.headers.get("Authorization") || "";
+  if (authorization.startsWith("Bearer ")) return authorization.slice(7).trim() || null;
 
-  if (!authorization.startsWith("Bearer ")) {
-    return null;
-  }
-
-  return authorization.slice(7).trim();
+  const cookieName = kind === "admin" ? "atr_admin_session" : "atr_player_session";
+  const cookies = request.headers.get("Cookie") || "";
+  const item = cookies.split(";").map(part => part.trim()).find(part => part.startsWith(cookieName + "="));
+  if (!item) return null;
+  try { return decodeURIComponent(item.slice(cookieName.length + 1)) || null; }
+  catch { return null; }
 }
 
 async function getPlayer(request, env) {
-  const token = getToken(request);
+  const token = getToken(request, "player");
 
   if (!token) {
     return null;
@@ -244,7 +246,7 @@ async function handleLogout(request, env) {
     return json({ success: false, message: "Method not allowed" }, 405);
   }
 
-  const token = getToken(request);
+  const token = getToken(request, "player");
 
   if (token) {
     const session = await env.atramentum_db.prepare("SELECT player_id FROM sessions WHERE token = ?").bind(token).first();
@@ -296,6 +298,10 @@ async function handlePresence(request, env) {
 }
 
 async function handleTeams(request, env) {
+  const player = await getPlayer(request, env);
+  const admin = player ? null : await getAdmin(request, env);
+  if (!player && !admin) return json({ success: false, message: "A valid player or administrator session is required." }, 401);
+
   const result = await env.atramentum_db.prepare(`
     SELECT
       t.id,
@@ -319,6 +325,10 @@ async function handleTeams(request, env) {
 }
 
 async function handleLeaderboard(request, env) {
+  const player = await getPlayer(request, env);
+  const admin = player ? null : await getAdmin(request, env);
+  if (!player && !admin) return json({ success: false, message: "A valid player or administrator session is required." }, 401);
+
   const result = await env.atramentum_db.prepare(`
     SELECT
       t.id AS team_id,
@@ -349,6 +359,10 @@ async function handleLeaderboard(request, env) {
 }
 
 async function handleMatches(request, env) {
+  const player = await getPlayer(request, env);
+  const admin = player ? null : await getAdmin(request, env);
+  if (!player && !admin) return json({ success: false, message: "A valid player or administrator session is required." }, 401);
+
   const result = await env.atramentum_db.prepare(`
     SELECT
       m.id,
@@ -425,7 +439,7 @@ async function writeAdminAudit(env, adminId, action, targetUsername, details) {
 }
 
 async function getAdmin(request, env) {
-  const token = getToken(request);
+  const token = getToken(request, "admin");
   if (!token) return null;
   const tokenHash = await sha256(token);
   return await env.atramentum_db.prepare(`
@@ -574,7 +588,7 @@ async function handleAdminMe(request, env) {
 
 async function handleAdminLogout(request, env) {
   if (request.method !== "POST") return json({ success: false, message: "Method not allowed" }, 405);
-  const token = getToken(request);
+  const token = getToken(request, "admin");
   if (token) await env.atramentum_db.prepare("DELETE FROM admin_sessions WHERE token_hash = ?").bind(await sha256(token)).run();
   return json({ success: true, message: "Admin session closed." });
 }
