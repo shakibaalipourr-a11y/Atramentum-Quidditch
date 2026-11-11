@@ -727,16 +727,17 @@ async function handleAdminMatchLive(request, env, matchId) {
   if (!canManageMatch(admin,match)) return json({success:false,message:"This match is outside your team scope."},403);
 
   if (request.method === "GET") {
-    const [state, scores, events, gameState] = await Promise.all([
+    const [state, scores, events, gameState, playersResult] = await Promise.all([
       env.atramentum_db.prepare("SELECT positions_json, balls_json, revision, updated_at FROM match_live_state WHERE match_id=?").bind(id).first(),
       env.atramentum_db.prepare("SELECT team_id,score,result FROM match_team_results WHERE match_id=?").bind(id).all(),
       env.atramentum_db.prepare("SELECT id,player_id,team_id,event_type,points,description,event_time FROM match_events WHERE match_id=? ORDER BY id DESC LIMIT 40").bind(id).all(),
-      env.atramentum_db.prepare("SELECT started_at,elapsed_seconds,clock_running,snitch_caught_by FROM match_game_state WHERE match_id=?").bind(id).first()
+      env.atramentum_db.prepare("SELECT started_at,elapsed_seconds,clock_running,snitch_caught_by FROM match_game_state WHERE match_id=?").bind(id).first(),
+      env.atramentum_db.prepare("SELECT id,name,team_id,player_number,position FROM players WHERE active=1 AND team_id IN (?,?) ORDER BY team_id,player_number").bind(match.home_team_id,match.away_team_id).all()
     ]);
     let positions=[], balls=[];
     try { positions=state?.positions_json?JSON.parse(state.positions_json):[]; } catch {}
     try { balls=state?.balls_json?JSON.parse(state.balls_json):[]; } catch {}
-    return json({success:true,match,positions,balls,revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[],gameState:gameState||{elapsed_seconds:0,clock_running:0,snitch_caught_by:null}});
+    return json({success:true,match,positions,balls,players:playersResult.results||[],revision:state?.revision||0,updatedAt:state?.updated_at||null,scores:scores.results||[],events:events.results||[],gameState:gameState||{elapsed_seconds:0,clock_running:0,snitch_caught_by:null}});
   }
 
   if (request.method !== "POST") return json({success:false,message:"Method not allowed."},405);
@@ -887,6 +888,39 @@ async function handleAdminMatchLive(request, env, matchId) {
     `).bind(id,teamId,score,"Score set by "+admin.username).run();
     await writeAdminAudit(env,admin.id,"match_score_changed",String(id),JSON.stringify({teamId,score}));
     return json({success:true,message:"Score updated."});
+  }
+  if (action === "player_stat") {
+    const playerId=Number(body.playerId);
+    const statType=String(body.statType||"");
+    const statColumns={goal:"goals",assist:"assists",save:"saves",catch:"catches"};
+    if(!Number.isSafeInteger(playerId)||playerId<1||!Object.prototype.hasOwnProperty.call(statColumns,statType))
+      return json({success:false,message:"Choose a valid player and statistic."},400);
+    const player=await env.atramentum_db.prepare(
+      "SELECT id,name,team_id FROM players WHERE id=? AND active=1 AND team_id IN (?,?)"
+    ).bind(playerId,match.home_team_id,match.away_team_id).first();
+    if(!player)return json({success:false,message:"Player is not an active member of either team in this match."},400);
+    if(admin.role==="house_admin"&&player.team_id!==admin.team_id)
+      return json({success:false,message:"You may only record statistics for your own team's players."},403);
+    const defaults={goal:10,assist:0,save:0,catch:150};
+    const points=body.points==null?defaults[statType]:Number(body.points);
+    if(!Number.isSafeInteger(points)||points<0||points>999)
+      return json({success:false,message:"Invalid player points."},400);
+    const column=statColumns[statType];
+    await env.atramentum_db.batch([
+      env.atramentum_db.prepare(`
+        INSERT INTO player_match_stats(match_id,player_id,${column},points)
+        VALUES(?,?,1,?)
+        ON CONFLICT(match_id,player_id) DO UPDATE SET
+          ${column}=player_match_stats.${column}+1,
+          points=player_match_stats.points+excluded.points
+      `).bind(id,playerId,points),
+      env.atramentum_db.prepare(`
+        INSERT INTO match_events(match_id,player_id,team_id,event_type,points,description)
+        VALUES(?,?,?,?,?,?)
+      `).bind(id,playerId,player.team_id,statType,points,player.name+" · آمار فردی ثبت شد")
+    ]);
+    await writeAdminAudit(env,admin.id,"player_stat_recorded",String(id),JSON.stringify({playerId,teamId:player.team_id,statType,points}));
+    return json({success:true,message:"Player statistic recorded.",playerId,teamId:player.team_id,statType,points});
   }
   if (action === "event") {
     const eventType=String(body.eventType||"").trim().slice(0,50);
