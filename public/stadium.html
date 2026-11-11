@@ -1237,7 +1237,7 @@ main.container>.section{padding-top:12px}
       controls.enableDamping=true;controls.dampingFactor=.075;controls.enablePan=false;
       controls.minDistance=isPhone?48:42;controls.maxDistance=isPhone?118:125;
       controls.minPolarAngle=.15;controls.maxPolarAngle=isPhone?1.28:1.38;
-      controls.minAzimuthAngle=isPhone?.55:-Math.PI*.78;controls.maxAzimuthAngle=isPhone?2.6:Math.PI*.78;
+      controls.minAzimuthAngle=-Infinity;controls.maxAzimuthAngle=Infinity;controls.enableRotate=true;
       controls.target.set(0,5,0);controls.update();
       scene.add(new THREE.HemisphereLight(0xe5f5e9,0x273b2e,2.7));
       const moon=new THREE.DirectionalLight(0xffedc7,2.35);moon.position.set(-35,75,25);scene.add(moon);
