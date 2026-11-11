@@ -713,14 +713,19 @@
     .game-clock{font-size:12px;color:#e5c98f;border-right:1px solid rgba(201,169,110,.3);padding-right:12px;min-width:52px;font-variant-numeric:tabular-nums}
     .game-event-feed{position:fixed;z-index:32;right:18px;bottom:18px;display:flex;flex-direction:column;gap:5px;max-width:min(310px,42vw);padding:10px 13px;border:1px solid rgba(201,169,110,.24);border-radius:12px;background:rgba(5,10,8,.76);backdrop-filter:blur(12px);color:#e9dfc9;font-size:9px;pointer-events:none}
     .game-event-feed span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .referee-panel{position:fixed;z-index:36;top:126px;left:18px;width:min(300px,calc(100vw - 36px));padding:12px;border:1px solid rgba(201,169,110,.4);border-radius:13px;background:rgba(5,10,8,.92);backdrop-filter:blur(16px);color:#ead5a6;font-size:10px}
+    .game-event-feed{display:none!important}
+    .referee-toggle{position:fixed;z-index:37;top:76px;right:14px;border:1px solid rgba(201,169,110,.58);border-radius:12px;padding:11px 14px;background:rgba(5,10,8,.94);color:#ead5a6;font:inherit;font-size:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer}
+    .referee-toggle[hidden]{display:none}
+    .referee-panel{position:fixed;z-index:38;top:126px;right:14px;left:auto;width:min(320px,calc(100vw - 28px));max-height:min(65svh,520px);overflow:auto;padding:14px;border:1px solid rgba(201,169,110,.48);border-radius:15px;background:rgba(5,10,8,.97);backdrop-filter:blur(16px);color:#ead5a6;font-size:12px;box-shadow:0 18px 48px rgba(0,0,0,.48)}
     .referee-panel[hidden]{display:none}
-    .referee-panel-title{font-weight:900;margin-bottom:9px}
+    .referee-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .referee-panel-title{font-weight:900;margin:0}
+    #refereeClose{width:32px;height:32px;border:1px solid rgba(201,169,110,.35);border-radius:8px;background:#111a15;color:#ead5a6;font-size:22px;cursor:pointer}
     .referee-panel select{width:100%;padding:7px;margin-bottom:8px;border:1px solid rgba(201,169,110,.25);border-radius:7px;background:#111a15;color:#f1e4c7}
     .referee-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px}
     .referee-buttons button{border:1px solid rgba(201,169,110,.3);border-radius:7px;padding:8px 5px;background:#141b16;color:#ead5a6;font:inherit;font-size:9px;cursor:pointer}
     #refereeFeedback{display:block;margin-top:8px;color:#bcb4a2;line-height:1.8}
-    @media(max-width:700px){.game-clock{font-size:10px;padding-right:7px}.game-event-feed{right:8px;bottom:118px;max-width:48vw;font-size:8px;padding:7px 9px}.referee-panel{top:108px;left:8px;width:min(270px,calc(100vw - 16px));max-height:42svh;overflow:auto}}
+    @media(max-width:700px){.game-clock{font-size:10px;padding-right:7px}.referee-toggle{top:112px;right:10px;padding:9px 11px;font-size:10px}.referee-panel{top:158px;right:10px;left:auto;width:min(300px,calc(100vw - 20px));max-height:58svh}.referee-buttons button{min-height:42px;font-size:11px}}
     /* Final overrides for the immersive, game-like stadium layout */
     html,body{width:100%;height:100%;min-height:100%;overflow:hidden;background:#050807}
     .topbar{position:fixed;top:0;left:0;right:0;height:58px;padding:0 22px;background:linear-gradient(180deg,rgba(3,7,6,.9),rgba(3,7,6,.18));border:0;backdrop-filter:blur(12px);z-index:30}
@@ -881,9 +886,10 @@ main.container>.section{padding-top:12px}
         <div id="arena3d" role="img" aria-label="نمای سه‌بعدی ورزشگاه کوییدیچ آترامنتوم"></div>
         <div class="arena-3d-overlay"><span class="arena-live-dot"></span><span id="arenaLiveLabel">ورزشگاه آترامنتوم · آمادهٔ مسابقه</span><span class="arena-3d-hint">شمارهٔ بازیکن و نقش او روی نشان پیراهن · جای‌گیری با چیدمان زنده</span></div>
         <div class="game-scoreboard"><span class="game-team" id="homeTeamLabel">میزبان</span><span class="game-score" id="gameScore">0 : 0</span><span class="game-team" id="awayTeamLabel">میهمان</span><span class="game-clock" id="gameClock">00:00</span></div>
-        <div class="game-event-feed" id="gameEventFeed"><span>رویدادهای مسابقه در اینجا نمایش داده می‌شوند</span></div><div class="player-key">۱ تا ۳: تعقیب‌کننده · ۴ و ۵: ضربه‌زن · ۶: دروازه‌بان · ۷: جستجوگر</div>
+        <div class="player-key">۱ تا ۳: تعقیب‌کننده · ۴ و ۵: ضربه‌زن · ۶: دروازه‌بان · ۷: جستجوگر</div>
+        <button type="button" class="referee-toggle" id="refereeToggle" hidden aria-expanded="false" aria-controls="refereePanel">⚖️ پنل داوری</button>
         <div class="referee-panel" id="refereePanel" hidden>
-          <div class="referee-panel-title">⚖️ پنل داوری رسمی</div>
+          <div class="referee-panel-head"><div class="referee-panel-title">⚖️ پنل داوری رسمی</div><button type="button" id="refereeClose" aria-label="بستن پنل داوری">×</button></div>
           <select id="refereeTeam"><option value="">انتخاب گروه</option></select>
           <div class="referee-buttons">
             <button data-ref-command="start">شروع / ادامه</button><button data-ref-command="pause">توقف</button>
@@ -1309,7 +1315,11 @@ main.container>.section{padding-top:12px}
         const token=adminToken();if(!token)return;
         try{const r=await fetch("/api/admin/me",{headers:{Authorization:"Bearer "+token},cache:"no-store"});if(!r.ok)return;
           const d=await r.json();currentAdmin=d.admin||null;
-          if(currentAdmin&&["referee","super_admin"].includes(currentAdmin.role))document.getElementById("refereePanel").hidden=false;
+          const allowed=!!currentAdmin&&["referee","super_admin"].includes(currentAdmin.role);
+          const toggle=document.getElementById("refereeToggle"),panel=document.getElementById("refereePanel");
+          toggle.hidden=!allowed;panel.hidden=true;
+          toggle.addEventListener("click",()=>{panel.hidden=!panel.hidden;toggle.setAttribute("aria-expanded",String(!panel.hidden));});
+          document.getElementById("refereeClose").addEventListener("click",()=>{panel.hidden=true;toggle.setAttribute("aria-expanded","false");});
         }catch{}
       }
       function renderClock(){
@@ -1337,16 +1347,20 @@ main.container>.section{padding-top:12px}
           if(!listResponse.ok)return;
           const list=await listResponse.json();
           const matches=list.matches||[];
+          const activeMatches=matches.filter(m=>["live","paused","scheduled"].includes(m.status));
           const picker=document.getElementById("matchPicker");
           const currentChoice=picker.value;
-          if(picker.options.length!==matches.length+1){
+          const signature=activeMatches.map(m=>String(m.id)+":"+m.status).join("|");
+          if(picker.dataset.signature!==signature){
             picker.innerHTML="";
-            matches.forEach(m=>{const option=document.createElement("option");option.value=String(m.id);option.textContent="#"+m.id+" · "+(m.home_name||m.home_team||m.home_team_id)+" × "+(m.away_name||m.away_team||m.away_team_id);picker.appendChild(option)});
+            if(!activeMatches.length){const option=document.createElement("option");option.value="";option.textContent="مسابقهٔ فعالی وجود ندارد";picker.appendChild(option);}
+            activeMatches.forEach(m=>{const option=document.createElement("option");option.value=String(m.id);option.textContent="#"+m.id+" · "+(m.home_name||m.home_team||m.home_team_id)+" × "+(m.away_name||m.away_team||m.away_team_id);picker.appendChild(option)});
+            picker.dataset.signature=signature;
           }
-          let active=matches.find(m=>String(m.id)===currentChoice);
-          if(!active)active=matches.find(m=>m.status==="live"||m.status==="paused")||matches.find(m=>m.status==="scheduled")||matches.find(m=>m.status==="completed");
+          let active=activeMatches.find(m=>String(m.id)===currentChoice);
+          if(!active)active=activeMatches.find(m=>m.status==="live"||m.status==="paused")||activeMatches.find(m=>m.status==="scheduled");
           if(active&&picker.value!==String(active.id))picker.value=String(active.id);
-          if(!active){liveMatchId=null;players.forEach(p=>p.visible=false);referee.visible=false;snitch.visible=false;document.getElementById("homeTeamLabel").textContent="—";document.getElementById("awayTeamLabel").textContent="—";document.getElementById("gameScore").textContent="0 : 0";document.getElementById("gameClock").textContent="00:00";liveLabel.textContent="ورزشگاه آترامنتوم · در انتظار مسابقه";return;}
+          if(!active){liveMatchId=null;liveRevision=-1;players.forEach(p=>p.visible=false);referee.visible=false;snitch.visible=false;currentGameState={elapsed_seconds:0,clock_running:0};document.getElementById("homeTeamLabel").textContent="—";document.getElementById("awayTeamLabel").textContent="—";document.getElementById("gameScore").textContent="— : —";document.getElementById("gameClock").textContent="00:00";liveLabel.textContent="ورزشگاه آترامنتوم · مسابقهٔ فعالی وجود ندارد";return;}
           const matchChanged=String(liveMatchId)!==String(active.id);
           if(matchChanged){liveMatchId=active.id;liveRevision=-1;}
           const response=await fetch("/api/matches/"+liveMatchId+"/live",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
