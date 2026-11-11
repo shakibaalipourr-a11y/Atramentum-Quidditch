@@ -162,12 +162,12 @@ async function handleProfile(request, env) {
       SELECT
         COUNT(DISTINCT m.id) AS matches_played,
         COUNT(DISTINCT CASE WHEN m.winner_team_id = p.team_id THEN m.id END) AS matches_won,
-        COALESCE(SUM(pms.points), 0) AS total_points,
-        COALESCE(SUM(pms.assists + pms.saves + pms.catches), 0) AS special_actions,
-        COALESCE(SUM(pms.goals), 0) AS goals,
-        COALESCE(SUM(pms.assists), 0) AS assists,
-        COALESCE(SUM(pms.saves), 0) AS saves,
-        COALESCE(SUM(pms.catches), 0) AS catches
+        COALESCE(SUM(CASE WHEN m.id IS NOT NULL THEN pms.points ELSE 0 END), 0) AS total_points,
+        COALESCE(SUM(CASE WHEN m.id IS NOT NULL THEN pms.assists + pms.saves + pms.catches ELSE 0 END), 0) AS special_actions,
+        COALESCE(SUM(CASE WHEN m.id IS NOT NULL THEN pms.goals ELSE 0 END), 0) AS goals,
+        COALESCE(SUM(CASE WHEN m.id IS NOT NULL THEN pms.assists ELSE 0 END), 0) AS assists,
+        COALESCE(SUM(CASE WHEN m.id IS NOT NULL THEN pms.saves ELSE 0 END), 0) AS saves,
+        COALESCE(SUM(CASE WHEN m.id IS NOT NULL THEN pms.catches ELSE 0 END), 0) AS catches
       FROM players p
       LEFT JOIN player_match_stats pms ON pms.player_id = p.id
       LEFT JOIN matches m ON m.id = pms.match_id AND m.status = 'completed'
