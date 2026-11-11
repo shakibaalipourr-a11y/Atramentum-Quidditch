@@ -401,6 +401,13 @@
       margin-top: 9px;
     }
 
+    .history-panel.has-history{text-align:right}
+    .profile-match-history{display:grid;gap:10px;margin-top:18px}
+    .profile-history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 14px;align-items:center;padding:14px;border:1px solid var(--border);border-radius:12px;background:rgba(0,0,0,.16)}
+    .profile-history-row strong{font-size:12px;line-height:1.8}
+    .profile-history-row span{color:var(--gold-light);font-weight:900;font-size:17px;direction:ltr}
+    .profile-history-row small{grid-column:1/-1;color:var(--muted);font-size:10px;line-height:1.9}
+    @media(max-width:550px){.profile-history-row{padding:13px}.profile-history-row strong{font-size:11px}.profile-history-row small{font-size:11px}}
     /* Footer */
 
     footer {
@@ -926,11 +933,36 @@
 
       document.getElementById("playerAvatar").innerText = team.emoji;
 
-      // آمار تا زمان اتصال سیستم مسابقات، عمداً عدد ساختگی ندارند.
-      document.getElementById("matchesPlayed").innerText = "—";
-      document.getElementById("matchesWon").innerText = "—";
-      document.getElementById("totalPoints").innerText = "—";
-      document.getElementById("specialActions").innerText = "—";
+      const stats = data.stats || {};
+      document.getElementById("matchesPlayed").innerText = Number(stats.matchesPlayed || 0).toLocaleString("fa-IR");
+      document.getElementById("matchesWon").innerText = Number(stats.matchesWon || 0).toLocaleString("fa-IR");
+      document.getElementById("totalPoints").innerText = Number(stats.totalPoints || 0).toLocaleString("fa-IR");
+      document.getElementById("specialActions").innerText = Number(stats.specialActions || 0).toLocaleString("fa-IR");
+
+      const history = Array.isArray(data.history) ? data.history : [];
+      const historyMessage = document.getElementById("historyMessage");
+      const historyPanel = historyMessage.closest(".history-panel");
+      if (history.length) {
+        historyPanel.classList.add("has-history");
+        historyMessage.textContent = "";
+        const list = document.createElement("div");
+        list.className = "profile-match-history";
+        history.forEach(match => {
+          const row = document.createElement("article");
+          row.className = "profile-history-row";
+          const title = document.createElement("strong");
+          title.textContent = "#" + match.match_id + " · " + match.home_team_name + " × " + match.away_team_name;
+          const score = document.createElement("span");
+          score.textContent = Number(match.home_score || 0) + " : " + Number(match.away_score || 0);
+          const details = document.createElement("small");
+          details.textContent = "گل " + Number(match.goals || 0) + " · پاس گل " + Number(match.assists || 0) + " · مهار " + Number(match.saves || 0) + " · شکار " + Number(match.catches || 0) + " · امتیاز فردی " + Number(match.points || 0);
+          row.append(title, score, details);
+          list.appendChild(row);
+        });
+        historyPanel.appendChild(list);
+      } else {
+        historyMessage.textContent = "هنوز برای این بازیکن در مسابقات پایان‌یافته، آمار ثبت‌شده‌ای وجود ندارد.";
+      }
     }
 
     document.getElementById("logoutButton").addEventListener("click", async function() {
