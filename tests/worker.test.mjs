@@ -351,3 +351,47 @@ test("all stadium DOM targets used by live sync remain present", async () => {
   assert.deepEqual(missing, []);
 });
 
+test("authorized match administrator can record a player's individual statistic", async () => {
+  const state = { batchCount: 0, auditWrites: 0, statSql: "" };
+  const db = {
+    prepare(sql) {
+      return {
+        bind(...values) {
+          return {
+            async first() {
+              if (sql.includes("FROM admin_sessions")) return { id: 3, username: "referee01", role: "referee", team_id: null };
+              if (sql.includes("FROM matches m") && sql.includes("WHERE m.id = ?")) return {
+                id: 21, home_team_id: "slytherin", away_team_id: "gryffindor", status: "live"
+              };
+              if (sql.includes("FROM players WHERE id=?")) return { id: 1, name: "Enzo", team_id: "slytherin" };
+              return null;
+            },
+            async all() { return { results: [] }; },
+            async run() {
+              if (sql.includes("INSERT INTO admin_audit_logs")) state.auditWrites++;
+              return { success: true, meta: { changes: 1 } };
+            }
+          };
+        }
+      };
+    },
+    async batch(statements) {
+      state.batchCount++;
+      state.statSql = statements.map(statement => statement.sql || "").join("\\n");
+      return [];
+    }
+  };
+  const env = { atramentum_db: db };
+  const response = await worker.fetch(new Request("https://atramentum.test/api/admin/matches/21/live", {
+    method: "POST",
+    headers: { Authorization: "Bearer valid-admin", "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "player_stat", playerId: 1, statType: "goal" })
+  }), env);
+  const data = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(data.success, true);
+  assert.equal(data.points, 10);
+  assert.equal(state.batchCount, 1);
+  assert.equal(state.auditWrites, 1);
+});
+
