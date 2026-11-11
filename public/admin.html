@@ -150,6 +150,14 @@
             <div class="full"><label for="matchEventText">شرح رویداد مسابقه</label><input id="matchEventText" maxlength="240" placeholder="مثلاً گل ثبت شد"></div>
             <button type="button" class="btn secondary full" id="saveMatchEvent">ثبت رویداد</button>
           </div>
+          <section class="provision" id="playerStatsTools">
+            <h2>ثبت عملکرد بازیکن</h2>
+            <p class="hint">آمار گل، پاس گل، مهار و شکار برای بازیکنان همین مسابقه ثبت می‌شود و پس از پایان مسابقه در پرونده بازیکن نمایش داده خواهد شد.</p>
+            <label for="statPlayer">بازیکن</label><select id="statPlayer"><option value="">ابتدا مسابقه را انتخاب کن</option></select>
+            <label for="statType">نوع عملکرد</label><select id="statType"><option value="goal">گل (+۱۰ امتیاز فردی)</option><option value="assist">پاس گل</option><option value="save">مهار</option><option value="catch">شکار اسنیچ (+۱۵۰ امتیاز فردی)</option></select>
+            <button type="button" class="btn full" id="recordPlayerStat">ثبت عملکرد بازیکن</button>
+            <div class="message" id="playerStatMessage" role="status"></div>
+          </section>
           <section class="provision" id="formationTools">
             <h2>چیدمان زنده بازیکنان در زمین</h2>
             <p class="hint">یکی از سه آرایش آماده را انتخاب کن تا جای ۱۴ بازیکن روی زمین منتشر شود. این ابزار فعلاً چیدمان را جابه‌جا می‌کند، نه حرکت پیوسته و خودکار بازیکنان را؛ برای حرکت تازه باید چیدمان دیگری منتشر شود. فقط داوران و مدیر کل به این بخش دسترسی دارند.</p>
@@ -290,8 +298,16 @@
     $("homeScoreInput").disabled=isHouse&&currentAdmin.teamId!==m.home_team_id;
     $("awayScoreInput").disabled=isHouse&&currentAdmin.teamId!==m.away_team_id;
     $("saveScores").disabled=$("homeScoreInput").disabled&&$("awayScoreInput").disabled;
-    try{const r=await matchApi(id);const d=await r.json();if(r.ok&&d.success)$("matchRevision").textContent="آخرین به‌روزرسانی وضعیت زمین: "+(d.updatedAt||"هنوز ثبت نشده")+" · نسخه "+d.revision;}
-    catch{}
+    try{
+      const r=await matchApi(id);const d=await r.json();
+      if(r.ok&&d.success){
+        $("matchRevision").textContent="آخرین به‌روزرسانی وضعیت زمین: "+(d.updatedAt||"هنوز ثبت نشده")+" · نسخه "+d.revision;
+        const playerSelect=$("statPlayer");playerSelect.innerHTML="";
+        const allowedPlayers=(d.players||[]).filter(p=>currentAdmin.role!=="house_admin"||p.team_id===currentAdmin.teamId);
+        if(!allowedPlayers.length){playerSelect.add(new Option("بازیکنی برای ثبت آمار در این مسابقه وجود ندارد",""));}
+        allowedPlayers.forEach(p=>playerSelect.add(new Option(p.name+" · #"+p.player_number+" · "+(teamNames[p.team_id]||p.team_id),String(p.id))));
+      }
+    }catch{}
   }
   async function sendMatchAction(body){
     if(!selectedMatch)return;
@@ -300,6 +316,20 @@
     catch{message("matchMessage","ارتباط با سرور برقرار نشد.","error");}
   }
   document.querySelectorAll("[data-match-status]").forEach(button=>button.addEventListener("click",()=>sendMatchAction({action:"status",status:button.dataset.matchStatus})));
+  $("recordPlayerStat").addEventListener("click",async()=>{
+    if(!selectedMatch)return message("playerStatMessage","ابتدا یک مسابقه را انتخاب کن.","error");
+    const playerId=Number($("statPlayer").value),statType=$("statType").value;
+    if(!Number.isSafeInteger(playerId)||playerId<1)return message("playerStatMessage","ابتدا بازیکن را انتخاب کن.","error");
+    const button=$("recordPlayerStat");button.disabled=true;
+    message("playerStatMessage","در حال ثبت آمار بازیکن...");
+    try{
+      const response=await matchApi(selectedMatch.id,{action:"player_stat",playerId,statType});
+      const data=await response.json();
+      if(!response.ok||!data.success){message("playerStatMessage",data.message||"ثبت آمار ناموفق بود.","error");return;}
+      message("playerStatMessage",data.message||"آمار بازیکن ثبت شد.","success");
+    }catch{message("playerStatMessage","ارتباط با سرور برقرار نشد.","error");}
+    finally{button.disabled=false;}
+  });
   $("publishFormation").addEventListener("click",async()=>{
     if(!selectedMatch)return message("formationMessage","ابتدا یک مسابقه را انتخاب کن.","error");
     if(!currentAdmin||!["super_admin","referee"].includes(currentAdmin.role))
