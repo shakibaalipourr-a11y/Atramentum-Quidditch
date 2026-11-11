@@ -343,3 +343,11 @@ test("stadium provides a central-database finish action for house admins and ref
   assert.match(worker, /if \(action === "status"\)/);
 });
 
+test("all stadium DOM targets used by live sync remain present", async () => {
+  const html = await readFile(new URL("../public/stadium.html", import.meta.url), "utf8");
+  const ids = new Set([...html.matchAll(/\\bid=["']([^"']+)["']/g)].map(match => match[1]));
+  const referenced = new Set([...html.matchAll(/getElementById\\(["']([^"']+)["']\\)/g)].map(match => match[1]));
+  const missing = [...referenced].filter(id => !ids.has(id));
+  assert.deepEqual(missing, []);
+});
+
